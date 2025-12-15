@@ -1,9 +1,9 @@
 # Quick Navigation Helper Script
-# Usage: .\quick-nav.ps1 [server|react|root]
+# Usage: .\quick-nav.ps1 [server|client|root]
 
 param(
     [Parameter(Position=0)]
-    [ValidateSet('server', 'react', 'react-app', 'root')]
+    [ValidateSet('server', 'client', 'root')]
     [string]$Target = 'root'
 )
 
@@ -20,24 +20,14 @@ switch ($Target) {
             Write-Host "❌ Server directory not found at: $targetPath" -ForegroundColor Red
         }
     }
-    'react' {
-        $targetPath = Join-Path $rootPath 'react-app'
+    'client' {
+        $targetPath = Join-Path $rootPath 'client'
         if (Test-Path $targetPath) {
             Set-Location $targetPath
-            Write-Host "✅ Navigated to react-app directory" -ForegroundColor Green
+            Write-Host "✅ Navigated to client directory" -ForegroundColor Green
             Write-Host "📁 Current: $(Get-Location)" -ForegroundColor Cyan
         } else {
-            Write-Host "❌ React-app directory not found at: $targetPath" -ForegroundColor Red
-        }
-    }
-    'react-app' {
-        $targetPath = Join-Path $rootPath 'react-app'
-        if (Test-Path $targetPath) {
-            Set-Location $targetPath
-            Write-Host "✅ Navigated to react-app directory" -ForegroundColor Green
-            Write-Host "📁 Current: $(Get-Location)" -ForegroundColor Cyan
-        } else {
-            Write-Host "❌ React-app directory not found at: $targetPath" -ForegroundColor Red
+            Write-Host "❌ Client directory not found at: $targetPath" -ForegroundColor Red
         }
     }
     'root' {
@@ -47,6 +37,6 @@ switch ($Target) {
     }
 }
 
-Write-Host "`n💡 Tip: Use '.\quick-nav.ps1 server' or '.\quick-nav.ps1 react' to navigate quickly" -ForegroundColor Yellow
+Write-Host "`n💡 Tip: Use '.\quick-nav.ps1 server' or '.\quick-nav.ps1 client' to navigate quickly" -ForegroundColor Yellow
 
 

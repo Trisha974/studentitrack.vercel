@@ -2515,7 +2515,7 @@
   .flex.flex-wrap.items-center.gap-2\\.5 button,
   .flex.flex-wrap.items-center.gap-2 button {
     min-width: calc(33.333% - 0.667rem) !important;
-    flex: 1 1 calc(33.333% - 0.667rem) !important;
+    flex: 1 1 calc(33.333% - 0.667rem) !important{}
   }
   
   /* Toggle switch - Enhanced mobile design */

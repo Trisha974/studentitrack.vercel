@@ -13,17 +13,14 @@ const getAllCourses = async (req, res, next) => {
 
 const getCourseByCode = async (req, res, next) => {
   try {
-    // Decode URL-encoded course code (handles spaces like "CCE106 2061")
     let code = req.params.code || req.query.code
     if (!code) {
       return res.status(400).json({ error: 'Course code is required' })
     }
     
-    // Decode URL encoding (handles %20 for spaces, + for spaces in query params)
     if (req.params.code) {
       code = decodeURIComponent(code)
     } else if (req.query.code) {
-      // Query params are automatically decoded by Express, but handle + as space
       code = code.replace(/\+/g, ' ')
     }
     
@@ -67,11 +64,9 @@ const getCoursesByProfessor = async (req, res, next) => {
 
 const createCourse = async (req, res, next) => {
   try {
-    // Ensure professor_id is set to the authenticated professor's ID
     let professorId = req.body.professorId || req.body.professor_id
     
     if (!professorId && isProfessor(req.user.role)) {
-      // Get professor's MySQL ID from Firebase UID
       const professor = await Professor.findByFirebaseUid(req.user.uid)
       if (!professor) {
         return res.status(404).json({ error: 'Professor profile not found. Please complete your profile first.' })
@@ -83,7 +78,6 @@ const createCourse = async (req, res, next) => {
       return res.status(400).json({ error: 'Professor ID is required' })
     }
     
-    // Validate required fields
     if (!req.body.code || !req.body.name) {
       return res.status(400).json({ error: 'Course code and name are required' })
     }

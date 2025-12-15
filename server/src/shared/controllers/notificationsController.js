@@ -12,22 +12,18 @@ const getNotifications = async (req, res, next) => {
     const userEmail = req.user.email
     const userRole = req.user.role
 
-    // Get user's MySQL ID with fallback logic
     let userMySQLId = null
     let userType = null
 
     if (userRole === 'Student') {
-      // Try Firebase UID first
       let student = await Student.findByFirebaseUid(userId)
       console.log(`🔍 Student lookup by Firebase UID ${userId}:`, student ? `Found (MySQL ID: ${student.id})` : 'Not found')
       
-      // Fallback: Try email if UID lookup fails
       if (!student && userEmail) {
         student = await Student.findByEmail(userEmail)
         console.log(`📧 Student lookup by email ${userEmail}:`, student ? `Found (MySQL ID: ${student.id})` : 'Not found')
       }
       
-      // Fallback: Try extracting student ID from email (e.g., t.talamillo.141715.tc@umindanao.edu.ph -> 141715)
       if (!student && userEmail) {
         const emailMatch = userEmail.match(/\.(\d+)\.tc@umindanao\.edu\.ph/)
         if (emailMatch && emailMatch[1]) {
@@ -43,7 +39,6 @@ const getNotifications = async (req, res, next) => {
           email: userEmail,
           role: userRole
         })
-        // Return empty array instead of error to prevent frontend crashes
         console.warn('⚠️ Returning empty array because student profile not found')
         return res.json([])
       }
@@ -59,7 +54,6 @@ const getNotifications = async (req, res, next) => {
         firebase_uid: student.firebase_uid
       })
       
-      // CRITICAL: Verify student.id is a number
       if (typeof userMySQLId !== 'number') {
         console.error(`❌ Student MySQL ID is not a number! Type: ${typeof userMySQLId}, Value: ${userMySQLId}`)
         console.error('❌ This will cause query to fail. Converting to number...')
@@ -71,7 +65,6 @@ const getNotifications = async (req, res, next) => {
         console.log(`✅ Converted student MySQL ID to number: ${userMySQLId}`)
       }
       
-      // CRITICAL: Verify userType is correct
       console.log(`📬 Using userType: "${userType}" (type: ${typeof userType})`)
     } else if (userRole === 'Professor') {
       const professor = await Professor.findByFirebaseUid(userId)
@@ -89,10 +82,8 @@ const getNotifications = async (req, res, next) => {
     const offset = parseInt(req.query.offset) || 0
     const unreadOnly = req.query.unreadOnly === 'true'
 
-    // Debug: Check if there are any notifications at all for this user_id (wrapped in try-catch)
     try {
       const pool = require('../config/database')
-      // Check all notifications for this user_id
       const [debugRows] = await pool.execute(
         'SELECT id, user_id, user_type, title, created_at FROM notifications WHERE user_id = ?',
         [userMySQLId]

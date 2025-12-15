@@ -80,7 +80,6 @@ const createProfessor = async (req, res, next) => {
 
     console.log('📋 Parsed data:', { firebaseUid, email, name, hasDepartment: !!req.body.department })
 
-    // Validate required fields
     if (!name || name.length === 0) {
       console.error('❌ Missing name')
       return res.status(400).json({ error: 'Name is required' })

@@ -5,9 +5,8 @@ This is the React version of the Student iTrack Smart Academic Monitoring System
 ## Project Structure
 
 ```
-react-app/
+client/
 ├── public/
-│   ├── index.html
 │   └── assets/
 │       ├── icons/
 │       ├── images/
@@ -43,9 +42,9 @@ react-app/
 
 ## Installation
 
-1. Navigate to the react-app directory:
+1. Navigate to the client directory:
 ```bash
-cd react-app
+cd client
 ```
 
 2. Install dependencies:

@@ -72,7 +72,6 @@ export async function setProfessor(uid, profile) {
     throw new Error('Firebase UID is required')
   }
 
-  // Ensure required fields are present
   if (!profile.name || !profile.name.trim()) {
     throw new Error('Name is required')
   }
@@ -83,7 +82,6 @@ export async function setProfessor(uid, profile) {
   let professor = await getProfessorByFirebaseUid(uid).catch(() => null)
 
   if (professor && professor.id && !isNaN(professor.id)) {
-    // Update existing professor - only send fields that should be updated
     const updateData = {
       name: profile.name?.trim(),
       email: profile.email?.trim(),
@@ -91,21 +89,18 @@ export async function setProfessor(uid, profile) {
       photoUrl: profile.photoUrl || profile.photo_url || profile.photoURL || null
     }
 
-    // Remove undefined and empty string fields (but keep null for department/photoUrl)
     Object.keys(updateData).forEach(key => {
       if (updateData[key] === undefined || (key !== 'department' && key !== 'photoUrl' && updateData[key] === '')) {
         delete updateData[key]
       }
     })
 
-    // Ensure at least name and email are present for update
     if (!updateData.name || !updateData.email) {
       throw new Error('Name and email are required for profile update')
     }
 
     return updateProfessor(professor.id, updateData)
   } else {
-    // Create new professor
     const createData = {
       name: profile.name?.trim(),
       email: profile.email?.trim(),
@@ -114,7 +109,6 @@ export async function setProfessor(uid, profile) {
       firebase_uid: uid
     }
 
-    // Validate required fields for creation
     if (!createData.name || !createData.email) {
       throw new Error('Name and email are required to create professor profile')
     }

@@ -1,5 +1,4 @@
-﻿// API service for courses - replaces Firestore calls
-import apiClient from './apiClient'
+﻿import apiClient from './apiClient'
 
 export async function getCourseById(id) {
   try {
@@ -15,11 +14,9 @@ export async function getCourseById(id) {
 
 export async function getCourseByCode(code, professorId = null) {
   try {
-    // Encode the code for the URL path (handles spaces)
     const encodedCode = encodeURIComponent(code)
     let url = `/courses/code/${encodedCode}`
     
-    // Add professorId as query parameter if provided
     if (professorId) {
       url += `?professorId=${professorId}`
     }
@@ -49,7 +46,6 @@ export async function createCourse(data) {
 }
 
 export async function updateCourse(id, data) {
-  // Only send fields that are provided (for partial updates)
   const updateData = {}
   if (data.code !== undefined) updateData.code = data.code
   if (data.name !== undefined) updateData.name = data.name

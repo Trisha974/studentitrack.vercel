@@ -1,4 +1,4 @@
-﻿ import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+ import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import './Prof.css'
 import { onAuthStateChanged as watchAuthState, signOutUser } from '../../firebase'

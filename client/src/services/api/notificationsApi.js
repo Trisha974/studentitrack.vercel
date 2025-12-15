@@ -1,5 +1,4 @@
-﻿// API service for notifications
-import apiClient from './apiClient'
+﻿import apiClient from './apiClient'
 
 /**
  * Get all notifications for the authenticated user

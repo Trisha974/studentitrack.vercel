@@ -1,10 +1,6 @@
-﻿// API Client for Express.js backend
-// Replaces direct Firestore calls for heavy data operations
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+﻿const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 const CSRF_TOKEN = import.meta.env.VITE_CSRF_TOKEN
 
-// Get auth token from Firebase
 async function getAuthToken() {
   try {
     const { auth } = await import('../../firebase')
@@ -19,20 +15,15 @@ async function getAuthToken() {
   }
 }
 
-// Make authenticated API request
 async function apiRequest(endpoint, options = {}) {
-  // Create AbortController if signal is provided, otherwise create a new one
   const abortController = options.signal ? null : new AbortController()
   const signal = options.signal || abortController.signal
   
   try {
-    // Get auth token (may fail for registration, but that's handled by verifyTokenOnly middleware)
     let token = null
     try {
       token = await getAuthToken()
     } catch (authError) {
-      // For registration endpoints, token might not be available yet
-      // The backend verifyTokenOnly middleware will handle this
       console.warn('No auth token available, proceeding without Authorization header')
     }
     
@@ -41,12 +32,10 @@ async function apiRequest(endpoint, options = {}) {
       ...options.headers
     }
     
-    // Add auth token if available
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
     }
     
-    // Add CSRF token if configured (registration endpoints are excluded from CSRF check)
     if (CSRF_TOKEN) {
       headers['x-csrf-token'] = CSRF_TOKEN
     }
@@ -54,14 +43,13 @@ async function apiRequest(endpoint, options = {}) {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers,
-      signal // Add abort signal to fetch request
+      signal
     })
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: 'Unknown error' }))
       let errorMessage = error.error || error.message || `HTTP ${response.status}`
       
-      // Include validation errors if present
       if (error.errors && Array.isArray(error.errors)) {
         const validationErrors = error.errors.map(e => `${e.param || e.field}: ${e.msg || e.message}`).join(', ')
         if (validationErrors) {
@@ -69,7 +57,6 @@ async function apiRequest(endpoint, options = {}) {
         }
       }
       
-      // Include status code in error message for better debugging
       if (response.status === 500) {
         throw new Error(`Server error (500): ${errorMessage}. Please check the backend logs.`)
       } else if (response.status === 403) {
@@ -85,13 +72,11 @@ async function apiRequest(endpoint, options = {}) {
 
     return response.json()
   } catch (error) {
-    // Handle aborted requests (cancelled)
     if (error.name === 'AbortError') {
       console.log('⏸️ Request cancelled:', endpoint)
       throw new Error('Request was cancelled')
     }
     
-    // Handle network errors (Failed to fetch, connection refused, etc.)
     if (error.message === 'Failed to fetch' || error.name === 'TypeError' || error.message.includes('fetch')) {
       const apiUrl = `${API_BASE_URL}${endpoint}`
       console.error('❌ Network error connecting to:', apiUrl)
@@ -105,17 +90,14 @@ async function apiRequest(endpoint, options = {}) {
       })
       throw new Error(`Cannot connect to server at ${apiUrl}. Please ensure the backend server is running on ${API_BASE_URL.replace('/api', '')}`)
     }
-    // Re-throw other errors as-is
     throw error
   }
 }
 
-// GET request
 export async function apiGet(endpoint) {
   return apiRequest(endpoint, { method: 'GET' })
 }
 
-// POST request
 export async function apiPost(endpoint, data) {
   return apiRequest(endpoint, {
     method: 'POST',
@@ -123,7 +105,6 @@ export async function apiPost(endpoint, data) {
   })
 }
 
-// PUT request
 export async function apiPut(endpoint, data) {
   return apiRequest(endpoint, {
     method: 'PUT',
@@ -131,7 +112,6 @@ export async function apiPut(endpoint, data) {
   })
 }
 
-// DELETE request
 export async function apiDelete(endpoint) {
   return apiRequest(endpoint, { method: 'DELETE' })
 }

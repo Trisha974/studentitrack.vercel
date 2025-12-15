@@ -1,14 +1,12 @@
-/* ============================================================================
-   CSS VARIABLES - Design Tokens
-   ============================================================================ */
+
 :root {
-  /* University Brand Colors */
+
   --color-primary: #7A1315;
   --color-primary-dark: #5e0e10;
   --color-secondary: #FDB813;
   --color-secondary-light: #ffcc33;
   
-  /* Neutral Colors */
+
   --color-white: #ffffff;
   --color-black: #000000;
   --color-gray-100: #f1f1f1;
@@ -21,47 +19,45 @@
   --color-gray-800: #2c2c2c;
   --color-gray-900: #1a1a1a;
   
-  /* Dark Mode Colors */
+ 
   --color-dark-bg: rgba(30, 30, 30, 0.95);
   --color-dark-header: rgba(25, 25, 25, 0.9);
   --color-dark-overlay: rgba(0, 0, 0, 0.85);
   --color-dark-input-bg: #2c2c2c;
   
-  /* Light Mode Colors */
+  
   --color-light-card: rgba(255, 255, 255, 0.92);
   --color-light-header: rgba(255, 255, 255, 0.9);
   --color-light-overlay: rgba(255, 255, 255, 0.75);
   
-  /* Transitions */
+ 
   --transition-fast: 0.2s;
   --transition-normal: 0.3s;
   --transition-slow: 0.6s;
   --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
   
-  /* Shadows */
+
   --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 16px rgba(122, 19, 21, 0.35);
   --shadow-xl: 0 15px 35px rgba(0, 0, 0, 0.12);
   --shadow-dark: 0 0 12px rgba(253, 184, 19, 0.6);
   
-  /* Spacing */
+  
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   
-  /* Border Radius */
+ 
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 1rem;
   --radius-full: 999px;
 }
 
-/* ============================================================================
-   BASE STYLES
-   ============================================================================ */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
 body {
@@ -70,7 +66,6 @@ body {
               color var(--transition-slow) var(--transition-easing);
 }
 
-/* Center login layout */
 .authentication-container {
   position: relative;
   z-index: 10;
@@ -81,9 +76,7 @@ body {
   padding: 6rem 1rem 3rem;
 }
 
-/* ============================================================================
-   SMOOTH TRANSITIONS
-   ============================================================================ */
+
 .authentication-card,
 .application-header,
 .form-input-field,
@@ -102,9 +95,6 @@ body {
               opacity var(--transition-slow) var(--transition-easing);
 }
 
-/* ============================================================================
-   UNIVERSITY COLOR SCHEME
-   ============================================================================ */
 .university-primary-color {
   color: var(--color-primary) !important;
 }
@@ -113,9 +103,6 @@ body {
   color: var(--color-secondary);
 }
 
-/* ============================================================================
-   BUTTON STYLES
-   ============================================================================ */
 .primary-action-button {
   font-weight: 600;
   letter-spacing: 0.025em;
@@ -174,9 +161,7 @@ body {
   border-color: var(--color-secondary-light) !important;
 }
 
-/* ============================================================================
-   AUTHENTICATION CARD
-   ============================================================================ */
+
 .authentication-card {
   background: var(--color-light-card);
   backdrop-filter: blur(10px);
@@ -196,9 +181,7 @@ body {
   }
 }
 
-/* ============================================================================
-   BACKGROUND STYLES
-   ============================================================================ */
+
 .application-background {
   background: url("/assets/images/um students.jpg") no-repeat center center fixed;
   background-size: cover;
@@ -246,18 +229,13 @@ body {
   }
 }
 
-/* ============================================================================
-   APPLICATION HEADER
-   ============================================================================ */
 .application-header {
   background: var(--color-light-header);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* ============================================================================
-   FORM ELEMENTS
-   ============================================================================ */
+
 .form-input-field {
   border: 1px solid var(--color-gray-300);
   color: var(--color-black) !important;
@@ -302,9 +280,7 @@ select.form-select-field,
   text-align: left;
 }
 
-/* ============================================================================
-   PASSWORD INPUT
-   ============================================================================ */
+
 .password-input-container {
   position: relative;
 }
@@ -327,9 +303,6 @@ select.form-select-field,
   color: var(--color-primary);
 }
 
-/* ============================================================================
-   DARK MODE STYLES
-   ============================================================================ */
 .dark-mode .application-background::after {
   background: var(--color-dark-overlay) !important;
   backdrop-filter: blur(4px);
@@ -393,7 +366,7 @@ select.form-select-field,
   color: var(--color-gray-200) !important;
 }
 
-/* Ensure labels are black in light mode */
+
 .form-label.text-gray-800:not(.dark-mode),
 .selection-label.text-gray-800:not(.dark-mode),
 label.text-gray-800:not(.dark-mode) {
@@ -471,9 +444,7 @@ label.text-gray-800:not(.dark-mode) {
   color: #7A1315 !important;
 }
 
-/* ============================================================================
-   PASSWORD RECOVERY LINK
-   ============================================================================ */
+
 .password-recovery-link {
   color: var(--color-primary);
   text-align: right;
@@ -481,16 +452,11 @@ label.text-gray-800:not(.dark-mode) {
   margin-top: var(--spacing-xs);
 }
 
-/* ============================================================================
-   SYSTEM SUBTITLE
-   ============================================================================ */
+
 .system-subtitle {
   color: var(--color-black) !important;
 }
 
-/* ============================================================================
-   DARK MODE TRANSITION ANIMATION
-   ============================================================================ */
 .dark-mode-transition {
   animation: darkGlow 1s ease-in-out;
 }
@@ -504,9 +470,6 @@ label.text-gray-800:not(.dark-mode) {
   }
 }
 
-/* ============================================================================
-   THEME TOGGLE BUTTON
-   ============================================================================ */
 .theme-toggle-button {
   position: fixed;
   bottom: 20px;
@@ -542,9 +505,6 @@ label.text-gray-800:not(.dark-mode) {
   display: block;
 }
 
-/* ============================================================================
-   PASSWORD STRENGTH INDICATOR
-   ============================================================================ */
 .password-strength {
   height: 4px;
   border-radius: 2px;
@@ -572,9 +532,6 @@ label.text-gray-800:not(.dark-mode) {
   width: 100%;
 }
 
-/* ============================================================================
-   ACCESSIBILITY IMPROVEMENTS
-   ============================================================================ */
 .primary-action-button:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
@@ -589,9 +546,6 @@ label.text-gray-800:not(.dark-mode) {
   outline: 2px solid var(--color-secondary);
 }
 
-/* ============================================================================
-   SUBMIT BUTTON IMPROVEMENTS
-   ============================================================================ */
 .authentication-submit-button,
 .registration-submit-button {
   width: 100%;
@@ -600,9 +554,6 @@ label.text-gray-800:not(.dark-mode) {
   display: block;
 }
 
-/* ============================================================================
-   CONSISTENT PLACEHOLDER STYLING
-   ============================================================================ */
 .form-input-field.professor-field:focus,
 .form-input-field.student-field:focus,
 .form-select-field.professor-field:focus,
@@ -619,9 +570,6 @@ label.text-gray-800:not(.dark-mode) {
   box-shadow: 0 0 0 3px rgba(122, 19, 21, 0.35);
 }
 
-/* ============================================================================
-   FORM OPTIONS CONTAINER
-   ============================================================================ */
 .form-options-container {
   display: flex;
   justify-content: space-between;
@@ -639,9 +587,6 @@ label.text-gray-800:not(.dark-mode) {
   font-size: 0.875rem;
 }
 
-/* ============================================================================
-   AUTH SWITCH LINK
-   ============================================================================ */
 .auth-switch-link {
   text-align: center;
   margin-top: var(--spacing-lg);
@@ -689,9 +634,6 @@ label.text-gray-800:not(.dark-mode) {
   border-color: rgba(253, 184, 19, 0.3);
 }
 
-/* ============================================================================
-   TERMS AND CONDITIONS MODAL
-   ============================================================================ */
 .terms-link {
   cursor: pointer;
   transition: color var(--transition-fast) ease;
@@ -701,7 +643,6 @@ label.text-gray-800:not(.dark-mode) {
   text-decoration: underline;
 }
 
-/* Terms and Conditions Error Message */
 .terms-error-message {
   background-color: #fee2e2;
   border: 2px solid #ef4444;
@@ -796,7 +737,7 @@ label.text-gray-800:not(.dark-mode) {
   max-width: 720px;
   width: 100%;
   max-height: 85vh;
-  overflow: hidden; /* keep header/footer visible and let inner content scroll */
+  overflow: hidden; 
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -933,14 +874,13 @@ label.text-gray-800:not(.dark-mode) {
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   display: flex;
   justify-content: center;
-  flex-shrink: 0; /* prevent footer from being cut off when content scrolls */
+  flex-shrink: 0; 
 }
 
 .terms-accept-button {
   min-width: 200px;
 }
 
-/* Dark Mode Styles for Terms Modal */
 .dark-mode .terms-modal-container {
   background: var(--color-dark-bg);
   color: var(--color-gray-100);
@@ -1006,7 +946,6 @@ label.text-gray-800:not(.dark-mode) {
   color: var(--color-gray-200) !important;
 }
 
-/* Scrollbar Styling for Terms Modal */
 .terms-modal-content::-webkit-scrollbar {
   width: 8px;
 }
@@ -1037,21 +976,10 @@ label.text-gray-800:not(.dark-mode) {
   background: var(--color-gray-500);
 }
 
-/* ============================================================================
-   UTILITY CLASSES
-   ============================================================================ */
 .hidden {
   display: none;
 }
 
-/* ============================================================================
-   RESPONSIVE DESIGN
-   ============================================================================ */
-/* ============================================================================
-   RESPONSIVE DESIGN - MOBILE AND TABLET
-   ============================================================================ */
-
-/* Mobile devices (up to 640px) */
 @media (max-width: 640px) {
   .authentication-container {
     padding: 1rem 0.75rem;
@@ -1242,7 +1170,6 @@ label.text-gray-800:not(.dark-mode) {
     line-height: 1.2;
   }
 
-  /* Override generic mobile modal styles for Terms modal to keep it fully visible */
   .terms-modal {
     align-items: flex-start;
     justify-content: center;
@@ -1300,7 +1227,6 @@ label.text-gray-800:not(.dark-mode) {
   }
 }
 
-/* Tablet devices (641px to 1024px) */
 @media (min-width: 641px) and (max-width: 1024px) {
   .authentication-container {
     padding: 2rem 1.5rem;
@@ -1333,7 +1259,6 @@ label.text-gray-800:not(.dark-mode) {
   }
 }
 
-/* iPhone SE and small mobile devices (up to 480px) */
 @media (max-width: 480px) {
   .authentication-container {
     padding: 0.5rem 0.875rem !important;
@@ -1881,11 +1806,6 @@ label.text-gray-800:not(.dark-mode) {
   }
 }
 
-/* ============================================================================
-   FINAL LAYOUT OVERRIDES FOR LOGIN CARD
-   These rules ensure consistent centering and spacing on all devices.
-   ============================================================================ */
-
 .authentication-container {
   position: relative;
   z-index: 10;
@@ -1935,7 +1855,7 @@ label.text-gray-800:not(.dark-mode) {
 @media (max-width: 640px) {
   .terms-modal-container {
     max-width: 95%;
-    max-height: 80vh; /* slightly smaller so header + footer stay in view */
+    max-height: 80vh;
     margin: 0.5rem;
     border-radius: 0.75rem;
   }

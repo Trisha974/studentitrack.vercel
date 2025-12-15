@@ -27,7 +27,7 @@ const requiredEnvVars = [
 const missingVars = requiredEnvVars.filter(key => !import.meta.env[key])
 if (missingVars.length > 0) {
   console.error('❌ Missing Firebase environment variables:', missingVars.join(', '))
-  console.error('💡 Please check your .env file in react-app/ directory')
+  console.error('💡 Please check your .env file in client/ directory')
 }
 
 let app

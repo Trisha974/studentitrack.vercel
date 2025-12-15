@@ -1,6 +1,5 @@
 ﻿const { body, param, query, validationResult } = require('express-validator')
 
-// Validation error handler
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
@@ -9,7 +8,6 @@ const handleValidationErrors = (req, res, next) => {
   next()
 }
 
-// Student validations
 const validateStudent = [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Valid email is required'),
@@ -23,7 +21,6 @@ const validateStudentId = [
   handleValidationErrors
 ]
 
-// Professor validations
 const validateProfessor = [
   body('name').optional({ checkFalsy: true }).trim().notEmpty().withMessage('Name cannot be empty if provided'),
   body('email').optional({ checkFalsy: true }).isEmail().withMessage('Valid email is required if provided'),
@@ -33,7 +30,6 @@ const validateProfessor = [
   handleValidationErrors
 ]
 
-// Course validations (for creation - all fields required)
 const validateCourse = [
   body('code').trim().notEmpty().withMessage('Course code is required'),
   body('name').trim().notEmpty().withMessage('Course name is required'),
@@ -43,7 +39,6 @@ const validateCourse = [
   handleValidationErrors
 ]
 
-// Course update validations (for updates - all fields optional)
 const validateCourseUpdate = [
   body('code').optional().trim().notEmpty().withMessage('Course code cannot be empty if provided'),
   body('name').optional().trim().notEmpty().withMessage('Course name cannot be empty if provided'),
@@ -58,14 +53,12 @@ const validateCourseId = [
   handleValidationErrors
 ]
 
-// Enrollment validations
 const validateEnrollment = [
   body('studentId').isInt().withMessage('Valid student ID is required'),
   body('courseId').isInt().withMessage('Valid course ID is required'),
   handleValidationErrors
 ]
 
-// Grade validations
 const validateGrade = [
   body('studentId').isInt().withMessage('Valid student ID is required'),
   body('courseId').isInt().withMessage('Valid course ID is required'),
@@ -77,7 +70,6 @@ const validateGrade = [
   handleValidationErrors
 ]
 
-// Attendance validations
 const validateAttendance = [
   body('studentId').isInt().withMessage('Valid student ID is required'),
   body('courseId').isInt().withMessage('Valid course ID is required'),

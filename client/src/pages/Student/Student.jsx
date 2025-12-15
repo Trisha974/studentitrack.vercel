@@ -9,9 +9,6 @@ import { getNotifications, subscribeToNotifications, getUnreadCount, markAsRead,
 import { getCourseById } from '../../services/courses'
 import { useTheme } from '../../hooks/useTheme'
 
-// Import the original Student.js data and functions
-// For now, we'll recreate the essential functionality
-
 const defaultData = {
   id: "default",
   name: "Student",
@@ -20,7 +17,7 @@ const defaultData = {
   examTotal: 0,
   attRate: 0,
   avgGrade: 0,
-  firstTerm: [], // Empty array - will be populated from MySQL when student is enrolled
+  firstTerm: [],
   secondTerm: [],
   notifs: []
 }
@@ -32,22 +29,20 @@ function Student() {
   const [currentSort, setCurrentSort] = useState('none')
   const [showModal, setShowModal] = useState(false)
   const [selectedSubject, setSelectedSubject] = useState(null)
-  // Search and pagination states
   const [searchQuery, setSearchQuery] = useState('')
-  const [filterTerm, setFilterTerm] = useState('all') // 'all', 'first', 'second', 'archived'
-  const [sortBy, setSortBy] = useState('name') // 'name', 'grade', 'attendance', 'code'
-  const [sortOrder, setSortOrder] = useState('asc') // 'asc', 'desc'
+  const [filterTerm, setFilterTerm] = useState('all')
+  const [sortBy, setSortBy] = useState('name')
+  const [sortOrder, setSortOrder] = useState('asc')
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(12) // Show 12 subjects per page
-  const [showArchived, setShowArchived] = useState(false) // Toggle to show/hide archived subjects
-  // Modal exam/grades states
-  const [examViewMode, setExamViewMode] = useState('all') // 'all', 'quiz', 'exam', 'lab', 'assignment'
+  const [itemsPerPage, setItemsPerPage] = useState(12)
+  const [showArchived, setShowArchived] = useState(false)
+  const [examViewMode, setExamViewMode] = useState('all')
   const [examSearchQuery, setExamSearchQuery] = useState('')
-  const [examSortBy, setExamSortBy] = useState('date') // 'date', 'name', 'score', 'type'
-  const [examSortOrder, setExamSortOrder] = useState('desc') // 'asc', 'desc'
+  const [examSortBy, setExamSortBy] = useState('date')
+  const [examSortOrder, setExamSortOrder] = useState('desc')
   const [examPage, setExamPage] = useState(1)
-  const [examItemsPerPage] = useState(5) // Show 5 exams per page
-  const [expandedExamTypes, setExpandedExamTypes] = useState({}) // Track which exam type groups are expanded
+  const [examItemsPerPage] = useState(5)
+  const [expandedExamTypes, setExpandedExamTypes] = useState({})
   const [showNotifDropdown, setShowNotifDropdown] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
@@ -61,12 +56,11 @@ function Student() {
   const [notifications, setNotifications] = useState([])
   const [profileSaveSuccess, setProfileSaveSuccess] = useState(false)
   const [profileSaveError, setProfileSaveError] = useState('')
-  const [profileSection, setProfileSection] = useState('account') // 'account', 'appearance'
+  const [profileSection, setProfileSection] = useState('account')
   const realtimeUnsubscribeRef = useRef(null)
   const previousDataRef = useRef(null)
   const originalStudentPicRef = useRef(null)
   
-  // Data from MySQL API
   const [studentMySQLId, setStudentMySQLId] = useState(null)
   const [enrollments, setEnrollments] = useState([])
   const [courses, setCourses] = useState([])
@@ -78,16 +72,13 @@ function Student() {
   const notificationsUnsubscribeRef = useRef(null)
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0)
 
-  // System-wide theme management
   const { isDarkMode, toggleTheme } = useTheme()
   const [showLogoutModal, setShowLogoutModal] = useState(false)
 
-  // Prevent back navigation to login page
   useEffect(() => {
     const handlePopState = (event) => {
       const currentUser = sessionStorage.getItem('currentUser')
       if (currentUser && window.location.pathname === '/login') {
-        // Prevent going back to login if logged in
         event.preventDefault()
         window.history.pushState(null, '', '/student')
         navigate('/student', { replace: true })
@@ -96,7 +87,6 @@ function Student() {
 
     window.addEventListener('popstate', handlePopState)
     
-    // Push a state to prevent back navigation
     window.history.pushState(null, '', window.location.pathname)
 
     return () => {

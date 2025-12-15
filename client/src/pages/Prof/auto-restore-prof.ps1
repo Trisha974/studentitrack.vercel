@@ -1,5 +1,3 @@
-# Auto-restore Prof.jsx if it gets cleared
-# Run this script in the background to monitor and restore the file
 
 $backupPath = Join-Path $PSScriptRoot "Prof.jsx.backup"
 $targetPath = Join-Path $PSScriptRoot "Prof.jsx"

@@ -1,6 +1,4 @@
-﻿// Service helpers for managing courses (subjects)
-// Now uses Express.js + MySQL backend via API
-import * as coursesApi from './api/coursesApi'
+﻿import * as coursesApi from './api/coursesApi'
 
 /**
  * Creates a new course

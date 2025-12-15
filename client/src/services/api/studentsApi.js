@@ -90,7 +90,6 @@ export async function setStudent(uid, profile) {
   let student = await getStudentByFirebaseUid(uid).catch(() => null)
 
   if (student && student.id) {
-    // Update existing student - only send fields that should be updated
     if (!student.id || isNaN(student.id)) {
       throw new Error('Invalid student ID. Please refresh the page and try again.')
     }
@@ -103,7 +102,6 @@ export async function setStudent(uid, profile) {
       photoUrl: profile.photoURL || profile.photoUrl || profile.photo_url
     }
 
-    // Remove undefined fields
     Object.keys(updateData).forEach(key => {
       if (updateData[key] === undefined) {
         delete updateData[key]
@@ -112,7 +110,6 @@ export async function setStudent(uid, profile) {
 
     return updateStudent(student.id, updateData)
   } else {
-    // Create new student
     return createStudent({
       name: profile.name,
       email: profile.email,

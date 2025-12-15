@@ -5,8 +5,6 @@ require('dotenv').config()
 const app = express()
 const PORT = process.env.PORT || 5000
 
-// Middleware
-// CORS configuration - allow multiple origins for development
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5177'
 const allowedOrigins = [
   FRONTEND_URL,
@@ -27,7 +25,6 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) {
       console.log('✅ CORS: Allowing request with no origin')
       return callback(null, true)
@@ -39,7 +36,6 @@ app.use(cors({
     } else {
       console.warn(`⚠️ CORS blocked origin: ${origin}`)
       console.warn(`⚠️ Allowed origins: ${allowedOrigins.join(', ')}`)
-      // In development, allow all localhost origins to prevent connection issues
       if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
         console.log(`✅ CORS: Allowing localhost origin in development: ${origin}`)
         callback(null, true)
@@ -50,29 +46,23 @@ app.use(cors({
   },
   credentials: true
 }))
-// Increase body size limit to handle large profile pictures (data URLs can be large)
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 
-// Basic CSRF protection for state-changing requests using a shared secret header
 const CSRF_SECRET = process.env.CSRF_SECRET
 const CSRF_HEADER_NAME = 'x-csrf-token'
 
-// Public endpoints that don't require CSRF (registration endpoints)
 const PUBLIC_ENDPOINTS = [
-  '/api/students',      // POST /api/students (registration)
-  '/api/professors',    // POST /api/professors (registration)
+  '/api/students',
+  '/api/professors',
 ]
 
 app.use((req, res, next) => {
-  // Only protect unsafe HTTP methods
   const unsafeMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
   if (!unsafeMethods.includes(req.method)) {
     return next()
   }
 
-  // Skip CSRF for public registration endpoints
-  // Check if the request path matches registration endpoints (exact match or starts with)
   const isRegistrationEndpoint = PUBLIC_ENDPOINTS.some(endpoint => 
     req.path === endpoint || req.path.startsWith(endpoint + '/')
   )
@@ -81,7 +71,6 @@ app.use((req, res, next) => {
     return next()
   }
 
-  // If no CSRF secret is configured, skip validation (development convenience)
   if (!CSRF_SECRET) {
     return next()
   }
@@ -95,7 +84,6 @@ app.use((req, res, next) => {
   return next()
 })
 
-// Routes
 app.use('/api/students', require('./student/routes/students'))
 app.use('/api/professors', require('./professor/routes/professors'))
 app.use('/api/courses', require('./professor/routes/courses'))
@@ -105,22 +93,18 @@ app.use('/api/attendance', require('./professor/routes/attendance'))
 app.use('/api/notifications', require('./shared/routes/notifications'))
 app.use('/api/reports', require('./professor/routes/reports'))
 
-// Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' })
 })
 
-// Error handling middleware (must be last)
 const errorHandler = require('./shared/middleware/errorHandler')
 app.use(errorHandler)
 
-// Start server with proper error handling
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`)
   console.log(`📡 API available at http://localhost:${PORT}/api`)
 })
 
-// Handle server errors (including port conflicts)
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
     console.error(`\n❌ Port ${PORT} is already in use.`)
@@ -137,13 +121,11 @@ server.on('error', (err) => {
   }
 })
 
-// Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
   console.error('❌ Uncaught Exception:', err)
   process.exit(1)
 })
 
-// Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason)
   process.exit(1)
