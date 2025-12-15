@@ -1,0 +1,23 @@
+{
+  "name": "student-itrack",
+  "version": "1.0.0",
+  "description": "Student iTrack - Full-stack student tracking application",
+  "private": true,
+  "scripts": {
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "build:client": "cd client && npm run build",
+    "install:all": "cd client && npm install && cd ../server && npm install"
+  },
+  "keywords": [
+    "student",
+    "tracking",
+    "academic",
+    "react",
+    "express",
+    "mysql"
+  ],
+  "author": "",
+  "license": "ISC"
+}
+
