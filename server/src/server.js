@@ -146,7 +146,18 @@ app.use((req, res, next) => {
 // Simple health endpoint for Railway (must be before routes)
 // Railway uses this to confirm the app is alive
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy' })
+  console.log('✅ Health check requested')
+  res.status(200).json({ status: 'healthy' })
+})
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Student iTrack API Server',
+    status: 'running',
+    health: '/health',
+    api: '/api'
+  })
 })
 
 app.use('/api/students', require('./student/routes/students'))
@@ -172,6 +183,22 @@ app.get('/api/health', (req, res) => {
       configured: !!(process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL)
     },
     timestamp: new Date().toISOString()
+  })
+})
+
+// 404 handler for unknown routes
+app.use((req, res, next) => {
+  console.log(`❌ 404 - Route not found: ${req.method} ${req.path}`)
+  res.status(404).json({
+    error: 'Not Found',
+    message: `Route ${req.method} ${req.path} not found`,
+    availableRoutes: {
+      health: '/health',
+      apiHealth: '/api/health',
+      students: '/api/students',
+      professors: '/api/professors',
+      courses: '/api/courses'
+    }
   })
 })
 
