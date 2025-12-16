@@ -6,6 +6,7 @@ const app = express()
 const PORT = process.env.PORT || 5000
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5177'
+const RAILWAY_URL = process.env.RAILWAY_PUBLIC_DOMAIN || process.env.VERCEL_URL
 const allowedOrigins = [
   FRONTEND_URL,
   'http://localhost:5173', // Common Vite default
@@ -23,6 +24,17 @@ const allowedOrigins = [
   'http://127.0.0.1:5178',
 ]
 
+// Add Railway and Vercel URLs if they exist
+if (RAILWAY_URL) {
+  allowedOrigins.push(`https://${RAILWAY_URL}`)
+  allowedOrigins.push(`http://${RAILWAY_URL}`)
+}
+
+// Allow all Vercel preview deployments
+if (FRONTEND_URL.includes('vercel.app') || FRONTEND_URL.includes('vercel.sh')) {
+  allowedOrigins.push(FRONTEND_URL)
+}
+
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) {
@@ -33,11 +45,23 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       console.log(`✅ CORS: Allowing origin: ${origin}`)
       callback(null, true)
+    } else if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      console.log(`✅ CORS: Allowing localhost origin in development: ${origin}`)
+      callback(null, true)
+    } else if (origin.includes('vercel.app') || origin.includes('vercel.sh')) {
+      // Allow all Vercel deployments
+      console.log(`✅ CORS: Allowing Vercel origin: ${origin}`)
+      callback(null, true)
+    } else if (origin.includes('railway.app') || origin.includes('railway.sh')) {
+      // Allow all Railway deployments
+      console.log(`✅ CORS: Allowing Railway origin: ${origin}`)
+      callback(null, true)
     } else {
       console.warn(`⚠️ CORS blocked origin: ${origin}`)
       console.warn(`⚠️ Allowed origins: ${allowedOrigins.join(', ')}`)
-      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-        console.log(`✅ CORS: Allowing localhost origin in development: ${origin}`)
+      // In production, be more permissive to avoid blocking legitimate requests
+      if (process.env.NODE_ENV === 'production') {
+        console.log(`✅ CORS: Allowing origin in production mode: ${origin}`)
         callback(null, true)
       } else {
         callback(new Error(`Not allowed by CORS. Origin: ${origin}`))
@@ -94,15 +118,29 @@ app.use('/api/notifications', require('./shared/routes/notifications'))
 app.use('/api/reports', require('./professor/routes/reports'))
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Server is running' })
+  res.json({ 
+    status: 'ok', 
+    message: 'Server is running',
+    environment: process.env.NODE_ENV || 'development',
+    database: {
+      host: process.env.DB_HOST || process.env.MYSQLHOST || 'not configured',
+      database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'not configured'
+    },
+    firebase: {
+      configured: !!(process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL)
+    },
+    timestamp: new Date().toISOString()
+  })
 })
 
 const errorHandler = require('./shared/middleware/errorHandler')
 app.use(errorHandler)
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`)
-  console.log(`📡 API available at http://localhost:${PORT}/api`)
+  console.log(`📡 API available at http://0.0.0.0:${PORT}/api`)
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`)
+  console.log(`📊 Database: ${process.env.DB_HOST || process.env.MYSQLHOST || 'not configured'}`)
 })
 
 server.on('error', (err) => {
