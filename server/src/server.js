@@ -16,100 +16,24 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy' })
 })
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5177'
-const RAILWAY_URL = process.env.RAILWAY_PUBLIC_DOMAIN || process.env.VERCEL_URL
-const allowedOrigins = [
-  FRONTEND_URL,
-  'http://localhost:5173', // Common Vite default
-  'http://localhost:5174', // Alternative Vite port
-  'http://localhost:5175', // Alternative Vite port
-  'http://localhost:5176', // Alternative Vite port
-  'http://localhost:5177', // Alternative port
-  'http://localhost:5178', // Alternative port
-  'http://localhost:3000', // Common React default
-  'http://127.0.0.1:5173', // IPv4 localhost
-  'http://127.0.0.1:5174',
-  'http://127.0.0.1:5175',
-  'http://127.0.0.1:5176',
-  'http://127.0.0.1:5177',
-  'http://127.0.0.1:5178',
-]
+// CORS configuration - MUST be before routes
+// Simplified and explicit configuration for better compatibility
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://studentitrack1.vercel.app'
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://studentitrack1.vercel.app',
+    FRONTEND_URL
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}))
 
-// Add Railway and Vercel URLs if they exist
-if (RAILWAY_URL) {
-  allowedOrigins.push(`https://${RAILWAY_URL}`)
-  allowedOrigins.push(`http://${RAILWAY_URL}`)
-}
-
-// Allow all Vercel preview deployments
-if (FRONTEND_URL.includes('vercel.app') || FRONTEND_URL.includes('vercel.sh')) {
-  allowedOrigins.push(FRONTEND_URL)
-}
-
-// Enhanced CORS configuration
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Always allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin) {
-      console.log('✅ CORS: Allowing request with no origin')
-      return callback(null, true)
-    }
-    
-    // Allow all Vercel deployments
-    if (origin.includes('vercel.app') || origin.includes('vercel.sh')) {
-      console.log(`✅ CORS: Allowing Vercel origin: ${origin}`)
-      return callback(null, true)
-    }
-    
-    // Allow all Railway deployments
-    if (origin.includes('railway.app') || origin.includes('railway.sh')) {
-      console.log(`✅ CORS: Allowing Railway origin: ${origin}`)
-      return callback(null, true)
-    }
-    
-    // Allow localhost in development
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      console.log(`✅ CORS: Allowing localhost origin: ${origin}`)
-      return callback(null, true)
-    }
-    
-    // Check explicit allowed origins
-    if (allowedOrigins.includes(origin)) {
-      console.log(`✅ CORS: Allowing origin from allowed list: ${origin}`)
-      return callback(null, true)
-    }
-    
-    // In production, be permissive
-    if (process.env.NODE_ENV === 'production') {
-      console.log(`✅ CORS: Allowing origin in production mode: ${origin}`)
-      return callback(null, true)
-    }
-    
-    // Block in development if not in allowed list
-    console.warn(`⚠️ CORS blocked origin: ${origin}`)
-    console.warn(`⚠️ Allowed origins: ${allowedOrigins.join(', ')}`)
-    callback(new Error(`Not allowed by CORS. Origin: ${origin}`))
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token', 'X-Requested-With'],
-  exposedHeaders: ['Content-Type', 'Authorization'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-}
-
-app.use(cors(corsOptions))
-
-// Explicitly handle preflight OPTIONS requests for all routes
-app.options('*', (req, res) => {
-  console.log(`🔍 CORS Preflight: ${req.method} ${req.path} from origin: ${req.headers.origin || 'no origin'}`)
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*')
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-csrf-token, X-Requested-With')
-  res.header('Access-Control-Allow-Credentials', 'true')
-  res.header('Access-Control-Max-Age', '86400') // 24 hours
-  res.sendStatus(204)
-})
+// Explicitly allow preflight OPTIONS requests (IMPORTANT for CORS)
+// This fixes "Response to preflight request doesn't pass access control check"
+app.options('*', cors())
 
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
