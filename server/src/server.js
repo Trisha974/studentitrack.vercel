@@ -37,39 +37,55 @@ if (FRONTEND_URL.includes('vercel.app') || FRONTEND_URL.includes('vercel.sh')) {
 
 app.use(cors({
   origin: (origin, callback) => {
+    // Always allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) {
       console.log('✅ CORS: Allowing request with no origin')
       return callback(null, true)
     }
     
-    if (allowedOrigins.includes(origin)) {
-      console.log(`✅ CORS: Allowing origin: ${origin}`)
-      callback(null, true)
-    } else if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      console.log(`✅ CORS: Allowing localhost origin in development: ${origin}`)
-      callback(null, true)
-    } else if (origin.includes('vercel.app') || origin.includes('vercel.sh')) {
-      // Allow all Vercel deployments
+    // Allow all Vercel deployments
+    if (origin.includes('vercel.app') || origin.includes('vercel.sh')) {
       console.log(`✅ CORS: Allowing Vercel origin: ${origin}`)
-      callback(null, true)
-    } else if (origin.includes('railway.app') || origin.includes('railway.sh')) {
-      // Allow all Railway deployments
-      console.log(`✅ CORS: Allowing Railway origin: ${origin}`)
-      callback(null, true)
-    } else {
-      console.warn(`⚠️ CORS blocked origin: ${origin}`)
-      console.warn(`⚠️ Allowed origins: ${allowedOrigins.join(', ')}`)
-      // In production, be more permissive to avoid blocking legitimate requests
-      if (process.env.NODE_ENV === 'production') {
-        console.log(`✅ CORS: Allowing origin in production mode: ${origin}`)
-        callback(null, true)
-      } else {
-        callback(new Error(`Not allowed by CORS. Origin: ${origin}`))
-      }
+      return callback(null, true)
     }
+    
+    // Allow all Railway deployments
+    if (origin.includes('railway.app') || origin.includes('railway.sh')) {
+      console.log(`✅ CORS: Allowing Railway origin: ${origin}`)
+      return callback(null, true)
+    }
+    
+    // Allow localhost in development
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      console.log(`✅ CORS: Allowing localhost origin: ${origin}`)
+      return callback(null, true)
+    }
+    
+    // Check explicit allowed origins
+    if (allowedOrigins.includes(origin)) {
+      console.log(`✅ CORS: Allowing origin from allowed list: ${origin}`)
+      return callback(null, true)
+    }
+    
+    // In production, be permissive
+    if (process.env.NODE_ENV === 'production') {
+      console.log(`✅ CORS: Allowing origin in production mode: ${origin}`)
+      return callback(null, true)
+    }
+    
+    // Block in development if not in allowed list
+    console.warn(`⚠️ CORS blocked origin: ${origin}`)
+    console.warn(`⚠️ Allowed origins: ${allowedOrigins.join(', ')}`)
+    callback(new Error(`Not allowed by CORS. Origin: ${origin}`))
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
+  exposedHeaders: ['Content-Type', 'Authorization']
 }))
+// Handle preflight OPTIONS requests
+app.options('*', cors())
+
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 
