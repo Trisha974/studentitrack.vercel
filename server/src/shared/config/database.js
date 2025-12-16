@@ -20,6 +20,7 @@ const pool = mysql.createPool({
   user: DB_USER,
   password: DB_PASSWORD,
   database: DB_NAME,
+  ssl: false, // Railway MySQL requires SSL to be explicitly disabled
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -27,6 +28,7 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0
 })
 
+// Test connection but don't crash if it fails
 pool.getConnection()
   .then(connection => {
     console.log('✅ MySQL connected successfully')
@@ -39,6 +41,7 @@ pool.getConnection()
     console.error(`   DB_USER=${DB_USER}`)
     console.error(`   DB_NAME=${DB_NAME}`)
     console.error(`   Available env vars:`, Object.keys(process.env).filter(k => k.includes('MYSQL') || k.includes('DB_')).join(', '))
+    console.warn('⚠️ Server will start but database operations will fail until connection is established')
   })
 
 module.exports = pool

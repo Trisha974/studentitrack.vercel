@@ -59,7 +59,7 @@ echo ""
 # Step 4: Install dependencies
 echo -e "${YELLOW}Step 4: Installing backend dependencies...${NC}"
 if [ ! -d "node_modules" ]; then
-    npm install --production
+    npm install --omit=dev
     echo -e "${GREEN}✓ Dependencies installed${NC}"
 else
     echo -e "${GREEN}✓ Dependencies already installed${NC}"

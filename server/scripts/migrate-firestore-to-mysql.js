@@ -41,6 +41,7 @@ const mysqlPool = mysql.createPool({
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'student_itrack',
+  ssl: false, // Railway MySQL requires SSL to be explicitly disabled
   waitForConnections: true,
   connectionLimit: 10
 })

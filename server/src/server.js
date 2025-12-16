@@ -3,7 +3,12 @@ const cors = require('cors')
 require('dotenv').config()
 
 const app = express()
+// Railway requires using the PORT environment variable they provide
+// If PORT is not set, use 5000 as fallback (for local development)
 const PORT = process.env.PORT || 5000
+
+// Log the port being used for debugging
+console.log(`🔌 Using PORT: ${PORT} (from ${process.env.PORT ? 'Railway' : 'fallback'})`)
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5177'
 const RAILWAY_URL = process.env.RAILWAY_PUBLIC_DOMAIN || process.env.VERCEL_URL
@@ -35,7 +40,8 @@ if (FRONTEND_URL.includes('vercel.app') || FRONTEND_URL.includes('vercel.sh')) {
   allowedOrigins.push(FRONTEND_URL)
 }
 
-app.use(cors({
+// Enhanced CORS configuration
+const corsOptions = {
   origin: (origin, callback) => {
     // Always allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) {
@@ -80,11 +86,24 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
-  exposedHeaders: ['Content-Type', 'Authorization']
-}))
-// Handle preflight OPTIONS requests
-app.options('*', cors())
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token', 'X-Requested-With'],
+  exposedHeaders: ['Content-Type', 'Authorization'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}
+
+app.use(cors(corsOptions))
+
+// Explicitly handle preflight OPTIONS requests for all routes
+app.options('*', (req, res) => {
+  console.log(`🔍 CORS Preflight: ${req.method} ${req.path} from origin: ${req.headers.origin || 'no origin'}`)
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-csrf-token, X-Requested-With')
+  res.header('Access-Control-Allow-Credentials', 'true')
+  res.header('Access-Control-Max-Age', '86400') // 24 hours
+  res.sendStatus(204)
+})
 
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
@@ -124,6 +143,12 @@ app.use((req, res, next) => {
   return next()
 })
 
+// Simple health endpoint for Railway (must be before routes)
+// Railway uses this to confirm the app is alive
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy' })
+})
+
 app.use('/api/students', require('./student/routes/students'))
 app.use('/api/professors', require('./professor/routes/professors'))
 app.use('/api/courses', require('./professor/routes/courses'))
@@ -133,6 +158,7 @@ app.use('/api/attendance', require('./professor/routes/attendance'))
 app.use('/api/notifications', require('./shared/routes/notifications'))
 app.use('/api/reports', require('./professor/routes/reports'))
 
+// Detailed health endpoint for monitoring
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
@@ -152,11 +178,16 @@ app.get('/api/health', (req, res) => {
 const errorHandler = require('./shared/middleware/errorHandler')
 app.use(errorHandler)
 
+// Start server immediately - DO NOT wait for database connection
+// Railway requires the server to start even if DB fails
+// Railway-safe: Use process.env.PORT and bind to 0.0.0.0
 const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log('Server started')
   console.log(`🚀 Server running on port ${PORT}`)
   console.log(`📡 API available at http://0.0.0.0:${PORT}/api`)
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`)
   console.log(`📊 Database: ${process.env.DB_HOST || process.env.MYSQLHOST || 'not configured'}`)
+  console.log(`✅ Health check available at http://0.0.0.0:${PORT}/health`)
 })
 
 server.on('error', (err) => {
