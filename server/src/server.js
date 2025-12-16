@@ -10,6 +10,12 @@ const PORT = process.env.PORT || 5000
 // Log the port being used for debugging
 console.log(`🔌 Using PORT: ${PORT} (from ${process.env.PORT ? 'Railway' : 'fallback'})`)
 
+// CRITICAL: Health endpoint MUST be first, before ANY middleware
+// Railway health checks need instant response without any processing
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy' })
+})
+
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5177'
 const RAILWAY_URL = process.env.RAILWAY_PUBLIC_DOMAIN || process.env.VERCEL_URL
 const allowedOrigins = [
@@ -143,12 +149,8 @@ app.use((req, res, next) => {
   return next()
 })
 
-// Simple health endpoint for Railway (must be before routes)
-// Railway uses this to confirm the app is alive
-app.get('/health', (req, res) => {
-  console.log('✅ Health check requested')
-  res.status(200).json({ status: 'healthy' })
-})
+// Health endpoint is now defined at the top (before middleware)
+// This ensures Railway's health check gets instant response
 
 // Root endpoint
 app.get('/', (req, res) => {
