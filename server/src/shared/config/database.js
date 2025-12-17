@@ -17,15 +17,15 @@ console.log(`   Database: ${DB_NAME}`)
 console.log(`   Password: ${DB_PASSWORD ? '***' : '(empty)'}`)
 console.log(`   Port: ${DB_PORT}`)
 
-// Debug: Show all environment variables (for troubleshooting)
-if (process.env.NODE_ENV === 'production' || process.env.DEBUG_ENV === 'true') {
-  const allEnvVars = Object.keys(process.env).sort()
-  const mysqlVars = allEnvVars.filter(k => k.includes('MYSQL') || k.includes('DB_'))
-  console.log(`   🔍 Environment variables found: ${mysqlVars.length > 0 ? mysqlVars.join(', ') : 'NONE'}`)
-  if (mysqlVars.length === 0) {
-    console.log('   ⚠️  CRITICAL: No MySQL environment variables detected!')
-    console.log('   📝 Make sure you set variables in Railway → Backend Service → Variables')
-  }
+// Debug: Show all environment variables (for troubleshooting) - Always show in Railway
+const allEnvVars = Object.keys(process.env).sort()
+const mysqlVars = allEnvVars.filter(k => k.includes('MYSQL') || k.includes('DB_'))
+console.log(`   🔍 Environment variables found: ${mysqlVars.length > 0 ? mysqlVars.join(', ') : 'NONE - Set variables in Railway!'}`)
+if (mysqlVars.length === 0) {
+  console.log('   ⚠️  CRITICAL: No MySQL environment variables detected!')
+  console.log('   📝 Go to Railway → Backend Service (not MySQL service) → Variables tab')
+  console.log('   📝 Add: MYSQLHOST, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE, MYSQLPORT')
+  console.log('   📝 Or use: DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT')
 }
 
 // Support Railway MySQL port if provided (priority: MYSQLPORT > DB_PORT > default)
