@@ -15,6 +15,18 @@ console.log(`   Host: ${DB_HOST}`)
 console.log(`   User: ${DB_USER}`)
 console.log(`   Database: ${DB_NAME}`)
 console.log(`   Password: ${DB_PASSWORD ? '***' : '(empty)'}`)
+console.log(`   Port: ${DB_PORT}`)
+
+// Debug: Show all environment variables (for troubleshooting)
+if (process.env.NODE_ENV === 'production' || process.env.DEBUG_ENV === 'true') {
+  const allEnvVars = Object.keys(process.env).sort()
+  const mysqlVars = allEnvVars.filter(k => k.includes('MYSQL') || k.includes('DB_'))
+  console.log(`   🔍 Environment variables found: ${mysqlVars.length > 0 ? mysqlVars.join(', ') : 'NONE'}`)
+  if (mysqlVars.length === 0) {
+    console.log('   ⚠️  CRITICAL: No MySQL environment variables detected!')
+    console.log('   📝 Make sure you set variables in Railway → Backend Service → Variables')
+  }
+}
 
 // Support Railway MySQL port if provided (priority: MYSQLPORT > DB_PORT > default)
 const DB_PORT = process.env.MYSQLPORT || process.env.DB_PORT || 3306

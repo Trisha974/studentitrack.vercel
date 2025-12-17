@@ -15,12 +15,30 @@ const fastify = require('fastify')({
     customOptions: {
       allowUnionTypes: true, // Allow union types in schemas (e.g., type: ['integer', 'string'])
       strict: false // Disable strict mode to allow union types
-    }
+    },
+    plugins: []
   }
+})
+
+// Override validator compiler to ensure allowUnionTypes is applied
+fastify.setValidatorCompiler(({ schema }) => {
+  const Ajv = require('ajv')
+  const ajv = new Ajv({
+    allowUnionTypes: true,
+    strict: false,
+    allErrors: true,
+    removeAdditional: false
+  })
+  return ajv.compile(schema)
 })
 
 // Register plugins
 fastify.register(require('./plugins/cors'))
+
+// Favicon handler (prevents 404 errors)
+fastify.get('/favicon.ico', async (request, reply) => {
+  return reply.code(204).send() // No Content
+})
 
 // Health endpoint (must be first)
 fastify.get('/health', async (request, reply) => {
