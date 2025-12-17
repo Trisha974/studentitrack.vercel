@@ -61,9 +61,9 @@ DB_SSL=false
 
 FRONTEND_URL=https://studentitrack1.vercel.app
 
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-FIREBASE_CLIENT_EMAIL=your-email@project.iam.gserviceaccount.com
+# JWT Authentication (required)
+JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters-long
+JWT_EXPIRES_IN=7d
 
 CSRF_SECRET=your-random-secret
 ```
