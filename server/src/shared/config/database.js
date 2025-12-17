@@ -47,10 +47,17 @@ pool.getConnection()
   .catch(err => {
     console.error('❌ MySQL connection error:', err.message)
     console.error('💡 Check your database environment variables:')
-    console.error(`   DB_HOST=${DB_HOST}`)
-    console.error(`   DB_USER=${DB_USER}`)
-    console.error(`   DB_NAME=${DB_NAME}`)
-    console.error(`   Available env vars:`, Object.keys(process.env).filter(k => k.includes('MYSQL') || k.includes('DB_')).join(', '))
+    console.error(`   DB_HOST=${DB_HOST} (from ${process.env.MYSQLHOST ? 'MYSQLHOST' : process.env.DB_HOST ? 'DB_HOST' : 'default'})`)
+    console.error(`   DB_USER=${DB_USER} (from ${process.env.MYSQLUSER ? 'MYSQLUSER' : process.env.DB_USER ? 'DB_USER' : 'default'})`)
+    console.error(`   DB_NAME=${DB_NAME} (from ${process.env.MYSQLDATABASE ? 'MYSQLDATABASE' : process.env.DB_NAME ? 'DB_NAME' : 'default'})`)
+    console.error(`   DB_PORT=${DB_PORT} (from ${process.env.MYSQLPORT ? 'MYSQLPORT' : process.env.DB_PORT ? 'DB_PORT' : 'default'})`)
+    const availableVars = Object.keys(process.env).filter(k => k.includes('MYSQL') || k.includes('DB_'))
+    console.error(`   Available env vars: ${availableVars.length > 0 ? availableVars.join(', ') : 'NONE - Set environment variables in Railway!'}`)
+    if (availableVars.length === 0) {
+      console.error('   ⚠️  No MySQL environment variables found!')
+      console.error('   📝 Go to Railway → Backend Service → Variables tab')
+      console.error('   📝 Add: DB_HOST=${{MySQL.MYSQLHOST}} (or use MYSQLHOST directly)')
+    }
     console.warn('⚠️ Server will start but database operations will fail until connection is established')
   })
 
