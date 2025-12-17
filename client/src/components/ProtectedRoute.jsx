@@ -1,52 +1,47 @@
 ﻿import React, { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import { onAuthStateChanged, getUserProfile, saveUserProfile } from '../firebase'
-import { getProfessorByUid } from '../services/professors'
-import { getStudentByUid } from '../services/students'
+import { getCurrentProfessor } from '../services/professors'
+import { getCurrentStudent } from '../services/students'
 
 export default function ProtectedRoute({ children, requiredRole = 'Professor' }) {
   const [loading, setLoading] = useState(true)
   const [authorized, setAuthorized] = useState(false)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(async (user) => {
-      if (!user) {
+    const checkAuth = async () => {
+      // Check for JWT token
+      const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+      if (!token) {
         setAuthorized(false)
         setLoading(false)
         return
       }
 
       try {
-        let profile = await getUserProfile(user.uid)
-        if (!profile) {
-          profile =
-            requiredRole === 'Professor'
-              ? await getProfessorByUid(user.uid)
-              : requiredRole === 'Student'
-                ? await getStudentByUid(user.uid)
-                : null
-
-          if (profile) {
-            await saveUserProfile(user.uid, profile)
-          }
-        }
-
-        if (profile && profile.role === requiredRole) {
-          setAuthorized(true)
-        } else if (!profile) {
+        // Get user from session storage first (fast)
+        const raw = sessionStorage.getItem('currentUser')
+        if (raw) {
           try {
-            const raw = sessionStorage.getItem('currentUser')
-            if (raw) {
-              const s = JSON.parse(raw)
-              if (s.type === requiredRole) setAuthorized(true)
-              else setAuthorized(false)
-            } else {
-              setAuthorized(false)
+            const userData = JSON.parse(raw)
+            if (userData.type === requiredRole) {
+              setAuthorized(true)
+              setLoading(false)
+              return
             }
           } catch (e) {
             console.warn('ProtectedRoute sessionStorage parse error', e)
-            setAuthorized(false)
           }
+        }
+
+        // Fallback: fetch profile from backend
+        const profile = requiredRole === 'Professor'
+          ? await getCurrentProfessor()
+          : requiredRole === 'Student'
+            ? await getCurrentStudent()
+            : null
+
+        if (profile && profile.role === requiredRole) {
+          setAuthorized(true)
         } else {
           setAuthorized(false)
         }
@@ -56,9 +51,9 @@ export default function ProtectedRoute({ children, requiredRole = 'Professor' })
       } finally {
         setLoading(false)
       }
-    })
+    }
 
-    return () => unsubscribe()
+    checkAuth()
   }, [requiredRole])
 
   if (loading) return null

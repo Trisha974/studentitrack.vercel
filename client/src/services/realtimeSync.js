@@ -1,7 +1,8 @@
 ﻿
-
-import { doc, onSnapshot } from 'firebase/firestore'
-import { db } from '../firebase'
+// Firebase/Firestore imports removed - system now uses MySQL/JWT
+// import { doc, onSnapshot } from 'firebase/firestore'
+// import { db } from '../firebase'
+// const db = null // Not needed since Firestore is disabled
 
 const DASHBOARD_COLLECTION = 'professorDashboards'
 const STUDENT_DASHBOARD_COLLECTION = 'studentDashboards'
@@ -23,82 +24,9 @@ export function subscribeToProfessorDashboard(professorUid, onUpdate) {
     return () => {}
   }
 
-if (isRealtimeDisabled()) {
-    console.warn('⚠️ Real-time updates disabled to reduce Firestore quota usage')
-    return () => {}
-  }
-
-  const docRef = doc(db, DASHBOARD_COLLECTION, professorUid)
-  let lastUpdateTime = 0
-  let lastDataHash = null
-
-  const unsubscribe = onSnapshot(
-    docRef,
-    (snapshot) => {
-
-      const now = Date.now()
-      if (now - lastUpdateTime < UPDATE_THROTTLE_MS) {
-        return
-      }
-
-      if (snapshot.exists()) {
-        const data = snapshot.data()
-
-const criticalFieldsHash = JSON.stringify({
-          updatedAt: data.updatedAt,
-
-          alertsCount: (data.alerts || []).length,
-          alertsLatestId: (data.alerts || [])[0]?.id || null,
-
-          enrollsKeys: Object.keys(data.enrolls || {}).sort().join(','),
-          enrollsTotal: Object.values(data.enrolls || {}).reduce((sum, arr) => sum + (arr?.length || 0), 0),
-
-          subjectsCount: (data.subjects || []).length,
-          studentsCount: (data.students || []).length,
-        })
-
-        if (criticalFieldsHash === lastDataHash) {
-
-          return
-        }
-
-const minimalData = {
-          subjects: data.subjects || [],
-          removedSubjects: data.removedSubjects || [],
-          students: data.students || [],
-          enrolls: data.enrolls || {},
-          alerts: data.alerts || [],
-
-updatedAt: data.updatedAt,
-          ownerUid: data.ownerUid,
-        }
-
-        lastDataHash = criticalFieldsHash
-        lastUpdateTime = now
-
-        console.log('Professor dashboard updated in real-time (minimal data):', {
-          subjects: minimalData.subjects.length,
-          students: minimalData.students.length,
-          alerts: minimalData.alerts.length,
-          enrolls: Object.keys(minimalData.enrolls).length,
-          updatedAt: minimalData.updatedAt,
-        })
-        onUpdate(minimalData)
-      } else {
-        console.warn('Professor dashboard document does not exist')
-        onUpdate(null)
-      }
-    },
-    (error) => {
-      console.error('Error listening to professor dashboard:', error)
-
-      if (error.code === 'resource-exhausted' || error.message?.includes('quota') || error.message?.includes('Quota')) {
-        console.warn('💡 Tip: Disable real-time updates to reduce quota usage: localStorage.setItem("disableRealtimeUpdates", "true")')
-      }
-    }
-  )
-
-  return unsubscribe
+  // Firestore disabled - real-time updates not available
+  console.warn('⚠️ Real-time updates disabled (Firestore removed)')
+  return () => {}
 }
 
 export function subscribeToStudentDashboard(studentUid, onUpdate) {
@@ -107,71 +35,9 @@ export function subscribeToStudentDashboard(studentUid, onUpdate) {
     return () => {}
   }
 
-if (isRealtimeDisabled()) {
-    console.warn('⚠️ Real-time updates disabled to reduce Firestore quota usage')
-    return () => {}
-  }
-
-  const docRef = doc(db, STUDENT_DASHBOARD_COLLECTION, studentUid)
-  let lastUpdateTime = 0
-  let lastDataHash = null
-
-  const unsubscribe = onSnapshot(
-    docRef,
-    (snapshot) => {
-
-      const now = Date.now()
-      if (now - lastUpdateTime < UPDATE_THROTTLE_MS) {
-        return
-      }
-
-      if (snapshot.exists()) {
-        const data = snapshot.data()
-
-const criticalFieldsHash = JSON.stringify({
-          updatedAt: data.updatedAt,
-          subjectsCount: (data.subjects || []).length,
-
-          gradesKeys: Object.keys(data.grades || {}).sort().join(','),
-        })
-
-        if (criticalFieldsHash === lastDataHash) {
-
-          return
-        }
-
-const minimalData = {
-          subjects: data.subjects || [],
-          grades: data.grades || {},
-          updatedAt: data.updatedAt,
-          ownerUid: data.ownerUid,
-
-        }
-
-        lastDataHash = criticalFieldsHash
-        lastUpdateTime = now
-
-        console.log('Student dashboard updated in real-time (minimal data):', {
-          subjects: minimalData.subjects.length,
-          grades: Object.keys(minimalData.grades).length,
-          updatedAt: minimalData.updatedAt,
-        })
-        onUpdate(minimalData)
-      } else {
-        console.warn('Student dashboard document does not exist')
-        onUpdate(null)
-      }
-    },
-    (error) => {
-      console.error('Error listening to student dashboard:', error)
-
-      if (error.code === 'resource-exhausted' || error.message?.includes('quota') || error.message?.includes('Quota')) {
-        console.warn('💡 Tip: Disable real-time updates to reduce quota usage: localStorage.setItem("disableRealtimeUpdates", "true")')
-      }
-    }
-  )
-
-  return unsubscribe
+  // Firestore disabled - real-time updates not available
+  console.warn('⚠️ Real-time updates disabled (Firestore removed)')
+  return () => {}
 }
 
 export function detectDateChanges(oldData, newData) {

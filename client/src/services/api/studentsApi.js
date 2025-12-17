@@ -1,9 +1,9 @@
 ﻿
 import apiClient from './apiClient'
 
-export async function getStudentByFirebaseUid(uid) {
+export async function getCurrentStudent() {
   try {
-    const student = await apiClient.get(`/students/firebase/${uid}`)
+    const student = await apiClient.get('/students/me')
     return student
   } catch (error) {
     if (error.message.includes('404') || error.message.includes('not found')) {
@@ -51,7 +51,6 @@ export async function getStudentByNumericalId(studentId) {
 
 export async function createStudent(data) {
   return apiClient.post('/students', {
-    firebase_uid: data.firebase_uid || data.uid,
     name: data.name,
     email: data.email,
     studentId: data.studentId || data.student_id,
@@ -62,7 +61,6 @@ export async function createStudent(data) {
 
 export async function updateStudent(id, data) {
   return apiClient.put(`/students/${id}`, {
-    firebase_uid: data.firebase_uid || data.firebaseUid,
     name: data.name,
     email: data.email,
     studentId: data.studentId || data.student_id,
@@ -82,12 +80,8 @@ export async function listStudents(filters = {}) {
   return apiClient.get(endpoint)
 }
 
-export async function setStudent(uid, profile) {
-  if (!uid) {
-    throw new Error('Firebase UID is required')
-  }
-
-  let student = await getStudentByFirebaseUid(uid).catch(() => null)
+export async function setStudent(profile) {
+  let student = await getCurrentStudent().catch(() => null)
 
   if (student && student.id) {
     if (!student.id || isNaN(student.id)) {
@@ -115,8 +109,7 @@ export async function setStudent(uid, profile) {
       email: profile.email,
       studentId: profile.studentId || profile.student_id,
       department: profile.department,
-      photoUrl: profile.photoURL || profile.photoUrl || profile.photo_url,
-      firebase_uid: uid
+      photoUrl: profile.photoURL || profile.photoUrl || profile.photo_url
     })
   }
 }

@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import ThemeToggle from '../../components/ThemeToggle/ThemeToggle'
 import { useTheme } from '../../hooks/useTheme'
 import './Login.css'
-import { registerWithEmail, signIn as firebaseSignIn, saveUserProfile, signOutUser, resetPassword, onAuthStateChanged } from '../../firebase'
-import { setProfessor, getProfessorByUid } from '../../services/professors'
-import { setStudent, getStudentByUid } from '../../services/students'
+import { login as apiLogin, register as apiRegister, requestPasswordReset as apiRequestPasswordReset } from '../../services/api/authApi'
+import { getCurrentProfessor } from '../../services/professors'
+import { getCurrentStudent } from '../../services/students'
 import { getDefaultAvatar } from '../../utils/avatarGenerator'
 
 const CONFIG = {
@@ -56,27 +56,24 @@ const [professorLogin, setProfessorLogin] = useState({ email: '', password: '' }
     if (saved === 'true') setRememberMe(true)
   }, [])
 
-useEffect(() => {
-
-    const unsubscribe = onAuthStateChanged((user) => {
-      if (user) {
-
-        const currentUser = sessionStorage.getItem('currentUser')
-        if (currentUser) {
-          try {
-            const userData = JSON.parse(currentUser)
-
-            if (userData.type === 'Professor') {
-              navigate('/prof', { replace: true })
-            } else if (userData.type === 'Student') {
-              navigate('/student', { replace: true })
-            }
-          } catch (err) {
-            console.warn('Failed to parse current user', err)
+  useEffect(() => {
+    // Check if user is already logged in (has token)
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+    if (token) {
+      const currentUser = sessionStorage.getItem('currentUser')
+      if (currentUser) {
+        try {
+          const userData = JSON.parse(currentUser)
+          if (userData.type === 'Professor') {
+            navigate('/prof', { replace: true })
+          } else if (userData.type === 'Student') {
+            navigate('/student', { replace: true })
           }
+        } catch (err) {
+          console.warn('Failed to parse current user', err)
         }
       }
-    })
+    }
 
 const handlePopState = (event) => {
       const currentUser = sessionStorage.getItem('currentUser')
@@ -106,7 +103,6 @@ window.addEventListener('popstate', handlePopState)
 window.history.pushState(null, '', window.location.pathname)
 
     return () => {
-      unsubscribe()
       window.removeEventListener('popstate', handlePopState)
     }
   }, [navigate])
@@ -195,68 +191,59 @@ const trimmedPassword = loginData.password.trim()
         passwordLength: trimmedPassword.length,
         userType: isProfessor ? 'professor' : 'student'
       })
-      const credential = await firebaseSignIn(trimmedEmail, trimmedPassword)
-      const { user } = credential
+      // Login via backend API
+      const result = await apiLogin(trimmedEmail, trimmedPassword)
+      const { token, user: userFromAPI } = result
 
-const profilePromise = isProfessor
-        ? getProfessorByUid(user.uid)
-        : getStudentByUid(user.uid)
+      // Use profile from login response (already includes profile if available)
+      let profile = userFromAPI?.profile || null
+      const fallbackName = userFromAPI?.email?.split('@')[0] || loginData.email.split('@')[0]
 
-const fallbackName = user.displayName || loginData.email.split('@')[0]
-      let profile = null
-
-      try {
-        profile = await profilePromise
-      } catch (profileError) {
-        console.warn('Unable to load profile from Firestore', profileError)
+      // If profile is missing, try to fetch it (but don't block login if it fails)
+      if (!profile && userFromAPI?.user_id) {
+        try {
+          const profilePromise = isProfessor
+            ? getCurrentProfessor()
+            : getCurrentStudent()
+          profile = await profilePromise
+        } catch (profileError) {
+          console.warn('Unable to load profile from backend (non-critical):', profileError)
+          // Continue with default profile
+        }
       }
 
-if (!profile) {
-
-        const defaultPhotoURL = getDefaultAvatar(fallbackName, user.uid)
+      // Create default profile if still missing
+      if (!profile) {
+        // Ensure we pass a string to getDefaultAvatar (id might be a number)
+        const avatarId = String(userFromAPI?.id || trimmedEmail)
+        const defaultPhotoURL = getDefaultAvatar(fallbackName, avatarId)
         profile = {
           name: fallbackName,
-          email: user.email,
+          email: userFromAPI?.email || trimmedEmail,
           role: CONFIG.USER_TYPES[isProfessor ? 'PROFESSOR' : 'STUDENT'],
           ...(isProfessor
             ? { department: '', photoURL: defaultPhotoURL }
             : { studentId: '', department: '', photoURL: defaultPhotoURL })
         }
-
-        const saveProfilePromise = isProfessor
-          ? setProfessor(user.uid, profile)
-          : setStudent(user.uid, profile)
-        saveProfilePromise.catch(err => console.warn('Background profile save failed', err))
       } else if (!profile.photoURL) {
-
-        const defaultPhotoURL = getDefaultAvatar(
-          profile.name || fallbackName,
-          user.uid
-        )
+        // Ensure we pass a string to getDefaultAvatar (id might be a number)
+        const avatarId = String(userFromAPI?.id || trimmedEmail)
+        const defaultPhotoURL = getDefaultAvatar(profile.name || fallbackName, avatarId)
         profile.photoURL = defaultPhotoURL
-
-        const updateProfilePromise = isProfessor
-          ? setProfessor(user.uid, { ...profile, photoURL: defaultPhotoURL })
-          : setStudent(user.uid, { ...profile, photoURL: defaultPhotoURL })
-        updateProfilePromise.catch(err => console.warn('Background avatar update failed', err))
       }
 
-const displayName = profile?.name || fallbackName
+      const displayName = profile?.name || fallbackName
       const userData = {
-        uid: user.uid,
+        id: userFromAPI?.id || profile?.id,
         type: CONFIG.USER_TYPES[isProfessor ? 'PROFESSOR' : 'STUDENT'],
-        email: user.email,
+        email: userFromAPI?.email || trimmedEmail,
         name: displayName,
         ...(isProfessor
           ? { department: profile?.department || '' }
-          : { studentId: profile?.studentId || '', department: profile?.department || '' })
+          : { studentId: profile?.studentId || profile?.student_id || '', department: profile?.department || '' })
       }
 
-saveUserProfile(user.uid, profile).catch(err =>
-        console.warn('Background user profile save failed', err)
-      )
-
-persistSessionUser(userData)
+      persistSessionUser(userData)
 
       navigate(isProfessor ? '/prof' : '/student', { replace: true })
     } catch (error) {
@@ -267,50 +254,31 @@ persistSessionUser(userData)
       let message = 'Unable to sign in. Please try again.'
       let showPasswordReset = false
 
-      switch (error.code) {
-        case 'auth/user-not-found':
+      // Handle backend API errors
+      if (error.message) {
+        if (error.message.includes('Invalid email or password') || error.message.includes('Invalid')) {
+          message = 'Invalid email or password. Please check your credentials and try again.'
+          showPasswordReset = true
+        } else if (error.message.includes('not found') || error.message.includes('Account')) {
           message = 'Account not found. Please create an account first using the "Sign Up" button.'
           setIsSignUp(true)
-          break
-        case 'auth/wrong-password':
-          message = 'Incorrect password. Click "Forgot Password?" below to reset your password.'
-          showPasswordReset = true
-          break
-        case 'auth/invalid-credential':
-        case 'auth/invalid-email':
-
-          message = 'Invalid email or password. This could mean:\n\n• The account doesn\'t exist in Firebase Auth (only in database)\n• The password is incorrect\n• The account needs to be created through Sign Up\n\nClick "Forgot Password?" to reset your password or create a new account using "Sign Up".'
-          showPasswordReset = true
-
-          console.warn('⚠️ Login failed - possible causes:', {
-            email: trimmedEmail,
-            emailFormatValid: trimmedEmail.includes('@'),
-            passwordProvided: trimmedPassword.length > 0,
-            errorCode: error.code,
-            suggestion: 'If this account exists in MySQL but not in Firebase Auth, you need to either:\n1. Use "Forgot Password?" to create/reset the Firebase Auth account\n2. Create a new account through Sign Up\n3. Contact support to migrate the account'
-          })
-          break
-        case 'auth/too-many-requests':
-          message = 'Too many login attempts. Please wait a few minutes and try again.'
-          break
-        case 'auth/network-request-failed':
-          message = 'Network error. Please check your internet connection and try again.'
-          break
-        case 'auth/user-disabled':
-          message = 'This account has been disabled. Please contact support.'
-          break
-        default:
-          if (error.message && error.message.includes('Failed to fetch')) {
-            message = 'Cannot connect to server. Please ensure the backend server is running on http://localhost:5000'
-          } else if (error.message) {
-            message = error.message
-          }
-          break
+        } else if (error.message.includes('deactivated')) {
+          message = 'Your account has been deactivated. Please contact support.'
+        } else if (error.message.includes('Failed to fetch')) {
+          message = 'Cannot connect to server. Please ensure the backend server is running on http://localhost:5000'
+        } else {
+          message = error.message
+        }
       }
+
+      console.warn('⚠️ Login failed:', {
+        email: trimmedEmail,
+        errorMessage: error.message
+      })
 
       setAuthError(message)
 
-if (showPasswordReset && (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password')) {
+      if (showPasswordReset) {
         setTimeout(() => {
           const currentUserType = userType === 'professor'
           setShowPasswordReset(true)
@@ -340,27 +308,21 @@ if (showPasswordReset && (error.code === 'auth/invalid-credential' || error.code
 
     try {
       setIsSubmitting(true)
-      await resetPassword(passwordResetEmail.trim())
-      setSuccessMessage(`Password reset email sent to ${passwordResetEmail}. Please check your inbox and follow the instructions to reset your password.`)
+      const result = await apiRequestPasswordReset(passwordResetEmail.trim())
+      
+      // Show success message
+      setSuccessMessage(result.message || `Password reset instructions sent to ${passwordResetEmail}. Please contact support for password reset assistance.`)
+      setAuthError('')
       setShowPasswordReset(false)
       setPasswordResetEmail('')
     } catch (error) {
       console.error('Password reset error', error)
-      let message = 'Failed to send password reset email. Please try again.'
-      switch (error.code) {
-        case 'auth/user-not-found':
-          message = 'No account found with this email address. Please create an account first.'
-          break
-        case 'auth/invalid-email':
-          message = 'Invalid email address. Please check and try again.'
-          break
-        case 'auth/too-many-requests':
-          message = 'Too many password reset attempts. Please wait a few minutes and try again.'
-          break
-        default:
-          message = error.message || message
+      let message = 'Failed to process password reset request. Please try again.'
+      if (error.message) {
+        message = error.message
       }
       setAuthError(message)
+      setSuccessMessage('')
     } finally {
       setIsSubmitting(false)
     }
@@ -433,76 +395,26 @@ if (signUpData.password.length < CONFIG.PASSWORD_STRENGTH_MIN_LENGTH) {
       setAuthError('')
       setSuccessMessage('')
 
-      const credential = await registerWithEmail(signUpData.email.trim(), signUpData.password)
-      const { user } = credential
+      // Generate default avatar using email as unique ID
+      const defaultPhotoURL = getDefaultAvatar(signUpData.name, signUpData.email.trim())
 
-const defaultPhotoURL = getDefaultAvatar(signUpData.name, user.uid)
+      // Register via backend API (creates user account and profile)
+      const result = await apiRegister({
+        email: signUpData.email.trim(),
+        password: signUpData.password,
+        role: CONFIG.USER_TYPES[isProfessor ? 'PROFESSOR' : 'STUDENT'],
+        name: signUpData.name,
+        student_id: isProfessor ? undefined : signUpData.studentId,
+        department: signUpData.department,
+        photo_url: defaultPhotoURL
+      })
 
-      const profilePayload = isProfessor
-        ? {
-            name: signUpData.name,
-            email: signUpData.email.trim(),
-            department: signUpData.department,
-            role: CONFIG.USER_TYPES.PROFESSOR,
-            photoURL: defaultPhotoURL,
-          }
-        : {
-            name: signUpData.name,
-            email: signUpData.email.trim(),
-            studentId: signUpData.studentId,
-            department: signUpData.department,
-            role: CONFIG.USER_TYPES.STUDENT,
-            photoURL: defaultPhotoURL,
-          }
-
-try {
-        if (isProfessor) {
-          const createdProfessor = await setProfessor(user.uid, profilePayload)
-          if (!createdProfessor) {
-            throw new Error('Failed to create professor profile in database')
-          }
-          console.log('✅ Professor profile created:', { name: createdProfessor.name, email: createdProfessor.email })
-        } else {
-          const createdStudent = await setStudent(user.uid, profilePayload)
-          if (!createdStudent) {
-            throw new Error('Failed to create student profile in database')
-          }
-          console.log('✅ Student profile created:', { name: createdStudent.name, email: createdStudent.email })
-        }
-      } catch (dbError) {
-        console.error('Database error during registration:', dbError)
-
-        try {
-          await signOutUser()
-          await user.delete()
-        } catch (cleanupError) {
-          console.error('Failed to cleanup Firebase user:', cleanupError)
-        }
-
-        if (dbError.message && (dbError.message.includes('Network') || dbError.message.includes('Failed to fetch'))) {
-          throw new Error('Cannot connect to server. Please ensure the backend server is running on http://localhost:5000')
-        } else if (dbError.message && dbError.message.includes('500')) {
-          throw new Error('Server error. Please try again later or contact support.')
-        } else {
-          throw new Error(dbError.message || 'Failed to create profile in database. Please try again.')
-        }
-      }
-
-try {
-        await saveUserProfile(user.uid, profilePayload)
-      } catch (firestoreError) {
-
-        console.warn('Failed to save to Firestore (non-critical):', firestoreError)
-      }
-
-try {
-        await signOutUser()
-      } catch (signOutError) {
-        console.warn('Sign out error (non-critical):', signOutError)
-
-      }
-
-sessionStorage.removeItem('currentUser')
+      const { token, user: userFromAPI } = result
+      
+      console.log(`✅ ${isProfessor ? 'Professor' : 'Student'} account created:`, { 
+        name: signUpData.name, 
+        email: signUpData.email.trim() 
+      })
 
 if (isProfessor) {
         setProfessorSignUp({
@@ -536,25 +448,23 @@ setIsSubmitting(false)
       console.error('Sign up error', error)
       let message = 'Unable to create account. Please try again.'
 
-if (error.code === 'auth/email-already-in-use') {
-        message = 'An account with this email already exists. Please sign in instead.'
-      } else if (error.code === 'auth/invalid-email') {
-        message = 'Invalid email address.'
-      } else if (error.code === 'auth/weak-password') {
-        message = 'Password is too weak. Please choose a stronger password.'
-      } else if (error.code === 'auth/network-request-failed') {
-        message = 'Network error. Please check your connection and try again.'
-      }
-
-      else if (error.message && (error.message.includes('Network') || error.message.includes('Failed to fetch'))) {
-        message = 'Cannot connect to server. Please ensure the backend server is running on http://localhost:5000'
-      } else if (error.message && error.message.includes('500')) {
-        message = 'Server error. Please try again later or contact support.'
-      } else if (error.message && error.message.includes('400')) {
-        message = error.message || 'Invalid data provided. Please check your information.'
-      } else if (error.message) {
-
-        message = error.message
+      // Handle backend API errors
+      if (error.message) {
+        if (error.message.includes('already exists') || error.message.includes('User with this email')) {
+          message = 'An account with this email already exists. Please sign in instead.'
+        } else if (error.message.includes('Invalid email')) {
+          message = 'Invalid email address.'
+        } else if (error.message.includes('Password') || error.message.includes('password')) {
+          message = error.message
+        } else if (error.message.includes('Network') || error.message.includes('Failed to fetch')) {
+          message = 'Cannot connect to server. Please ensure the backend server is running on http://localhost:5000'
+        } else if (error.message.includes('500')) {
+          message = 'Server error. Please try again later or contact support.'
+        } else if (error.message.includes('400')) {
+          message = error.message || 'Invalid data provided. Please check your information.'
+        } else {
+          message = error.message
+        }
       }
 
       setAuthError(message)

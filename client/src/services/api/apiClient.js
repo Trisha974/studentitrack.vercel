@@ -1,18 +1,30 @@
 ﻿const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 const CSRF_TOKEN = import.meta.env.VITE_CSRF_TOKEN
 
-async function getAuthToken() {
+// Get JWT token from localStorage
+function getAuthToken() {
   try {
-    const { auth } = await import('../../firebase')
-    const user = auth.currentUser
-    if (!user) {
-      throw new Error('No authenticated user')
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+    if (!token) {
+      throw new Error('No authentication token found')
     }
-    return await user.getIdToken()
+    return token
   } catch (error) {
     console.error('Error getting auth token:', error)
     throw error
   }
+}
+
+// Store JWT token
+export function setAuthToken(token) {
+  localStorage.setItem('auth_token', token)
+  sessionStorage.setItem('auth_token', token)
+}
+
+// Remove JWT token
+export function clearAuthToken() {
+  localStorage.removeItem('auth_token')
+  sessionStorage.removeItem('auth_token')
 }
 
 async function apiRequest(endpoint, options = {}) {
@@ -22,7 +34,7 @@ async function apiRequest(endpoint, options = {}) {
   try {
     let token = null
     try {
-      token = await getAuthToken()
+      token = getAuthToken()
     } catch (authError) {
       console.warn('No auth token available, proceeding without Authorization header')
     }

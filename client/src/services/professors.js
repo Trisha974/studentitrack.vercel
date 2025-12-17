@@ -7,14 +7,19 @@ async function addProfessor(profile) {
   return professor.id
 }
 
-async function setProfessor(uid, profile) {
-  const professor = await professorsApi.setProfessor(uid, profile)
+async function setProfessor(profile) {
+  const professor = await professorsApi.setProfessor(profile)
   return professor ? { ...professor, role: 'Professor' } : null
 }
 
-async function getProfessorByUid(uid) {
-  const professor = await professorsApi.getProfessorByFirebaseUid(uid)
+async function getCurrentProfessor() {
+  const professor = await professorsApi.getCurrentProfessor()
   return professor ? { ...professor, role: 'Professor' } : null
+}
+
+// Backwards compatibility - maps to getCurrentProfessor
+async function getProfessorByUid(uid) {
+  return getCurrentProfessor()
 }
 
 async function getProfessorByEmail(email) {
@@ -57,4 +62,4 @@ if (id && typeof id !== 'number' && !/^\d+$/.test(String(id))) {
   return true
 }
 
-export { addProfessor, setProfessor, getProfessorByUid, getProfessorByEmail, listProfessors, updateProfessor, deleteProfessor }
+export { addProfessor, setProfessor, getCurrentProfessor, getProfessorByUid, getProfessorByEmail, listProfessors, updateProfessor, deleteProfessor }

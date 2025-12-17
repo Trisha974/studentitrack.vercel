@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Student.css'
-import { getStudentByUid, setStudent, updateStudent, getStudentByEmail, getStudentByNumericalId } from '../../services/students'
+import { getStudentByUid, setStudent, updateStudent, getStudentByEmail, getStudentByNumericalId, getCurrentStudent } from '../../services/students'
 import { getEnrollmentsByStudent, subscribeToStudentEnrollments } from '../../services/enrollments'
 import { getGradesByStudent, subscribeToStudentGrades } from '../../services/grades'
 import { getAttendanceByStudent, subscribeToStudentAttendance } from '../../services/attendance'
@@ -116,7 +116,8 @@ function Student() {
         console.warn('Failed to parse current user from session', err)
       }
 
-      setStudentUid(userData?.uid || null)
+      // Set studentUid to user ID (JWT-based) or fallback to uid for compatibility
+      setStudentUid(userData?.id || userData?.user_id || userData?.uid || null)
       if (userData?.email) setStudentEmail(userData.email)
 
       // Use sessionStorage data immediately for instant UI display (optimistic)
@@ -124,21 +125,35 @@ function Student() {
       setStudentName(fallbackName)
 
       // Load profile and all academic data from MySQL API
-      if (userData?.uid) {
+      // Check for JWT token or user ID
+      const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+      const userId = userData?.id || userData?.user_id || userData?.uid
+      
+      if (token || userId) {
         try {
-          // Get student profile (contains MySQL ID)
-          let profile = await getStudentByUid(userData.uid).catch(err => {
-            console.warn('Failed to load student profile:', err)
-            return null
-          })
+          // Get student profile using JWT (getCurrentStudent) or by ID
+          let profile = null
+          if (token) {
+            profile = await getCurrentStudent().catch(err => {
+              console.warn('Failed to load student profile with JWT:', err)
+              return null
+            })
+          } else if (userId) {
+            profile = await getStudentByUid(userId).catch(err => {
+              console.warn('Failed to load student profile:', err)
+              return null
+            })
+          }
 
           if (profile) {
             setStudentProfile(profile)
             setStudentMySQLId(profile.id) // Store MySQL ID
+            // Set studentUid to MySQL ID for compatibility
+            setStudentUid(profile.id.toString())
             
             console.log('✅ Student profile found in MySQL:', {
               mysqlId: profile.id,
-              firebaseUid: userData.uid,
+              userId: userId,
               studentId: profile.student_id,
               name: profile.name,
               email: profile.email
@@ -704,7 +719,7 @@ function Student() {
       
       try {
         console.log('📞 Calling getNotifications API for student MySQL ID:', studentMySQLId)
-        console.log('📞 Note: Backend will resolve student ID from Firebase UID, which may differ from frontend studentMySQLId')
+        console.log('📞 Note: Backend will resolve student ID from JWT token user ID')
         notificationsData = await getNotifications({ limit: 50 })
         console.log('📞 getNotifications returned:', {
           type: typeof notificationsData,
@@ -963,9 +978,20 @@ function Student() {
     const gradesUnsubscribe = subscribeToStudentGrades(studentMySQLId, (grades) => {
       console.log('📊 Grades polled for student MySQL ID:', studentMySQLId)
       console.log('📊 Grades received:', grades.length, 'grades')
+      console.log('📊 Grade details:', grades.map(g => ({
+        id: g.id,
+        course_id: g.course_id,
+        assessment_title: g.assessment_title,
+        score: g.score,
+        max_points: g.max_points
+      })))
       setLiveGrades(grades)
+      // Update ref immediately so recalculateData can use it
+      liveGradesRef.current = grades
       // Recalculate dashboard data after state update
-      setTimeout(recalculateData, 0)
+      setTimeout(() => {
+        recalculateData()
+      }, 100) // Small delay to ensure state is updated
     })
 
     // Poll for attendance (updates when professor marks attendance)
@@ -1428,6 +1454,16 @@ function Student() {
           maxPoints: g.max_points,
           courseId: g.course_id,
           courseIdType: typeof g.course_id
+        })),
+        allGradesInMap: Array.from(gradesByCourse.entries()).map(([id, grades]) => ({
+          mapKey: id,
+          mapKeyType: typeof id,
+          gradeCount: grades.length,
+          firstGrade: grades[0] ? {
+            id: grades[0].id,
+            course_id: grades[0].course_id,
+            course_idType: typeof grades[0].course_id
+          } : null
         }))
       })
 
@@ -2470,7 +2506,11 @@ function Student() {
     setProfileSaveError('')
     
     // Validation: Check if user is authenticated
-    if (!studentUid) {
+    // Check for JWT token or student MySQL ID
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+    const hasStudentId = studentMySQLId || studentUid
+    
+    if (!token && !hasStudentId) {
       setProfileSaveError('Unable to determine your account. Please sign in again.')
       return
     }
@@ -2532,7 +2572,8 @@ function Student() {
       }
 
       // Save to MySQL database (await to ensure data persists)
-      const savedProfile = await setStudent(studentUid, updatedProfile)
+      // setStudent now only takes the profile object (no UID needed - uses JWT)
+      const savedProfile = await setStudent(updatedProfile)
       
       if (!savedProfile) {
         throw new Error('Failed to save profile to database')

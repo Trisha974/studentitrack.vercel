@@ -15,8 +15,12 @@ console.log(`   User: ${DB_USER}`)
 console.log(`   Database: ${DB_NAME}`)
 console.log(`   Password: ${DB_PASSWORD ? '***' : '(empty)'}`)
 
+// Support Railway MySQL port if provided
+const DB_PORT = process.env.DB_PORT || process.env.MYSQLPORT || 3306
+
 const pool = mysql.createPool({
   host: DB_HOST,
+  port: parseInt(DB_PORT, 10),
   user: DB_USER,
   password: DB_PASSWORD,
   database: DB_NAME,

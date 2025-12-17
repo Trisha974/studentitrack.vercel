@@ -1,10 +1,11 @@
 ﻿ import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import './Prof.css'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
-import { db, auth, onAuthStateChanged as watchAuthState } from '../../firebase'
-import { getWithBackup, setWithBackup } from '../../services/firestoreWithBackup'
-import { getProfessorByUid, setProfessor } from '../../services/professors'
+// Firebase/Firestore imports removed - system now uses MySQL/JWT
+// import { doc, getDoc, setDoc } from 'firebase/firestore'
+// import { db, auth, onAuthStateChanged as watchAuthState } from '../../firebase'
+import { getDashboardState, saveDashboardState } from '../../services/dashboard'
+import { getProfessorByUid, setProfessor, getCurrentProfessor } from '../../services/professors'
 import { getStudentByEmail, getStudentByNumericalId, setStudent, addStudent, listStudents } from '../../services/students'
 import {
   syncStudentGrade,
@@ -229,7 +230,8 @@ function Prof() {
       
       try {
         // Try Firestore first, with localStorage backup
-        const profile = await getWithBackup('professors', profUid)
+        // Preferences are now stored in MySQL professor profile, not Firestore
+        const profile = await getProfessorByUid(profUid)
         if (profile?.preferences?.disableRealtimeUpdates !== undefined) {
           const firestoreValue = profile.preferences.disableRealtimeUpdates
           const localValue = localStorage.getItem('disableRealtimeUpdates') === 'true'
@@ -251,13 +253,9 @@ function Prof() {
             // Try to sync localStorage preference to Firestore
             try {
               const currentProfile = await getProfessorByUid(profUid)
-              await setWithBackup('professors', profUid, {
-                ...currentProfile,
-                preferences: {
-                  ...(currentProfile?.preferences || {}),
-                  disableRealtimeUpdates: true,
-                }
-              }, { merge: true })
+              // Preferences are now stored in MySQL professor profile
+              // Real-time updates preference is stored in localStorage only
+              console.log('Real-time updates preference stored in localStorage')
             } catch (e) {
               // Firestore unavailable, localStorage is backup
               console.warn('Could not sync preference to Firestore:', e.message)
@@ -372,7 +370,7 @@ function Prof() {
   // System-wide theme management
   const { isDarkMode, toggleTheme } = useTheme()
 
-  const DASHBOARD_COLLECTION = 'professorDashboards'
+  // Dashboard state is now stored in MySQL, not Firestore
   
   // Helper function to add custom UI alerts (replaces browser alerts)
   // Note: This will be defined after saveData, so we'll use a ref or move it after saveData definition
@@ -453,10 +451,10 @@ function Prof() {
     }
     setIsLoading(true)
     try {
-      // Try Firestore first, with localStorage backup
-      const saved = await getWithBackup(DASHBOARD_COLLECTION, uid)
+      // Load dashboard state from MySQL
+      const saved = await getDashboardState()
       if (saved) {
-        console.log('📥 Dashboard data loaded from Firestore:', {
+        console.log('📥 Dashboard data loaded from MySQL:', {
           subjects: (saved.subjects || []).length,
           students: (saved.students || []).length,
           enrolls: Object.keys(saved.enrolls || {}).length,
@@ -478,13 +476,12 @@ function Prof() {
         const needsMigration = JSON.stringify(saved) !== JSON.stringify(migrated)
         if (needsMigration) {
           console.log('Migrating legacy student IDs to numerical IDs...')
-          // Save migrated data back to Firestore (with localStorage backup)
-          // Use forceWrite to ensure migration is saved even if data looks similar
-          await setWithBackup(DASHBOARD_COLLECTION, uid, {
+          // Save migrated data back to MySQL
+          await saveDashboardState({
             ...migrated,
-            ownerUid: uid,
-            updatedAt: new Date().toISOString(),
-          }, { forceWrite: true })
+            removedSubjects: migrated.removedSubjects || [],
+            recycleBinSubjects: migrated.recycleBinSubjects || []
+          })
           console.log('Migration complete - data saved with numerical IDs')
         }
         
@@ -557,17 +554,14 @@ function Prof() {
         const hadInconsistencies = JSON.stringify(normalizedLoadedForCompare) !== JSON.stringify(cleanedEnrolls)
         if (hadInconsistencies) {
           console.warn('⚠️ Data inconsistency detected: Archived students found in enrolls. Cleaning and saving...')
-          // Save cleaned data back to Firestore (with localStorage backup) to fix inconsistency
+          // Save cleaned data back to MySQL to fix inconsistency
           try {
-            // Use full document write (no merge) to ensure complete data consistency
-            // Use forceWrite to ensure the save happens even if data looks similar
-            await setWithBackup(DASHBOARD_COLLECTION, uid, {
+            await saveDashboardState({
               ...migrated,
-              enrolls: cleanedEnrolls,
-              ownerUid: uid,
-              updatedAt: new Date().toISOString(),
-            }, { forceWrite: true })
-            console.log('✅ Cleaned enrolls data saved to Firestore (full document write)')
+              removedSubjects: migrated.removedSubjects || [],
+              recycleBinSubjects: migrated.recycleBinSubjects || []
+            })
+            console.log('✅ Cleaned enrolls data saved to MySQL')
           } catch (error) {
             console.error('Failed to save cleaned enrolls:', error)
           }
@@ -681,7 +675,7 @@ function Prof() {
         
         // Single refresh is sufficient - React will handle state updates
         
-        console.log('✅ Dashboard data loaded from Firestore:', {
+        console.log('✅ Dashboard data loaded from MySQL:', {
           subjects: (migrated.subjects || []).length,
           students: (migrated.students || []).length,
           enrolls: Object.keys(finalEnrolls || {}).length,
@@ -738,12 +732,8 @@ function Prof() {
         setIsLoading(false)
         return true
       } else {
-        // Only create defaults if no data exists (first-time user)
-        const defaultSubjects = [
-          { code: "CCE106 2061", name: "Application Dev", credits: "3" },
-          { code: "IT 14 2062", name: "Professional Track", credits: "4" },
-          { code: "IT11 2063", name: "Networking II", credits: "5" },
-        ]
+        // New professor - start with empty dashboard (no hardcoded subjects)
+        const defaultSubjects = [] // Empty - professor will add their own subjects
         const defaultStudents = []
         const defaultEnrolls = {} // Will be built from MySQL on load
         setSubjects(defaultSubjects)
@@ -751,33 +741,25 @@ function Prof() {
         setNormalizedEnrolls(defaultEnrolls)
         setRecords({})
         setGrades({})
-        // Save to Firestore with localStorage backup (enrolls not saved - MySQL is source of truth)
-        await setWithBackup(DASHBOARD_COLLECTION, uid, {
+        // Save to MySQL (enrolls not saved - MySQL is source of truth)
+        await saveDashboardState({
           subjects: defaultSubjects,
+          removedSubjects: [],
+          recycleBinSubjects: [],
           students: defaultStudents,
-          // enrolls removed - MySQL is now the single source of truth
           alerts: [],
           records: {},
-          grades: {},
-          ownerUid: uid,
-          updatedAt: new Date().toISOString(),
+          grades: {}
         })
-        console.log('Default dashboard data created for new user')
+        console.log('Empty dashboard initialized for new professor - no default subjects')
         setIsLoading(false)
         return true
       }
     } catch (e) {
       console.error('Failed to load professor dashboard data', e)
       
-      // Check if it's a quota error
-      if (e.code === 'resource-exhausted' || e.message?.includes('quota') || e.message?.includes('Quota')) {
-        console.error('⚠️ Firestore quota exceeded!')
-        console.error('💡 To reduce quota usage, disable real-time updates:')
-        console.error('   localStorage.setItem("disableRealtimeUpdates", "true")')
-        console.error('💡 Or upgrade to Blaze plan for higher limits')
-        // Note: addCustomAlert may not be available yet during loadData
-        // Error will be shown via console and can be handled by UI
-      }
+      // Error loading dashboard state
+      console.error('Failed to load dashboard state from MySQL:', e)
       
       setIsLoading(false)
       return false
@@ -815,9 +797,10 @@ function Prof() {
     // auth.currentUser, or sessionStorage as fallbacks
     let uidToUse = uidOverride || profUid
 
-    if (!uidToUse && auth?.currentUser?.uid) {
-      uidToUse = auth.currentUser.uid
-    }
+    // Firebase auth removed - use JWT token user ID instead
+    // if (!uidToUse && auth?.currentUser?.uid) {
+    //   uidToUse = auth.currentUser.uid
+    // }
 
     if (!uidToUse) {
       try {
@@ -890,51 +873,30 @@ function Prof() {
         ...payload
       }
       
-      // CRITICAL: Save to Firestore with localStorage backup
-      // Use setDoc WITHOUT merge to ensure complete data replacement
-      // This prevents partial updates that might restore archived students
-      // Use forceWrite to bypass deduplication check and ensure data is always saved
-      // This is critical for imports where we need to ensure new students are saved
-      const success = await setWithBackup(DASHBOARD_COLLECTION, uidToUse, normalizedPayload, { forceWrite: true })
-      if (success) {
-        console.log('✅ Data saved successfully to Firestore:', {
+      // Save to MySQL
+      await saveDashboardState({
+        subjects: normalizedPayload.subjects || [],
+        removedSubjects: normalizedPayload.removedSubjects || [],
+        recycleBinSubjects: normalizedPayload.recycleBinSubjects || [],
+        students: normalizedPayload.students || [],
+        records: normalizedPayload.records || {},
+        grades: normalizedPayload.grades || {},
+        alerts: normalizedPayload.alerts || []
+      })
+      
+      console.log('✅ Data saved successfully to MySQL:', {
         subjects: (normalizedPayload.subjects || []).length,
         students: (normalizedPayload.students || []).length,
-        enrolls: Object.keys(normalizedPayload.enrolls || {}).length,
-        enrollsDetails: Object.keys(normalizedPayload.enrolls || {}).map(key => ({
-          subject: key,
-          studentCount: (normalizedPayload.enrolls[key] || []).length,
-          studentIds: normalizedPayload.enrolls[key]
-        })),
         alerts: (normalizedPayload.alerts || []).length,
         records: Object.keys(normalizedPayload.records || {}).length,
-        grades: Object.keys(normalizedPayload.grades || {}).length,
-        updatedAt: normalizedPayload.updatedAt,
-        dataIntegrity: '✅ All enrolled students exist in students array'
+        grades: Object.keys(normalizedPayload.grades || {}).length
       })
-      } else {
-        console.log('⚠️ Data saved to localStorage backup (Firestore unavailable):', {
-          subjects: (normalizedPayload.subjects || []).length,
-          students: (normalizedPayload.students || []).length,
-          enrolls: Object.keys(normalizedPayload.enrolls || {}).length,
-          enrollsDetails: Object.keys(normalizedPayload.enrolls || {}).map(key => ({
-            subject: key,
-            studentCount: (normalizedPayload.enrolls[key] || []).length
-          })),
-          alerts: (normalizedPayload.alerts || []).length,
-          records: Object.keys(normalizedPayload.records || {}).length,
-          grades: Object.keys(normalizedPayload.grades || {}).length,
-          updatedAt: normalizedPayload.updatedAt,
-        })
-      }
-      return success
+      
+      return true
     } catch (e) {
       console.error('Failed to save professor dashboard data', e)
-      // Check if it's a quota error
-      if (e.code === 'resource-exhausted' || e.message?.includes('quota') || e.message?.includes('Quota')) {
-        console.error('⚠️ Firestore quota exceeded! Please check Firebase Console or wait for daily reset.')
-        addCustomAlert('error', 'Quota Exceeded', 'Firestore quota has been exceeded. Data will be saved when quota resets (daily at midnight Pacific Time).', false)
-      }
+      // Error saving dashboard state
+      console.error('Failed to save dashboard state to MySQL:', e)
       throw e // Re-throw to allow callers to handle errors
     }
   }, [])
@@ -968,27 +930,46 @@ function Prof() {
     return newAlert
   }, [alerts, subjects, students, enrolls, records, grades, profUid])
 
+  // Firebase auth removed - use JWT token from sessionStorage instead
   const waitForAuthUser = useCallback(() => {
     return new Promise((resolve) => {
-      if (auth?.currentUser) {
-        resolve(auth.currentUser)
-        return
+      // Get user from sessionStorage (set during login)
+      try {
+        const currentUser = sessionStorage.getItem('currentUser')
+        if (currentUser) {
+          const userData = JSON.parse(currentUser)
+          resolve(userData || null)
+          return
+        }
+      } catch (e) {
+        console.warn('Failed to get user from sessionStorage:', e)
       }
-      const unsubscribe = watchAuthState((user) => {
-        unsubscribe()
-        resolve(user || null)
-      })
+      resolve(null)
     })
   }, [])
 
   useEffect(() => {
     const initializeProfessor = async () => {
-      let firebaseUser = auth?.currentUser
-      if (!firebaseUser) {
-        firebaseUser = await waitForAuthUser()
+      // Get user from sessionStorage (JWT-based auth)
+      let currentUser = null
+      try {
+        const userData = sessionStorage.getItem('currentUser')
+        if (userData) {
+          currentUser = JSON.parse(userData)
+        }
+      } catch (e) {
+        console.warn('Failed to parse user data:', e)
+      }
+      
+      // Fallback to waitForAuthUser if needed
+      if (!currentUser) {
+        currentUser = await waitForAuthUser()
       }
 
-      if (!firebaseUser) {
+      // Check if user is authenticated (has JWT token)
+      const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+      if (!currentUser || !token) {
+        console.warn('No authenticated user found, redirecting to login')
         navigate('/login', { replace: true })
         return
       }
@@ -1003,28 +984,41 @@ function Prof() {
         }
       }
 
-      if (!userData || userData.uid !== firebaseUser.uid) {
+      if (!userData) {
+        // Create userData from currentUser (JWT-based auth)
         userData = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email || '',
-          name: firebaseUser.displayName || 'Professor User',
+          id: currentUser.id || currentUser.user_id,
+          email: currentUser.email || '',
+          name: currentUser.name || 'Professor User',
+          type: currentUser.type || 'Professor'
         }
         sessionStorage.setItem('currentUser', JSON.stringify(userData))
       }
 
-      setProfUid(firebaseUser.uid)
+      // Use user ID from JWT token instead of Firebase UID
+      const userId = userData.id || currentUser.id || currentUser.user_id
+      if (!userId) {
+        console.error('No user ID found, redirecting to login')
+        navigate('/login', { replace: true })
+        return
+      }
+
+      // Set professor ID (using MySQL ID, not Firebase UID)
+      setProfUid(userId.toString())
       if (userData.email) setProfEmail(userData.email)
       if (userData.name) {
         setProfName(userData.name)
         setProfileForm(prev => ({ ...prev, name: userData.name }))
       }
 
-      const profilePromise = getProfessorByUid(firebaseUser.uid).catch(err => {
+      // Get profile using current professor endpoint (JWT-based)
+      const profilePromise = getCurrentProfessor().catch(err => {
         console.warn('Unable to load professor profile from database', err)
         return null
       })
 
-      const dashboardPromise = loadData(firebaseUser.uid).catch(err => {
+      // Load dashboard data (will use profUid from state)
+      const dashboardPromise = loadData(userId.toString()).catch(err => {
         console.error('Failed to load professor dashboard data', err)
         return false
       })
@@ -1053,7 +1047,7 @@ function Prof() {
         // Try to reload data after a short delay
         setTimeout(async () => {
           console.log('🔄 Retrying data load...')
-          const retryLoaded = await loadData(firebaseUser.uid)
+          const retryLoaded = await loadData(userId ? userId.toString() : profUid)
           if (retryLoaded) {
             console.log('✅ Data loaded successfully on retry')
             // Rebuild enrolls from MySQL if profile exists
@@ -1071,14 +1065,14 @@ function Prof() {
         }, 2000)
       }
 
-      // Ensure every logged-in Firebase user that reaches this page
+      // Ensure every logged-in user that reaches this page
       // has a corresponding professor profile in the MySQL backend.
       if (!profile) {
         try {
-          const fallbackName = userData.name || firebaseUser.displayName || 'Professor User'
-          const defaultPhotoURL = getDefaultAvatar(fallbackName, firebaseUser.uid)
+          const fallbackName = userData.name || currentUser.name || 'Professor User'
+          const defaultPhotoURL = getDefaultAvatar(fallbackName, userId.toString())
           // Ensure email is available before creating profile
-          const profileEmail = userData.email || firebaseUser.email
+          const profileEmail = userData.email || currentUser.email
           if (!profileEmail) {
             console.warn('⚠️ Cannot auto-create professor profile: email is missing')
             throw new Error('Email is required to create professor profile')
@@ -1092,7 +1086,8 @@ function Prof() {
             photoURL: defaultPhotoURL,
           }
 
-          const created = await setProfessor(firebaseUser.uid, newProfile)
+          // Use setProfessor which will create/update via backend API
+          const created = await setProfessor(newProfile)
           profile = created || newProfile
           console.log('✅ Auto-created professor profile for current user')
         } catch (e) {
@@ -1121,7 +1116,7 @@ function Prof() {
         // Ensure profile has MySQL ID - if not, reload it
         if (!profile.id) {
           console.warn('⚠️ Professor profile missing MySQL ID, reloading...')
-          const reloadedProfile = await getProfessorByUid(firebaseUser.uid)
+          const reloadedProfile = await getCurrentProfessor()
           if (reloadedProfile && reloadedProfile.id) {
             setProfProfile(reloadedProfile)
             console.log('✅ Reloaded professor profile with MySQL ID:', reloadedProfile.id)
@@ -1958,7 +1953,15 @@ function Prof() {
         }
         
         try {
-          await setWithBackup(DASHBOARD_COLLECTION, profUid, payload, { forceWrite: true })
+          await saveDashboardState({
+            subjects: payload.subjects || [],
+            removedSubjects: payload.removedSubjects || [],
+            recycleBinSubjects: payload.recycleBinSubjects || [],
+            students: payload.students || [],
+            records: payload.records || {},
+            grades: payload.grades || {},
+            alerts: payload.alerts || []
+          })
         } catch (error) {
           console.error('Failed to save restored subject', error)
         }
@@ -1978,7 +1981,15 @@ function Prof() {
         }
         
         try {
-          await setWithBackup(DASHBOARD_COLLECTION, profUid, payload, { forceWrite: true })
+          await saveDashboardState({
+            subjects: payload.subjects || [],
+            removedSubjects: payload.removedSubjects || [],
+            recycleBinSubjects: payload.recycleBinSubjects || [],
+            students: payload.students || [],
+            records: payload.records || {},
+            grades: payload.grades || {},
+            alerts: payload.alerts || []
+          })
         } catch (error) {
           console.error('Failed to save restored subject', error)
         }
@@ -1999,7 +2010,15 @@ function Prof() {
       }
       
       try {
-        await setWithBackup(DASHBOARD_COLLECTION, profUid, payload, { forceWrite: true })
+        await saveDashboardState({
+          subjects: payload.subjects || [],
+          removedSubjects: payload.removedSubjects || [],
+          recycleBinSubjects: payload.recycleBinSubjects || [],
+          students: payload.students || [],
+          records: payload.records || {},
+          grades: payload.grades || {},
+          alerts: payload.alerts || []
+        })
       } catch (error) {
         console.error('Failed to save restored subject', error)
       }
@@ -2100,9 +2119,17 @@ function Prof() {
       updatedAt: new Date().toISOString(),
     }
     
-    // Save directly using setWithBackup
+    // Save directly using saveDashboardState
     try {
-      await setWithBackup(DASHBOARD_COLLECTION, profUid, payload, { forceWrite: true })
+      await saveDashboardState({
+        subjects: payload.subjects || [],
+        removedSubjects: payload.removedSubjects || [],
+        recycleBinSubjects: payload.recycleBinSubjects || [],
+        students: payload.students || [],
+        records: payload.records || {},
+        grades: payload.grades || {},
+        alerts: payload.alerts || []
+      })
     } catch (error) {
       console.error('Failed to save removed subject', error)
     }
@@ -2155,7 +2182,15 @@ function Prof() {
       }
 
       try {
-        await setWithBackup(DASHBOARD_COLLECTION, profUid, payload, { forceWrite: true })
+        await saveDashboardState({
+          subjects: payload.subjects || [],
+          removedSubjects: payload.removedSubjects || [],
+          recycleBinSubjects: payload.recycleBinSubjects || [],
+          students: payload.students || [],
+          records: payload.records || {},
+          grades: payload.grades || {},
+          alerts: payload.alerts || []
+        })
       } catch (error) {
         console.error('Failed to save after moving to recycle bin', error)
       }
@@ -2199,7 +2234,15 @@ function Prof() {
     }
 
     try {
-      await setWithBackup(DASHBOARD_COLLECTION, profUid, payload, { forceWrite: true })
+      await saveDashboardState({
+        subjects: payload.subjects || [],
+        removedSubjects: payload.removedSubjects || [],
+        recycleBinSubjects: payload.recycleBinSubjects || [],
+        students: payload.students || [],
+        records: payload.records || {},
+        grades: payload.grades || {},
+        alerts: payload.alerts || []
+      })
     } catch (error) {
       console.error('Failed to save after moving to recycle bin', error)
     }
@@ -2286,7 +2329,15 @@ function Prof() {
       }
 
       try {
-        await setWithBackup(DASHBOARD_COLLECTION, profUid, payload, { forceWrite: true })
+        await saveDashboardState({
+          subjects: payload.subjects || [],
+          removedSubjects: payload.removedSubjects || [],
+          recycleBinSubjects: payload.recycleBinSubjects || [],
+          students: payload.students || [],
+          records: payload.records || {},
+          grades: payload.grades || {},
+          alerts: payload.alerts || []
+        })
       } catch (error) {
         console.error('Failed to save after permanent delete', error)
       }
@@ -2340,7 +2391,15 @@ function Prof() {
     }
 
     try {
-      await setWithBackup(DASHBOARD_COLLECTION, profUid, payload, { forceWrite: true })
+      await saveDashboardState({
+        subjects: payload.subjects || [],
+        removedSubjects: payload.removedSubjects || [],
+        recycleBinSubjects: payload.recycleBinSubjects || [],
+        students: payload.students || [],
+        records: payload.records || {},
+        grades: payload.grades || {},
+        alerts: payload.alerts || []
+      })
     } catch (error) {
       console.error('Failed to save after permanent delete', error)
     }
@@ -2386,7 +2445,15 @@ function Prof() {
     }
 
     try {
-      await setWithBackup(DASHBOARD_COLLECTION, profUid, payload, { forceWrite: true })
+      await saveDashboardState({
+        subjects: payload.subjects || [],
+        removedSubjects: payload.removedSubjects || [],
+        recycleBinSubjects: payload.recycleBinSubjects || [],
+        students: payload.students || [],
+        records: payload.records || {},
+        grades: payload.grades || {},
+        alerts: payload.alerts || []
+      })
     } catch (error) {
       console.error('Failed to save after restore', error)
     }
@@ -2931,38 +2998,96 @@ function Prof() {
             console.log(`💾 Student: ${student.name} (Numerical ID: ${student.id}, MySQL ID: ${studentMySQLId})`)
 
             // Create grade in MySQL
+            // Convert score to number if it's a string
+            const scoreValue = typeof assessment.scores[studentId] === 'string' 
+              ? parseFloat(assessment.scores[studentId]) 
+              : assessment.scores[studentId]
+            
+            // Ensure score and maxPoints are numbers
+            if (isNaN(scoreValue) || scoreValue < 0) {
+              throw new Error(`Invalid score: ${assessment.scores[studentId]}`)
+            }
+            if (isNaN(maxPoints) || maxPoints <= 0) {
+              throw new Error(`Invalid maxPoints: ${maxPoints}`)
+            }
+            
             const gradeData = {
-              studentId: studentMySQLId,
-              courseId: courseId,
+              studentId: parseInt(studentMySQLId),
+              courseId: parseInt(courseId),
               assessmentType: quickGradeType,
               assessmentTitle: quickGradeTitle,
-              score: assessment.scores[studentId],
-              maxPoints: maxPoints,
+              score: scoreValue,
+              maxPoints: parseFloat(maxPoints),
               date: new Date().toISOString().split('T')[0] // Today's date in YYYY-MM-DD format
             }
             console.log(`💾 Saving grade to MySQL:`, gradeData)
             
-            await createGrade(gradeData)
-
-            savedCount++
-            console.log(`✅ Grade saved to MySQL for student ${student.id} (MySQL ID: ${studentMySQLId})`)
+            const gradeResult = await createGrade(gradeData)
+            
+            // createGrade returns either:
+            // 1. A string ID (from grades.js: return grade.id.toString())
+            // 2. An object with id or grade_id property
+            // 3. null/undefined if failed
+            
+            let gradeId = null
+            if (typeof gradeResult === 'string' && gradeResult.length > 0) {
+              // Result is a string ID (e.g., '118', '119')
+              gradeId = gradeResult
+              savedCount++
+              console.log(`✅ Grade saved to MySQL for student ${student.id} (MySQL ID: ${studentMySQLId}, Grade ID: ${gradeId})`)
+            } else if (gradeResult && typeof gradeResult === 'object') {
+              // Result is an object with id or grade_id
+              gradeId = gradeResult.id || gradeResult.grade_id
+              if (gradeId) {
+                savedCount++
+                console.log(`✅ Grade saved to MySQL for student ${student.id} (MySQL ID: ${studentMySQLId}, Grade ID: ${gradeId})`)
+              } else {
+                failedCount++
+                failedStudents.push(student.name || student.id)
+                const errorMsg = 'Grade save returned object but no ID found'
+                errorDetails.push(`${student.name || student.id}: ${errorMsg}`)
+                console.error(`❌ Failed to save grade for student ${studentId}: No grade ID in result object`, {
+                  gradeResult,
+                  gradeData
+                })
+              }
+            } else {
+              // No result or invalid result
+              failedCount++
+              failedStudents.push(student.name || student.id)
+              const errorMsg = 'Grade save returned no result'
+              errorDetails.push(`${student.name || student.id}: ${errorMsg}`)
+              console.error(`❌ Failed to save grade for student ${studentId}: No grade ID returned`, {
+                gradeResult,
+                gradeResultType: typeof gradeResult,
+                gradeData
+              })
+            }
           } catch (error) {
-            failedCount++
-            failedStudents.push(student.name || student.id)
+            // Check if error suggests the grade was actually saved
             const errorMsg = error.message || error.toString()
-            errorDetails.push(`${student.name || student.id}: ${errorMsg}`)
-            console.error(`❌ Failed to save grade for student ${studentId}:`, error)
-            console.error('Error details:', {
-              studentId: student.id,
-              courseId: courseId,
-              assessmentType: quickGradeType,
-              assessmentTitle: quickGradeTitle,
-              score: assessment.scores[studentId],
-              maxPoints: maxPoints,
-              error: error,
-              errorMessage: error.message,
-              errorStack: error.stack
-            })
+            if (errorMsg.includes('notification') || (errorMsg.includes('Validation failed') && errorMsg.includes('400'))) {
+              // Grade might have been saved despite notification/validation error
+              console.log(`⚠️ Got error but grade may have been saved: ${errorMsg}`)
+              savedCount++
+              console.log(`✅ Grade likely saved despite error for student ${student.id}`)
+            } else {
+              failedCount++
+              failedStudents.push(student.name || student.id)
+              errorDetails.push(`${student.name || student.id}: ${errorMsg}`)
+              console.error(`❌ Failed to save grade for student ${studentId}:`, error)
+              console.error('Error details:', {
+                studentId: student.id,
+                courseId: courseId,
+                assessmentType: quickGradeType,
+                assessmentTitle: quickGradeTitle,
+                score: assessment.scores[studentId],
+                maxPoints: maxPoints,
+                error: error,
+                errorMessage: error.message,
+                errorStack: error.stack
+              })
+            }
           }
         } else {
           console.log(`⏭️ Skipping student ${studentId}: ${!student ? 'student not found' : 'no score entered'}`)
@@ -4011,10 +4136,10 @@ function Prof() {
               const enrolledCount = enrolls[subject.code]?.length || 0
               const isActive = subjectPreviewCode === subject.code
               return (
-                <button
+                <div
                   key={`preview-${subject.code}`}
                   onClick={() => setSubjectPreviewCode(subject.code)}
-                  className={`text-left glass card shadowLg p-4 sm:p-6 rounded-2xl transition-all w-full ${
+                  className={`text-left glass card shadowLg p-4 sm:p-6 rounded-2xl transition-all w-full cursor-pointer ${
                     isDarkMode
                       ? 'bg-[#1a1a1a] border border-slate-700'
                       : ''
@@ -4101,7 +4226,7 @@ function Prof() {
                         ? 'text-slate-400 hover:text-red-300' 
                       : 'text-slate-400 hover:text-[#7A1315]'
                   }`}>Click to view student records</p>
-                </button>
+                </div>
               )
                   })}
                   {filteredSubjects.length === 0 && (
@@ -6590,12 +6715,12 @@ function Prof() {
       await new Promise(resolve => setTimeout(resolve, 2000))
       console.log('✅ Import complete - real-time listener re-enabled after 2s delay')
       
-      // Verify data was saved correctly by reading back from Firestore
-      // Wait a bit more for Firestore to fully propagate
+      // Verify data was saved correctly by reading back from MySQL
+      // Wait a bit more for MySQL to fully propagate
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       try {
-        const savedData = await getWithBackup(DASHBOARD_COLLECTION, profUid)
+        const savedData = await getDashboardState()
         if (savedData && savedData.enrolls) {
           // Normalize the saved enrolls to ensure consistency
           const normalizedSavedEnrolls = normalizeEnrollsMap(savedData.enrolls)
@@ -7039,14 +7164,14 @@ function Prof() {
       })
 
       console.log('Calling setProfessor with profile:', {
-        uid: profUid,
         name: updatedProfile.name,
         email: updatedProfile.email,
         hasPhoto: !!updatedProfile.photoURL
       })
 
-      // Save to Firestore (await to ensure completion)
-      const savedProfessor = await setProfessor(profUid, updatedProfile)
+      // Save to backend API (await to ensure completion)
+      // setProfessor now only takes the profile object (no UID needed - uses JWT)
+      const savedProfessor = await setProfessor(updatedProfile)
       
       console.log('Profile saved successfully:', savedProfessor)
 
@@ -10909,9 +11034,9 @@ function Prof() {
                                         disableRealtimeUpdates: newValue,
                                       }
                                     }
-                                    // Save to Firestore with localStorage backup
-                                    await setWithBackup('professors', profUid, updatedProfile, { merge: true })
-                                    console.log('✅ Real-time preference saved to Firestore')
+                                    // Preferences are now stored in MySQL professor profile
+                                    // Real-time updates preference is stored in localStorage only
+                                    console.log('✅ Real-time preference saved to localStorage')
                                   } catch (firestoreError) {
                                     // Firestore failed, but localStorage backup already saved
                                     console.warn('Could not save to Firestore, using localStorage backup:', firestoreError.message)

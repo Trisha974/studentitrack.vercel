@@ -16,8 +16,8 @@ async function addStudent(profile) {
   }
 }
 
-async function setStudent(uid, profile) {
-  const student = await studentsApi.setStudent(uid, profile)
+async function setStudent(profile) {
+  const student = await studentsApi.setStudent(profile)
   if (!student) return null
   return {
     ...student,
@@ -27,17 +27,20 @@ async function setStudent(uid, profile) {
   }
 }
 
-async function getStudentByUid(uid) {
-  const student = await studentsApi.getStudentByFirebaseUid(uid)
-
+async function getCurrentStudent() {
+  const student = await studentsApi.getCurrentStudent()
   if (!student) return null
   return {
     ...student,
     role: 'Student',
-
     studentId: student.student_id || student.studentId,
     photoURL: student.photo_url || student.photoURL
   }
+}
+
+// Backwards compatibility - maps to getCurrentStudent
+async function getStudentByUid(uid) {
+  return getCurrentStudent()
 }
 
 async function getStudentByEmail(email) {
@@ -109,4 +112,4 @@ if (id && typeof id !== 'number' && !/^\d+$/.test(String(id))) {
   return true
 }
 
-export { addStudent, setStudent, getStudentByUid, getStudentByEmail, getStudentByNumericalId, listStudents, updateStudent, deleteStudent }
+export { addStudent, setStudent, getCurrentStudent, getStudentByUid, getStudentByEmail, getStudentByNumericalId, listStudents, updateStudent, deleteStudent }

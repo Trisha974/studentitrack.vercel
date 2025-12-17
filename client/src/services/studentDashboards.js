@@ -1,27 +1,30 @@
 ﻿
 
-import { db } from '../firebase'
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+// Firebase/Firestore imports removed - system now uses MySQL/JWT
+// import { db } from '../firebase'
+// import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+const db = null
 
 const COLLECTION = 'studentDashboards'
 
 async function getStudentDashboard(uid) {
   if (!uid) return null
-  const docRef = doc(db, COLLECTION, uid)
-  const snap = await getDoc(docRef)
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null
+  // Firestore disabled - return null (use MySQL backend instead)
+  // const docRef = doc(db, COLLECTION, uid)
+  // const snap = await getDoc(docRef)
+  // return snap.exists() ? { id: snap.id, ...snap.data() } : null
+  return null
 }
 
 async function setStudentDashboard(uid, data) {
   if (!uid) return null
-  const docRef = doc(db, COLLECTION, uid)
-  const payload = {
-    ...data,
-    updatedAt: new Date().toISOString(),
-  }
-  await setDoc(docRef, payload, { merge: true })
-  const snap = await getDoc(docRef)
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null
+  // Firestore disabled - return null (use MySQL backend instead)
+  // const docRef = doc(db, COLLECTION, uid)
+  // const payload = { ...data, updatedAt: new Date().toISOString() }
+  // await setDoc(docRef, payload, { merge: true })
+  // const snap = await getDoc(docRef)
+  // return snap.exists() ? { id: snap.id, ...snap.data() } : null
+  return null
 }
 
 async function updateStudentDashboard(uid, updates = {}) {

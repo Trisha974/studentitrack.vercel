@@ -1,9 +1,9 @@
 ﻿
 import apiClient from './apiClient'
 
-export async function getProfessorByFirebaseUid(uid) {
+export async function getCurrentProfessor() {
   try {
-    const professor = await apiClient.get(`/professors/firebase/${uid}`)
+    const professor = await apiClient.get('/professors/me')
     return professor
   } catch (error) {
     if (error.message.includes('404') || error.message.includes('not found')) {
@@ -39,7 +39,6 @@ export async function getProfessorByEmail(email) {
 
 export async function createProfessor(data) {
   return apiClient.post('/professors', {
-    firebase_uid: data.firebase_uid || data.uid,
     name: data.name,
     email: data.email,
     department: data.department,
@@ -67,11 +66,7 @@ export async function listProfessors(filters = {}) {
   return apiClient.get(endpoint)
 }
 
-export async function setProfessor(uid, profile) {
-  if (!uid) {
-    throw new Error('Firebase UID is required')
-  }
-
+export async function setProfessor(profile) {
   if (!profile.name || !profile.name.trim()) {
     throw new Error('Name is required')
   }
@@ -79,7 +74,7 @@ export async function setProfessor(uid, profile) {
     throw new Error('Email is required')
   }
 
-  let professor = await getProfessorByFirebaseUid(uid).catch(() => null)
+  let professor = await getCurrentProfessor().catch(() => null)
 
   if (professor && professor.id && !isNaN(professor.id)) {
     const updateData = {
@@ -105,8 +100,7 @@ export async function setProfessor(uid, profile) {
       name: profile.name?.trim(),
       email: profile.email?.trim(),
       department: profile.department?.trim() || null,
-      photoUrl: profile.photoUrl || profile.photo_url || profile.photoURL || null,
-      firebase_uid: uid
+      photoUrl: profile.photoUrl || profile.photo_url || profile.photoURL || null
     }
 
     if (!createData.name || !createData.email) {

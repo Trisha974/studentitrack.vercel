@@ -11,7 +11,9 @@ export function generateUniqueAvatar(name, uniqueId) {
 
   const initials = getInitials(name)
 
-const hash = uniqueId.split('').reduce((acc, char) => {
+  // Ensure uniqueId is a string before calling split
+  const uniqueIdStr = String(uniqueId || '')
+  const hash = uniqueIdStr.split('').reduce((acc, char) => {
     return ((acc << 5) - acc) + char.charCodeAt(0)
   }, 0)
 

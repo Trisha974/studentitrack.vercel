@@ -1,4 +1,4 @@
-const pool = require('../config/db')
+const pool = require('../shared/config/database')
 
 const getStudentReport = async (studentId) => {
   const [students] = await pool.execute(

@@ -11,6 +11,7 @@ async function corsPlugin(fastify, options) {
       'http://localhost:5177',
       'http://127.0.0.1:5177',
       'https://studentitrack1.vercel.app',
+      'https://*.vercel.app', // Allow all Vercel preview deployments
       FRONTEND_URL
     ].filter(Boolean), // Remove undefined values if FRONTEND_URL is not set
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
