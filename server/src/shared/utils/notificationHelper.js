@@ -44,7 +44,9 @@ async function createGradeNotification(studentId, courseId, gradeId, gradeData) 
       courseId,
       gradeId
     })
-    throw error
+    // Don't throw - notification failure shouldn't block grade creation
+    // Return null to indicate notification wasn't created
+    return null
   }
 }
 

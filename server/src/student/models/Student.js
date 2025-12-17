@@ -3,12 +3,20 @@
 class Student {
   static async create(data) {
     const { firebase_uid, name, email, student_id, department, photo_url } = data
-    const [result] = await pool.execute(
-      `INSERT INTO students (firebase_uid, name, email, student_id, department, photo_url)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [firebase_uid, name, email, student_id || null, department || null, photo_url || null]
-    )
-    return this.findById(result.insertId)
+    try {
+      const [result] = await pool.execute(
+        `INSERT INTO students (firebase_uid, name, email, student_id, department, photo_url)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [firebase_uid || null, name, email, student_id || null, department || null, photo_url || null]
+      )
+      return this.findById(result.insertId)
+    } catch (error) {
+      console.error('Student.create error:', error.message)
+      console.error('SQL Error Code:', error.code)
+      console.error('SQL Error SQL State:', error.sqlState)
+      console.error('SQL Error SQL Message:', error.sqlMessage)
+      throw error
+    }
   }
 
   static async findById(id) {

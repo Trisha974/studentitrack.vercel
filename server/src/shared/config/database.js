@@ -1,12 +1,12 @@
 ﻿const mysql = require('mysql2/promise')
 require('dotenv').config()
 
-// Railway provides MySQL variables with MYSQL prefix
-// Map them to our expected variable names if Railway variables exist
-const DB_HOST = process.env.DB_HOST || process.env.MYSQLHOST || 'localhost'
-const DB_USER = process.env.DB_USER || process.env.MYSQLUSER || 'root'
-const DB_PASSWORD = process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || ''
-const DB_NAME = process.env.DB_NAME || process.env.MYSQLDATABASE || 'student_itrack'
+// Database configuration - supports any MySQL host
+// Environment variables can be set for any hosting provider
+const DB_HOST = process.env.DB_HOST || 'localhost'
+const DB_USER = process.env.DB_USER || 'root'
+const DB_PASSWORD = process.env.DB_PASSWORD || ''
+const DB_NAME = process.env.DB_NAME || 'student_itrack'
 
 // Log database configuration (without password)
 console.log('📊 Database Configuration:')
@@ -20,7 +20,7 @@ const pool = mysql.createPool({
   user: DB_USER,
   password: DB_PASSWORD,
   database: DB_NAME,
-  ssl: false, // Railway MySQL requires SSL to be explicitly disabled
+  ssl: process.env.DB_SSL === 'true' ? {} : false, // Enable SSL if DB_SSL=true, otherwise disabled
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,

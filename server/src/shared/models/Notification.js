@@ -41,6 +41,16 @@ class Notification {
 
   static async findByUser(user_id, user_type, options = {}) {
     try {
+      // Validate inputs
+      if (user_id === null || user_id === undefined) {
+        console.error('❌ Notification.findByUser called with null/undefined user_id')
+        return []
+      }
+      if (user_type === null || user_type === undefined) {
+        console.error('❌ Notification.findByUser called with null/undefined user_type')
+        return []
+      }
+
       const { limit = 50, offset = 0, unreadOnly = false } = options
 
       console.log(`🔍 Notification.findByUser called with:`, {

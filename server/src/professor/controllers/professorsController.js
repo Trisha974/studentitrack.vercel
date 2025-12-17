@@ -1,96 +1,96 @@
 ﻿const Professor = require('../models/Professor')
 
-const getAllProfessors = async (req, res, next) => {
+const getAllProfessors = async (request, reply) => {
   try {
     const filters = {}
-    if (req.query.department) {
-      filters.department = req.query.department
+    if (request.query.department) {
+      filters.department = request.query.department
     }
 
     const professors = await Professor.findAll(filters)
-    res.json(professors)
+    return professors
   } catch (error) {
-    next(error)
+    throw error
   }
 }
 
-const getProfessorByEmail = async (req, res, next) => {
+const getProfessorByEmail = async (request, reply) => {
   try {
-    const email = req.params.email || req.query.email
+    const email = request.params.email || request.query.email
     if (!email) {
-      return res.status(400).json({ error: 'Email is required' })
+      return reply.code(400).send({ error: 'Email is required' })
     }
 
     const professor = await Professor.findByEmail(email)
     if (!professor) {
-      return res.status(404).json({ error: 'Professor not found' })
+      return reply.code(404).send({ error: 'Professor not found' })
     }
-    res.json(professor)
+    return professor
   } catch (error) {
-    next(error)
+    throw error
   }
 }
 
-const getProfessorById = async (req, res, next) => {
+const getProfessorById = async (request, reply) => {
   try {
-    const professor = await Professor.findById(req.params.id)
+    const professor = await Professor.findById(request.params.id)
     if (!professor) {
-      return res.status(404).json({ error: 'Professor not found' })
+      return reply.code(404).send({ error: 'Professor not found' })
     }
-    res.json(professor)
+    return professor
   } catch (error) {
-    next(error)
+    throw error
   }
 }
 
-const getProfessorByFirebaseUid = async (req, res, next) => {
+const getProfessorByFirebaseUid = async (request, reply) => {
   try {
-    const professor = await Professor.findByFirebaseUid(req.params.uid)
+    const professor = await Professor.findByFirebaseUid(request.params.uid)
     if (!professor) {
-      return res.status(404).json({ error: 'Professor not found' })
+      return reply.code(404).send({ error: 'Professor not found' })
     }
-    res.json(professor)
+    return professor
   } catch (error) {
-    next(error)
+    throw error
   }
 }
 
-const createProfessor = async (req, res, next) => {
+const createProfessor = async (request, reply) => {
   try {
     console.log('📥 CREATE PROFESSOR REQUEST:', {
       body: {
-        ...req.body,
-        photoUrl: req.body.photoUrl ? `[${req.body.photoUrl.length} chars]` : undefined,
-        photo_url: req.body.photo_url ? `[${req.body.photo_url.length} chars]` : undefined
+        ...request.body,
+        photoUrl: request.body.photoUrl ? `[${request.body.photoUrl.length} chars]` : undefined,
+        photo_url: request.body.photo_url ? `[${request.body.photo_url.length} chars]` : undefined
       },
-      user: req.user ? { uid: req.user.uid, email: req.user.email } : null,
+      user: request.user ? { uid: request.user.uid, email: request.user.email } : null,
       headers: {
-        authorization: req.headers.authorization ? 'Bearer [token]' : 'none'
+        authorization: request.headers.authorization ? 'Bearer [token]' : 'none'
       }
     })
 
-    const firebaseUid = req.body.firebase_uid || req.user?.uid
+    const firebaseUid = request.body.firebase_uid || request.user?.uid
     if (!firebaseUid) {
       console.error('❌ Missing Firebase UID')
-      return res.status(400).json({ error: 'Firebase UID is required' })
+      return reply.code(400).send({ error: 'Firebase UID is required' })
     }
 
-    const email = req.body.email?.trim()
-    const name = req.body.name?.trim()
+    const email = request.body.email?.trim()
+    const name = request.body.name?.trim()
 
-    console.log('📋 Parsed data:', { firebaseUid, email, name, hasDepartment: !!req.body.department })
+    console.log('📋 Parsed data:', { firebaseUid, email, name, hasDepartment: !!request.body.department })
 
     if (!name || name.length === 0) {
       console.error('❌ Missing name')
-      return res.status(400).json({ error: 'Name is required' })
+      return reply.code(400).send({ error: 'Name is required' })
     }
     if (!email || email.length === 0) {
       console.error('❌ Missing email')
-      return res.status(400).json({ error: 'Email is required' })
+      return reply.code(400).send({ error: 'Email is required' })
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       console.error('❌ Invalid email format:', email)
-      return res.status(400).json({ error: 'Invalid email format' })
+      return reply.code(400).send({ error: 'Invalid email format' })
     }
 
     let existingProfessor = null
@@ -105,13 +105,13 @@ const createProfessor = async (req, res, next) => {
           firebase_uid: firebaseUid,
           name: name || existingProfessor.name,
           email: email || existingProfessor.email,
-          department: req.body.department?.trim() || existingProfessor.department,
-          photo_url: req.body.photoUrl || req.body.photo_url || existingProfessor.photo_url
+          department: request.body.department?.trim() || existingProfessor.department,
+          photo_url: request.body.photoUrl || request.body.photo_url || existingProfessor.photo_url
         })
-        return res.status(200).json(updated)
+        return reply.code(200).send(updated)
       } else {
         // Professor already exists with this Firebase UID
-        return res.status(200).json(existingProfessor)
+        return reply.code(200).send(existingProfessor)
       }
     }
 
@@ -120,20 +120,20 @@ const createProfessor = async (req, res, next) => {
       firebase_uid: firebaseUid,
       name: name,
       email: email,
-      department: req.body.department?.trim() || null,
-      hasPhoto: !!(req.body.photoUrl || req.body.photo_url)
+      department: request.body.department?.trim() || null,
+      hasPhoto: !!(request.body.photoUrl || request.body.photo_url)
     })
 
     const professor = await Professor.create({
       firebase_uid: firebaseUid,
       name: name,
       email: email,
-      department: req.body.department?.trim() || null,
-      photo_url: req.body.photoUrl || req.body.photo_url || null
+      department: request.body.department?.trim() || null,
+      photo_url: request.body.photoUrl || request.body.photo_url || null
     })
     
     console.log('✅ Professor created successfully:', { id: professor.id, name: professor.name })
-    res.status(201).json(professor)
+    return reply.code(201).send(professor)
   } catch (error) {
     console.error('❌ ERROR creating professor:', error)
     console.error('❌ Error details:', {
@@ -146,57 +146,57 @@ const createProfessor = async (req, res, next) => {
     })
 
     if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(409).json({ error: 'Professor with this email or Firebase UID already exists' })
+      return reply.code(409).send({ error: 'Professor with this email or Firebase UID already exists' })
     }
-    next(error)
+    throw error
   }
 }
 
-const updateProfessor = async (req, res, next) => {
+const updateProfessor = async (request, reply) => {
   try {
     // Validate professor ID
-    const professorId = parseInt(req.params.id)
+    const professorId = parseInt(request.params.id)
     if (isNaN(professorId)) {
-      return res.status(400).json({ error: 'Invalid professor ID' })
+      return reply.code(400).send({ error: 'Invalid professor ID' })
     }
 
     console.log('Update professor request:', {
       id: professorId,
-      hasName: !!req.body.name,
-      hasEmail: !!req.body.email,
-      hasDepartment: !!req.body.department,
-      hasPhotoUrl: !!(req.body.photoUrl || req.body.photo_url),
-      photoUrlLength: (req.body.photoUrl || req.body.photo_url)?.length
+      hasName: !!request.body.name,
+      hasEmail: !!request.body.email,
+      hasDepartment: !!request.body.department,
+      hasPhotoUrl: !!(request.body.photoUrl || request.body.photo_url),
+      photoUrlLength: (request.body.photoUrl || request.body.photo_url)?.length
     })
 
     // Check if professor exists first
     const existingProfessor = await Professor.findById(professorId)
     if (!existingProfessor) {
-      return res.status(404).json({ error: 'Professor not found' })
+      return reply.code(404).send({ error: 'Professor not found' })
     }
 
     const updateData = {}
-    if (req.body.name !== undefined && req.body.name !== null) {
-      const trimmedName = req.body.name.trim()
+    if (request.body.name !== undefined && request.body.name !== null) {
+      const trimmedName = request.body.name.trim()
       if (trimmedName) {
         updateData.name = trimmedName
       }
     }
-    if (req.body.email !== undefined && req.body.email !== null) {
-      const trimmedEmail = req.body.email.trim()
+    if (request.body.email !== undefined && request.body.email !== null) {
+      const trimmedEmail = request.body.email.trim()
       if (trimmedEmail) {
         updateData.email = trimmedEmail
       }
     }
-    if (req.body.department !== undefined) {
-      updateData.department = req.body.department?.trim() || null
+    if (request.body.department !== undefined) {
+      updateData.department = request.body.department?.trim() || null
     }
-    if (req.body.photoUrl !== undefined || req.body.photo_url !== undefined) {
-      const photoData = req.body.photoUrl || req.body.photo_url || null
+    if (request.body.photoUrl !== undefined || request.body.photo_url !== undefined) {
+      const photoData = request.body.photoUrl || request.body.photo_url || null
 
       if (photoData && photoData.length > 5000000) {
         console.warn('Photo data too large:', photoData.length, 'bytes')
-        return res.status(400).json({
+        return reply.code(400).send({
           error: 'Photo data is too large. Please use a smaller image (max 5MB).',
           details: `Image size: ${(photoData.length / 1024 / 1024).toFixed(2)}MB`
         })
@@ -207,7 +207,7 @@ const updateProfessor = async (req, res, next) => {
 
     // Ensure at least one field is being updated
     if (Object.keys(updateData).length === 0) {
-      return res.status(400).json({ error: 'No fields to update' })
+      return reply.code(400).send({ error: 'No fields to update' })
     }
 
     console.log('Update data prepared:', {
@@ -221,10 +221,10 @@ const updateProfessor = async (req, res, next) => {
     try {
       const professor = await Professor.update(professorId, updateData)
       if (!professor) {
-        return res.status(404).json({ error: 'Professor not found after update' })
+        return reply.code(404).send({ error: 'Professor not found after update' })
       }
       console.log('Professor updated successfully:', professor.id)
-      res.json(professor)
+      return professor
     } catch (dbError) {
       console.error('Database error updating professor:', dbError)
       console.error('Database error details:', {
@@ -235,7 +235,7 @@ const updateProfessor = async (req, res, next) => {
       })
 
       if (dbError.code === 'ER_DATA_TOO_LONG') {
-        return res.status(400).json({
+        return reply.code(400).send({
           error: 'Photo data is too large for the database. The image needs to be compressed further. Please try a smaller image or the system will automatically compress it.',
           details: dbError.message
         })
@@ -250,16 +250,16 @@ const updateProfessor = async (req, res, next) => {
       sqlMessage: error.sqlMessage,
       stack: error.stack
     })
-    next(error)
+    throw error
   }
 }
 
-const deleteProfessor = async (req, res, next) => {
+const deleteProfessor = async (request, reply) => {
   try {
-    await Professor.delete(req.params.id)
-    res.json({ message: 'Professor deleted successfully' })
+    await Professor.delete(request.params.id)
+    return { message: 'Professor deleted successfully' }
   } catch (error) {
-    next(error)
+    throw error
   }
 }
 
