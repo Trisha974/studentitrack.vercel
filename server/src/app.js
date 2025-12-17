@@ -10,7 +10,13 @@ const fastify = require('fastify')({
     } : undefined
   },
   requestIdLogLabel: 'reqId',
-  bodyLimit: 50 * 1024 * 1024 // 50MB
+  bodyLimit: 50 * 1024 * 1024, // 50MB
+  ajv: {
+    customOptions: {
+      allowUnionTypes: true, // Allow union types in schemas (e.g., type: ['integer', 'string'])
+      strict: false // Disable strict mode to allow union types
+    }
+  }
 })
 
 // Register plugins
