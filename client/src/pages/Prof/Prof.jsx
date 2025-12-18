@@ -8241,29 +8241,27 @@ function Prof() {
                           try {
                             // Mark all notifications as read in MySQL (persistent) - DOES NOT DELETE
                             await markAllAsRead()
-                            console.log('✅ All notifications marked as read in MySQL (not deleted)')
+                            console.log('✅ All notifications marked as read in MySQL (notifications remain visible)')
                             
                             // Refresh notifications from database to get updated read status
-                            // This ensures all notifications (read and unread) are still visible
+                            // This includes ALL notifications (read and unread) - not filtered
                             const refreshedNotifications = await getNotifications({ limit: 50 })
-                            console.log('✅ Refreshed notifications from database:', refreshedNotifications.length, '(all notifications, read and unread)')
+                            console.log('✅ Refreshed notifications from database:', refreshedNotifications.length, 'notifications (all read/unread)')
                             
                             // CRITICAL: Update local alerts state with ALL refreshed notifications
-                            // This ensures notifications remain visible in dropdown, just marked as read
+                            // This ensures notifications remain visible, just marked as read
                             setAlerts(refreshedNotifications)
                             
                             // Refresh unread count from database (should be 0 after marking all as read)
                             const unreadCount = await getUnreadCount()
                             console.log('✅ Refreshed unread count:', unreadCount, '(should be 0)')
                             
-                            // Save to Firestore (for local state persistence)
-                            // This saves ALL notifications (read and unread) so they remain visible
+                            // Save to Firestore (for local state persistence) - includes all notifications
                             await saveData(subjects, students, enrolls, refreshedNotifications, records, grades, profUid, true)
                             console.log('✅ All notifications marked as read and saved (notifications remain visible)')
                           } catch (error) {
                             console.error('❌ Failed to mark all notifications as read:', error)
-                            // Still update local state even if API call fails
-                            // Mark all as read locally but keep them in the list
+                            // Still update local state even if API call fails - mark as read but keep visible
                             const updatedAlerts = alerts.map(a => ({ ...a, read: true }))
                             setAlerts(updatedAlerts)
                             saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true).catch(err =>

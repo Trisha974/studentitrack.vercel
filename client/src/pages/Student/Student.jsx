@@ -3136,33 +3136,35 @@ function Student() {
                       <button
                         onClick={async () => {
                           try {
-                            // Mark all notifications as read in MySQL (persistent)
+                            // Mark all notifications as read in MySQL (persistent) - DOES NOT DELETE
                             await markAllAsRead()
-                            console.log('✅ All notifications marked as read in MySQL')
+                            console.log('✅ All notifications marked as read in MySQL (notifications remain visible)')
                             
                             // Refresh notifications from database to get updated read status
+                            // This includes ALL notifications (read and unread) - not filtered
                             const refreshedNotifications = await getNotifications({ limit: 50 })
-                            console.log('✅ Refreshed notifications from database:', refreshedNotifications.length)
+                            console.log('✅ Refreshed notifications from database:', refreshedNotifications.length, 'notifications (all read/unread)')
                             
-                            // Update local state with refreshed data from database
+                            // CRITICAL: Update local state with ALL refreshed notifications
+                            // This ensures notifications remain visible, just marked as read
                             setNotifications(refreshedNotifications)
                             
-                            // Refresh unread count from database
+                            // Refresh unread count from database (should be 0 after marking all as read)
                             const unreadCount = await getUnreadCount()
-                            console.log('✅ Refreshed unread count:', unreadCount)
+                            console.log('✅ Refreshed unread count:', unreadCount, '(should be 0)')
                             setUnreadNotificationCount(unreadCount)
                           } catch (error) {
-                            console.error('❌ Failed to clear all notifications:', error)
-                            // Still update local state even if API call fails
+                            console.error('❌ Failed to mark all notifications as read:', error)
+                            // Still update local state even if API call fails - mark as read but keep visible
                             const updatedNotifications = notifications.map(n => ({ ...n, read: true }))
                             setNotifications(updatedNotifications)
                             setUnreadNotificationCount(0)
-                            console.error('Failed to clear all notifications:', error)
+                            console.error('Failed to mark all notifications as read:', error)
                           }
                         }}
                             className="w-full text-center text-sm font-bold text-white hover:text-white bg-[#7A1315] hover:bg-red-800 px-4 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                       >
-                            Clear All Notifications
+                            Mark All as Read
                       </button>
                   </div>
                 )}
