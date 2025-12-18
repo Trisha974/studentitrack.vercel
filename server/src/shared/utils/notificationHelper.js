@@ -14,7 +14,9 @@ async function createGradeNotification(studentId, courseId, gradeId, gradeData) 
     const assessmentType = gradeData.assessment_type || 'Assessment'
     const readableType = assessmentType.charAt(0).toUpperCase() + assessmentType.slice(1)
     const title = `${courseName}: ${readableType} Posted`
-    const message = `Your ${readableType.toLowerCase()} "${gradeData.assessment_title}" score is ${gradeData.score}/${gradeData.max_points}.`
+    const scoreInt = Math.round(parseFloat(gradeData.score) || 0)
+    const maxPointsInt = Math.round(parseFloat(gradeData.max_points) || 0)
+    const message = `Your ${readableType.toLowerCase()} "${gradeData.assessment_title}" score is ${scoreInt}/${maxPointsInt}.`
 
     const notification = await Notification.create({
       user_id: studentId,
@@ -77,7 +79,9 @@ async function createDeficiencyNotification(studentId, courseId, gradeId, gradeD
     const percentageStr = percentage.toFixed(1)
     
     const title = `${courseName}: Academic Deficiency Alert`
-    const message = `Your ${readableType.toLowerCase()} "${gradeData.assessment_title}" score is ${gradeData.score}/${gradeData.max_points} (${percentageStr}%), which is below the passing threshold. Please review and take necessary action.`
+    const scoreInt = Math.round(parseFloat(gradeData.score) || 0)
+    const maxPointsInt = Math.round(parseFloat(gradeData.max_points) || 0)
+    const message = `Your ${readableType.toLowerCase()} "${gradeData.assessment_title}" score is ${scoreInt}/${maxPointsInt} (${percentageStr}%), which is below the passing threshold. Please review and take necessary action.`
 
     const notification = await Notification.create({
       user_id: studentId,

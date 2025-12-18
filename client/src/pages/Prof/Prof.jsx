@@ -15,7 +15,7 @@ import {
 } from '../../services/studentDashboards'
 import { getCourseByCode, createCourse, getCoursesByProfessor, deleteCourse, updateCourse } from '../../services/courses'
 import { createEnrollment, getEnrollmentByStudentAndCourse, subscribeToCourseEnrollments, getEnrollmentsByCourse, deleteEnrollmentByStudentAndCourse, deleteEnrollment } from '../../services/enrollments'
-import { createGrade } from '../../services/grades'
+import { createGrade, getGradesByStudentAndCourse, updateGrade } from '../../services/grades'
 import { setAttendanceForDate } from '../../services/attendance'
 import { subscribeToProfessorDashboard, detectDateChanges } from '../../services/realtimeSync'
 import { generateStudentEmail, isValidNumericalStudentId } from '../../utils/studentIdHelpers'
@@ -3016,13 +3016,35 @@ function Prof() {
               courseId: parseInt(courseId),
               assessmentType: quickGradeType,
               assessmentTitle: quickGradeTitle,
-              score: scoreValue,
-              maxPoints: parseFloat(maxPoints),
+              score: Math.round(scoreValue), // Round to integer
+              maxPoints: Math.round(parseFloat(maxPoints)), // Round to integer
               date: new Date().toISOString().split('T')[0] // Today's date in YYYY-MM-DD format
             }
             console.log(`💾 Saving grade to MySQL:`, gradeData)
             
-            const gradeResult = await createGrade(gradeData)
+            // Check if grade already exists for this student/course/assessment combination
+            const existingGrades = await getGradesByStudentAndCourse(studentMySQLId, courseId)
+            const existingGrade = existingGrades.find(g => 
+              g.assessment_type === quickGradeType && 
+              g.assessment_title === quickGradeTitle
+            )
+            
+            let gradeResult
+            if (existingGrade) {
+              // Update existing grade instead of creating duplicate
+              console.log(`🔄 Updating existing grade (ID: ${existingGrade.id}) instead of creating duplicate`)
+              gradeResult = await updateGrade(existingGrade.id, {
+                score: gradeData.score,
+                maxPoints: gradeData.maxPoints,
+                date: gradeData.date
+              })
+              if (gradeResult && gradeResult.id) {
+                gradeResult = gradeResult.id.toString()
+              }
+            } else {
+              // Create new grade
+              gradeResult = await createGrade(gradeData)
+            }
             
             // createGrade returns either:
             // 1. A string ID (from grades.js: return grade.id.toString())
@@ -3545,18 +3567,14 @@ function Prof() {
             console.error('Date format validation failed, forced to current date:', finalDateValue)
           }
           
-          // Format score and maxPoints as integers
-          const scoreInt = Math.round(parseFloat(score) || 0)
-          const maxPointsInt = Math.round(parseFloat(assessment.maxPoints) || 0)
-          
           rows.push([
             assessmentName,
             displayType,
-            finalDateValue, // Always in MM/DD/YYYY format, never empty, never null
+            finalDateValue, // Always in YYYY-MM-DD format, never empty, never null
             studentId,
             student ? student.name : 'Unknown Student',
-            scoreInt,
-            maxPointsInt,
+            Math.round(parseFloat(score) || 0), // Round to integer
+            Math.round(parseFloat(assessment.maxPoints) || 0), // Round to integer
           ])
         })
       })

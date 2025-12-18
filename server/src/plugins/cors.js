@@ -14,6 +14,7 @@ async function corsPlugin(fastify, options) {
         'http://127.0.0.1:5173',
         'http://localhost:5177',
         'http://127.0.0.1:5177',
+        'https://studentitrack.vercel.app',
         'https://studentitrack1.vercel.app',
         'https://studentitrack-vercel.vercel.app',
         FRONTEND_URL
