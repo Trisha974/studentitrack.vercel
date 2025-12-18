@@ -7911,29 +7911,29 @@ function Prof() {
       <header className={`sticky top-0 z-40 bg-white/95 backdrop-blur-md ${
         isDarkMode ? 'bg-[#1a1a1a]/95' : ''
       } shadow-sm`}>
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-          <div className="flex justify-between items-center py-2 sm:py-3 gap-2 sm:gap-3">
-            {/* Logo and Title Section */}
-            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md overflow-hidden flex-shrink-0 border-2 border-red-500/20">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="flex justify-between items-center py-2 sm:py-3 md:py-4 gap-1.5 sm:gap-2 md:gap-4">
+            {/* Logo and Title - Compact for mobile */}
+            <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 min-w-0 flex-shrink">
+              <div className="w-7 h-7 sm:w-9 sm:h-9 md:w-12 md:h-12 rounded-lg sm:rounded-xl flex items-center justify-center shadowLg overflow-hidden flex-shrink-0">
                 <img src="/assets/logos/um logo.png" alt="UM Logo" className="w-full h-full object-contain" />
               </div>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-[#7A1315] leading-tight">Student iTrack</h1>
-                <p className={`text-[10px] sm:text-xs font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-600'} leading-tight`}>Smart Academic Monitoring System</p>
+              <div className="min-w-0">
+                <h1 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold textGrad leading-tight">Student iTrack</h1>
+                <p className={`text-[9px] sm:text-[10px] md:text-xs font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-600'} leading-tight hidden xs:block`}>Smart Academic Monitoring System</p>
               </div>
             </div>
             
-            {/* Right Side: View Mode, Notifications, Profile */}
-            <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 flex-shrink-0">
-              {/* View Mode Selector - Hidden on mobile, shown on larger screens */}
+            {/* Right side controls - All in one line */}
+            <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 lg:space-x-4 flex-shrink-0">
+              {/* View Mode Select - Compact */}
               <label htmlFor="view-mode-select" className="sr-only">View Mode</label>
               <select
                 id="view-mode-select"
                 name="view-mode-select"
                 value={viewMode}
                 onChange={(e) => setViewMode(e.target.value)}
-                className={`record-toggle-select focus:ring-2 focus:ring-maroon-500 text-xs sm:text-sm px-2 py-1.5 sm:px-2.5 sm:py-2 hidden sm:block ${
+                className={`record-toggle-select focus:ring-2 focus:ring-maroon-500 text-[10px] sm:text-xs md:text-sm px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 ${
                   isDarkMode ? 'text-white' : ''
                 }`}
               >
@@ -7941,7 +7941,7 @@ function Prof() {
                 <option value="student">Student Record</option>
               </select>
               
-              {/* Notifications */}
+              {/* Notifications - Compact */}
               <div className="relative">
                 <button
                   onClick={() => {
@@ -7954,20 +7954,20 @@ function Prof() {
                           ? 'bg-red-900/50 text-red-300' 
                         : 'hover:bg-slate-700'
                       : showNotifDropdown 
-                        ? 'bg-slate-100 text-red-700' 
+                        ? 'bg-red-100 text-red-700' 
                         : 'hover:bg-slate-100'
                   }`}
                 >
-                  <svg className={`w-5 h-5 sm:w-5 sm:h-5 ${
-                    isDarkMode ? 'text-white' : 'text-slate-600'
+                  <svg className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                    isDarkMode ? 'text-white' : 'text-slate-700'
                   }`} fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
                   </svg>
                   {unreadAlertsCount > 0 && (
-                    <span className={`absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-[#7A1315] text-white text-[10px] sm:text-xs rounded-full flex items-center justify-center font-bold shadow-md ${
+                    <span className={`absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 bg-red-500 text-white text-[9px] sm:text-[10px] md:text-xs rounded-full flex items-center justify-center badge shadow-lg ${
                       isDarkMode
-                          ? 'bg-[#7A1315] text-white'
-                        : 'bg-[#7A1315] text-white'
+                          ? 'bg-[#7A1315] text-white border-red-400'
+                        : 'bg-gradient-to-br from-red-500 to-red-600 text-white border-white'
                     }`}>
                       {unreadAlertsCount > 9 ? '9+' : unreadAlertsCount}
                     </span>
@@ -7983,34 +7983,34 @@ function Prof() {
                   }
                   
                   return (
-                    <div className={`fixed sm:absolute left-2 right-2 sm:left-auto sm:right-0 top-14 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-80 max-w-[calc(100vw-1rem)] sm:max-w-[320px] max-h-[calc(100vh-4rem)] sm:max-h-[500px] rounded-xl shadow-2xl border-2 z-50 overflow-hidden flex flex-col ${
+                    <div className={`fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-16 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-96 md:w-[420px] max-w-[280px] sm:max-w-[420px] max-h-[calc(100vh-5rem)] sm:max-h-[600px] rounded-2xl shadow-2xl border-2 z-50 overflow-hidden flex flex-col ${
                       isDarkMode 
                         ? 'bg-[#1a1a1a] border-slate-700' 
                         : 'bg-white border-slate-200'
                     }`}>
                       {/* Enhanced Header with Red/Maroon Gradient */}
-                      <div className={`p-2.5 sm:p-3 border-b-2 flex-shrink-0 ${
+                      <div className={`p-2.5 sm:p-4 md:p-5 border-b-2 flex-shrink-0 ${
                         isDarkMode 
                           ? 'bg-gradient-to-br from-red-600 via-[#7A1315] to-red-800 border-slate-700' 
                           : 'border-slate-200 bg-gradient-to-br from-red-600 via-[#7A1315] to-red-800'
                       }`}>
                         <div className="flex items-center justify-between">
                           <div className="min-w-0 flex-1">
-                            <h3 className="font-bold text-white text-sm sm:text-base flex items-center gap-1.5">
-                              <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <h3 className="font-bold text-white text-sm sm:text-lg md:text-xl flex items-center gap-1.5 sm:gap-2">
+                              <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
                               </svg>
                               <span className="truncate">Notifications</span>
                             </h3>
-                            <p className="text-[10px] text-red-100 mt-0.5 font-medium hidden sm:block">Academic Activity & Updates</p>
+                            <p className="text-[10px] sm:text-xs text-red-100 mt-0.5 sm:mt-1 font-medium hidden sm:block">Academic Activity & Updates</p>
                     </div>
                           {unreadAlertsCount > 0 && (
-                            <div className={`backdrop-blur-sm px-2 py-0.5 rounded-full border ${
+                            <div className={`backdrop-blur-sm px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border ${
                               isDarkMode 
                                   ? 'bg-yellow-500/90 border-yellow-400' 
                                 : 'bg-white/20 border-white/30'
                             }`}>
-                                <span className={`font-bold text-xs ${
+                                <span className={`font-bold text-xs sm:text-sm ${
                                   isDarkMode ? 'text-black' : 'text-white'
                                 }`}>{unreadAlertsCount}</span>
                             </div>
@@ -8019,7 +8019,7 @@ function Prof() {
                       </div>
                       
                       {/* Notifications List */}
-                      <div className={`notification-scroll flex-1 min-h-0 overflow-y-auto max-h-[calc(100vh-16rem)] sm:max-h-[400px] ${
+                      <div className={`notification-scroll flex-1 min-h-0 overflow-y-auto max-h-[calc(100vh-20rem)] sm:max-h-[500px] ${
                         isDarkMode 
                           ? 'bg-[#1a1a1a]' 
                           : 'bg-gradient-to-b from-slate-50 to-white'
@@ -8028,20 +8028,20 @@ function Prof() {
                         scrollbarColor: isDarkMode ? '#475569 #1a1a1a' : '#cbd5e1 #ffffff'
                       }}>
                         {displayNotifications.length === 0 ? (
-                          <div className="p-6 sm:p-8 text-center">
-                            <div className={`w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 rounded-full flex items-center justify-center ${
+                          <div className="p-8 sm:p-12 text-center">
+                            <div className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 rounded-full flex items-center justify-center ${
                               isDarkMode
                                 ? 'bg-gradient-to-br from-red-900/30 to-rose-900/30'
                                 : 'bg-gradient-to-br from-red-100 to-rose-100'
                             }`}>
-                              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-8 h-8 sm:w-10 sm:h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                               </svg>
                             </div>
-                            <p className={`text-xs sm:text-sm font-medium ${
+                            <p className={`text-sm sm:text-base font-medium ${
                               isDarkMode ? 'text-slate-300' : 'text-slate-500'
                             }`}>No notifications yet</p>
-                            <p className={`text-[10px] sm:text-xs mt-1 px-2 ${
+                            <p className={`text-xs sm:text-sm mt-1 px-2 ${
                               isDarkMode ? 'text-slate-400' : 'text-slate-400'
                             }`}>You don't have any notification history at the moment.</p>
                           </div>
@@ -8058,7 +8058,7 @@ function Prof() {
                             return (
                           <div
                             key={alert.id}
-                                className={`relative m-2 sm:m-3 rounded-xl shadow-md border-2 transition-all duration-200 cursor-pointer group ${
+                                className={`relative m-1.5 sm:m-2 md:m-3 rounded-lg sm:rounded-xl shadow-md border-2 transition-all duration-200 cursor-pointer group ${
                                   isDarkMode
                                     ? 'bg-[#1a1a1a]'
                                     : 'bg-white'
@@ -8084,11 +8084,11 @@ function Prof() {
                             }}
                           >
                                 {/* Card Content - Compact, Self-Contained */}
-                                <div className="p-2 sm:p-2.5">
+                                <div className="p-2 sm:p-2.5 md:p-3">
                                   {/* Header - Bold title with per-notification delete button */}
                                   <div className="flex items-start justify-between mb-1 sm:mb-1.5">
-                                    <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                                      <h4 className={`text-xs sm:text-sm font-bold leading-tight truncate ${
+                                    <div className="flex items-center gap-1 sm:gap-1.5">
+                                      <h4 className={`text-[11px] sm:text-xs md:text-sm font-bold leading-tight ${
                                         isDarkMode
                                             ? isUrgent ? 'text-red-400' : isAdmin ? 'text-white' : 'text-white'
                                           : isAdmin ? 'text-slate-700' : 'text-[#7A1315]'
@@ -8096,7 +8096,7 @@ function Prof() {
                                         {formattedTitle}
                                       </h4>
                                       {!alert.read && (
-                                        <div className={`flex-shrink-0 w-1.5 h-1.5 rounded-full ${
+                                        <div className={`flex-shrink-0 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
                                             isDarkMode ? 'bg-red-400' : 'bg-[#7A1315]'
                                         }`}></div>
                                       )}
@@ -8240,7 +8240,7 @@ function Prof() {
                 })()}
               </div>
 
-              {/* Profile Dropdown */}
+              {/* Profile Dropdown - Compact */}
               <div className="relative">
               <button
                 type="button"
@@ -8248,20 +8248,20 @@ function Prof() {
                     setShowProfileDropdown(!showProfileDropdown)
                     setShowNotifDropdown(false)
                   }}
-                  className="flex items-center space-x-1 sm:space-x-2 rounded-lg sm:rounded-xl border border-slate-200 px-1.5 sm:px-2 py-1 sm:py-1.5 hover:bg-slate-50 transition-all focus:outline-none focus:ring-2 focus:ring-maroon-500"
+                  className="flex items-center space-x-1 sm:space-x-1.5 md:space-x-2 rounded-lg sm:rounded-xl border border-slate-200 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 hover:bg-white transition-all focus:outline-none focus:ring-2 focus:ring-maroon-500"
                 >
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-r from-red-800 to-red-600 rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0 overflow-hidden">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 bg-gradient-to-r from-red-800 to-red-600 rounded-full flex items-center justify-center text-white font-semibold text-[10px] sm:text-xs md:text-sm flex-shrink-0">
                   {profPic ? (
                       <img src={profPic} alt="Profile" className="w-full h-full rounded-full object-cover" />
                   ) : (
                     getInitials(profName)
                   )}
                 </div>
-                  <div className="text-left min-w-0 hidden sm:block">
-                    <p className={`text-[10px] sm:text-xs uppercase tracking-wide ${isDarkMode ? 'text-slate-300' : 'text-slate-400'}`}>Profile</p>
-                    <p className={`text-xs sm:text-sm font-semibold truncate max-w-[100px] sm:max-w-[120px] ${isDarkMode ? 'text-white' : 'text-slate-700'}`}>{profName}</p>
+                  <div className="text-left min-w-0 hidden md:block">
+                    <p className={`text-[9px] md:text-[10px] uppercase tracking-wide ${isDarkMode ? 'text-slate-300' : 'text-slate-400'}`}>Profile</p>
+                    <p className={`text-[10px] md:text-xs lg:text-sm font-semibold truncate max-w-[80px] md:max-w-[100px] lg:max-w-[120px] xl:max-w-none ${isDarkMode ? 'text-white' : 'text-slate-700'}`}>{profName}</p>
                 </div>
-                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 text-slate-400 flex-shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M6 9l6 6 6-6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
