@@ -3545,14 +3545,18 @@ function Prof() {
             console.error('Date format validation failed, forced to current date:', finalDateValue)
           }
           
+          // Format score and maxPoints as integers
+          const scoreInt = Math.round(parseFloat(score) || 0)
+          const maxPointsInt = Math.round(parseFloat(assessment.maxPoints) || 0)
+          
           rows.push([
             assessmentName,
             displayType,
-            finalDateValue, // Always in YYYY-MM-DD format, never empty, never null
+            finalDateValue, // Always in MM/DD/YYYY format, never empty, never null
             studentId,
             student ? student.name : 'Unknown Student',
-            score,
-            assessment.maxPoints,
+            scoreInt,
+            maxPointsInt,
           ])
         })
       })
@@ -4521,7 +4525,7 @@ function Prof() {
                                 <td className={`px-4 py-3 text-right ${
                                   isDarkMode ? 'text-white' : 'text-slate-700'
                                 }`}>
-                                  {assessment.score !== undefined ? `${assessment.score}/${assessment.maxPoints}` : '—'}
+                                  {assessment.score !== undefined ? `${Math.round(assessment.score)}/${Math.round(assessment.maxPoints)}` : '—'}
                                 </td>
                                 <td className={`px-4 py-3 ${
                                   isDarkMode ? 'text-slate-300' : 'text-slate-500'

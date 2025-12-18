@@ -159,17 +159,48 @@ const createGrade = async (data) => {
       date: data.date || null
     })
 
-    const grade = await Grade.create({
-      student_id: data.studentId || data.student_id,
-      course_id: data.courseId || data.course_id,
-      assessment_type: data.assessmentType || data.assessment_type,
-      assessment_title: data.assessmentTitle || data.assessment_title,
-      score: data.score,
-      max_points: data.maxPoints || data.max_points,
-      date: data.date || null
-    })
+    const studentId = data.studentId || data.student_id
+    const courseId = data.courseId || data.course_id
+    const assessmentType = data.assessmentType || data.assessment_type
+    const assessmentTitle = data.assessmentTitle || data.assessment_title
 
-    console.log('✅ Grade created in database:', { id: grade.id })
+    // Round score and maxPoints to integers
+    const scoreInt = Math.round(parseFloat(data.score) || 0)
+    const maxPointsInt = Math.round(parseFloat(data.maxPoints || data.max_points) || 0)
+
+    // Check if a grade already exists for this student + course + assessment
+    const existingGrades = await Grade.findByStudentAndCourse(studentId, courseId)
+    const existingGrade = existingGrades.find(g => 
+      g.assessment_type === assessmentType && 
+      g.assessment_title === assessmentTitle
+    )
+
+    let grade
+    if (existingGrade) {
+      // Update existing grade instead of creating duplicate
+      console.log(`🔄 Updating existing grade (ID: ${existingGrade.id}) instead of creating duplicate`)
+      grade = await Grade.update(existingGrade.id, {
+        assessment_type: assessmentType,
+        assessment_title: assessmentTitle,
+        score: scoreInt,
+        max_points: maxPointsInt,
+        date: data.date || null
+      })
+      console.log('✅ Grade updated in database:', { id: grade.id })
+    } else {
+      // Create new grade
+      grade = await Grade.create({
+        student_id: studentId,
+        course_id: courseId,
+        assessment_type: assessmentType,
+        assessment_title: assessmentTitle,
+        score: scoreInt,
+        max_points: maxPointsInt,
+        date: data.date || null
+      })
+      console.log('✅ Grade created in database:', { id: grade.id })
+    }
+
     return grade
   } catch (error) {
     console.error('❌ Error in gradesService.createGrade:', error)

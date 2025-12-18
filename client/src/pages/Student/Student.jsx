@@ -4100,7 +4100,7 @@ function Student() {
                                           <i className={`fa-solid fa-file-lines text-xs mb-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}></i>
                                           <span className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Score</span>
                                           <span className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                                  {exam.score !== undefined ? `${exam.score}/${exam.maxPoints || 100}` : 'N/A'}
+                                  {exam.score !== undefined ? `${Math.round(exam.score)}/${Math.round(exam.maxPoints || 100)}` : 'N/A'}
                                 </span>
                               </div>
                                         <div className={`flex flex-col items-center p-2 rounded-lg border ${
