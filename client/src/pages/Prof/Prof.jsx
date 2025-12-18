@@ -1116,6 +1116,16 @@ function Prof() {
       }
 
       if (profile) {
+        // CRITICAL: Verify profile role is Professor
+        if (profile.role && profile.role !== 'Professor') {
+          console.error('❌ Access denied: Profile role is not Professor. Role:', profile.role)
+          localStorage.removeItem('auth_token')
+          sessionStorage.removeItem('auth_token')
+          sessionStorage.removeItem('currentUser')
+          navigate('/login', { replace: true })
+          return
+        }
+
         setProfProfile(profile)
         if (profile.email) setProfEmail(profile.email)
         if (profile.name) {
@@ -1138,6 +1148,15 @@ function Prof() {
           console.warn('⚠️ Professor profile missing MySQL ID, reloading...')
           const reloadedProfile = await getCurrentProfessor()
           if (reloadedProfile && reloadedProfile.id) {
+            // Verify reloaded profile role
+            if (reloadedProfile.role && reloadedProfile.role !== 'Professor') {
+              console.error('❌ Access denied: Reloaded profile role is not Professor')
+              localStorage.removeItem('auth_token')
+              sessionStorage.removeItem('auth_token')
+              sessionStorage.removeItem('currentUser')
+              navigate('/login', { replace: true })
+              return
+            }
             setProfProfile(reloadedProfile)
             console.log('✅ Reloaded professor profile with MySQL ID:', reloadedProfile.id)
           }
