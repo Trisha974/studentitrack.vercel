@@ -20,15 +20,17 @@ const fastify = require('fastify')({
   }
 })
 
-// Override validator compiler to ensure allowUnionTypes is applied
+// Override validator compiler to ensure allowUnionTypes is applied and formats are recognized
 fastify.setValidatorCompiler(({ schema }) => {
   const Ajv = require('ajv')
+  const addFormats = require('ajv-formats')
   const ajv = new Ajv({
     allowUnionTypes: true,
     strict: false,
     allErrors: true,
     removeAdditional: false
   })
+  addFormats(ajv) // Add support for email, date, date-time, etc.
   return ajv.compile(schema)
 })
 
