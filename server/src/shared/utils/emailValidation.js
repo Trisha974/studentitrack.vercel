@@ -17,7 +17,7 @@ function isValidProfessorEmail(email) {
 }
 
 /**
- * Validates student email - must match pattern {studentId}.tc@umindanao.edu.ph
+ * Validates student email - must end with .tc@umindanao.edu.ph and contain a student ID
  * @param {string} email - Email address to validate
  * @returns {boolean} - True if valid student email
  */
@@ -28,10 +28,26 @@ function isValidStudentEmail(email) {
   
   const normalizedEmail = email.toLowerCase().trim()
   
-  // Pattern: {studentId}.tc@umindanao.edu.ph
-  // Examples: 123456.tc@umindanao.edu.ph, 2021-12345.tc@umindanao.edu.ph
-  const studentEmailPattern = /^[0-9A-Za-z\-]+\.tc@umindanao\.edu\.ph$/
+  // Pattern: Must end with .tc@umindanao.edu.ph
+  // Examples: 
+  // - 123456.tc@umindanao.edu.ph (strict format)
+  // - t.talamillo.141715.tc@umindanao.edu.ph (flexible format with name)
+  // - name.lastname.studentid.tc@umindanao.edu.ph (any format ending in .tc@umindanao.edu.ph)
+  const studentEmailPattern = /\.tc@umindanao\.edu\.ph$/
   
+  if (!studentEmailPattern.test(normalizedEmail)) {
+    return false
+  }
+  
+  // Extract potential student ID (numbers before .tc@)
+  // Look for numeric student ID pattern in the email
+  const studentIdMatch = normalizedEmail.match(/(\d{6,})\.tc@umindanao\.edu\.ph$/)
+  if (studentIdMatch) {
+    return true
+  }
+  
+  // Also accept format with name prefix (e.g., name.141715.tc@umindanao.edu.ph)
+  // Just check that it ends with .tc@umindanao.edu.ph
   return studentEmailPattern.test(normalizedEmail)
 }
 
@@ -45,11 +61,31 @@ function extractStudentIdFromEmail(email) {
     return null
   }
   
-  // Extract the part before .tc@umindanao.edu.ph
+  // Extract the numeric student ID (6+ digits before .tc@umindanao.edu.ph)
   const normalizedEmail = email.toLowerCase().trim()
-  const match = normalizedEmail.match(/^(.+)\.tc@umindanao\.edu\.ph$/)
   
-  return match ? match[1] : null
+  // Try to match numeric student ID pattern
+  // Pattern: {numbers}.tc@umindanao.edu.ph (e.g., 141715.tc@umindanao.edu.ph)
+  // Or: {anything}.{numbers}.tc@umindanao.edu.ph (e.g., t.talamillo.141715.tc@umindanao.edu.ph)
+  const studentIdMatch = normalizedEmail.match(/(\d{6,})\.tc@umindanao\.edu\.ph$/)
+  
+  if (studentIdMatch) {
+    return studentIdMatch[1] // Return the numeric student ID
+  }
+  
+  // Fallback: extract everything before .tc@umindanao.edu.ph
+  const match = normalizedEmail.match(/^(.+)\.tc@umindanao\.edu\.ph$/)
+  if (match) {
+    // If the entire prefix is numeric, return it
+    if (/^\d+$/.test(match[1])) {
+      return match[1]
+    }
+    // Otherwise, try to extract numeric part from the end
+    const numericMatch = match[1].match(/(\d{6,})$/)
+    return numericMatch ? numericMatch[1] : match[1]
+  }
+  
+  return null
 }
 
 /**
