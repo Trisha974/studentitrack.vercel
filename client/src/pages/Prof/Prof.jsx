@@ -1251,6 +1251,39 @@ function Prof() {
     }
   }, [navigate, loadData, waitForAuthUser])
 
+  // CRITICAL: Load and refresh notifications periodically to ensure they're always visible
+  useEffect(() => {
+    if (!profUid) return
+
+    const loadNotificationsFromAPI = async () => {
+      try {
+        console.log('🔄 Periodic notification refresh...')
+        const apiNotifications = await getNotifications({ limit: 50, unreadOnly: false })
+        if (Array.isArray(apiNotifications)) {
+          console.log('✅ Refreshed', apiNotifications.length, 'notifications from API')
+          setAlerts(apiNotifications)
+          // Also update dashboard state (use current state values via closure)
+          saveData(subjects, students, enrolls, apiNotifications, records, grades, profUid, false).catch(err =>
+            console.warn('Background save failed during notification refresh:', err)
+          )
+        }
+      } catch (error) {
+        console.error('❌ Failed to refresh notifications:', error)
+      }
+    }
+
+    // Load immediately
+    loadNotificationsFromAPI()
+
+    // Refresh every 30 seconds to keep notifications up to date
+    const refreshInterval = setInterval(loadNotificationsFromAPI, 30000)
+
+    return () => {
+      clearInterval(refreshInterval)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profUid]) // Only depend on profUid to avoid infinite loops
+
   // Set up real-time listener for dashboard updates
   useEffect(() => {
     if (!profUid) return
@@ -8042,12 +8075,41 @@ function Prof() {
                 </button>
                 
                 {showNotifDropdown && (() => {
+                  // CRITICAL: Debug logging to track notification display
+                  console.log('🔔 Notification dropdown opened:', {
+                    totalAlerts: alerts.length,
+                    alerts: alerts.map(a => ({ id: a.id, title: a.title, read: a.read })),
+                    alertsState: alerts
+                  })
+                  
+                  // CRITICAL: Ensure we have alerts to display
+                  if (!Array.isArray(alerts) || alerts.length === 0) {
+                    console.warn('⚠️ No alerts in state - attempting to reload from API...')
+                    // Try to reload notifications from API if state is empty
+                    getNotifications({ limit: 50, unreadOnly: false })
+                      .then(refreshedNotifications => {
+                        if (Array.isArray(refreshedNotifications) && refreshedNotifications.length > 0) {
+                          console.log('✅ Reloaded', refreshedNotifications.length, 'notifications from API')
+                          setAlerts(refreshedNotifications)
+                        }
+                      })
+                      .catch(err => console.error('❌ Failed to reload notifications:', err))
+                  }
+                  
                   const { academic, administrative } = categorizeNotifications(alerts)
                   const adminSummary = groupAdministrativeNotifications(administrative)
                   const displayNotifications = [...academic]
                   if (adminSummary) {
                     displayNotifications.push(adminSummary)
                   }
+                  
+                  console.log('📋 Display notifications:', {
+                    academic: academic.length,
+                    administrative: administrative.length,
+                    adminSummary: adminSummary ? 'yes' : 'no',
+                    totalDisplay: displayNotifications.length,
+                    displayNotifications: displayNotifications.map(n => ({ id: n.id, title: n.title, read: n.read }))
+                  })
                   
                   return (
                     <div className={`fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-16 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-96 md:w-[420px] max-w-[280px] sm:max-w-[420px] max-h-[calc(100vh-5rem)] sm:max-h-[600px] rounded-2xl shadow-2xl border-2 z-50 overflow-hidden flex flex-col ${
