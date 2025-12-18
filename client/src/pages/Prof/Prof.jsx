@@ -6627,9 +6627,15 @@ function Prof() {
               // Check if enrollment already exists
               const existingEnrollment = await getEnrollmentByStudentAndCourse(studentMySQLId, courseId)
               if (!existingEnrollment) {
-                await createEnrollment(studentMySQLId, courseId)
-                mysqlEnrollmentSuccess++
-                console.log(`✅ MySQL enrollment created: Student ${student.id} (MySQL ID: ${studentMySQLId}) → Course ${studentSubjectFilter} (MySQL ID: ${courseId})`)
+                const studentIdNum = parseInt(studentMySQLId, 10)
+                const courseIdNum = parseInt(courseId, 10)
+                if (!isNaN(studentIdNum) && !isNaN(courseIdNum)) {
+                  await createEnrollment(studentIdNum, courseIdNum)
+                  mysqlEnrollmentSuccess++
+                  console.log(`✅ MySQL enrollment created: Student ${student.id} (MySQL ID: ${studentIdNum}) → Course ${studentSubjectFilter} (MySQL ID: ${courseIdNum})`)
+                } else {
+                  console.error(`❌ Invalid IDs: studentId=${studentMySQLId}, courseId=${courseId}`)
+                }
               } else {
                 mysqlEnrollmentSuccess++ // Count as success if already exists
                 console.log(`ℹ️ MySQL enrollment already exists: Student ${student.id} → Course ${studentSubjectFilter}`)
