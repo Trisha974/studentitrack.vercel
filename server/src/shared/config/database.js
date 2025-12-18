@@ -35,13 +35,18 @@ if (mysqlVars.length === 0) {
 const isRailway = !!process.env.MYSQLHOST
 const shouldUseSSL = process.env.DB_SSL === 'true' || (isRailway && process.env.DB_SSL !== 'false')
 
+// SSL configuration for Railway MySQL (allows self-signed certificates)
+const sslConfig = shouldUseSSL ? {
+  rejectUnauthorized: false // Allow self-signed certificates (Railway MySQL uses self-signed certs)
+} : false
+
 const pool = mysql.createPool({
   host: DB_HOST,
   port: parseInt(DB_PORT, 10),
   user: DB_USER,
   password: DB_PASSWORD,
   database: DB_NAME,
-  ssl: shouldUseSSL ? {} : false, // Enable SSL for Railway or if DB_SSL=true
+  ssl: sslConfig, // Enable SSL for Railway with self-signed cert support
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
