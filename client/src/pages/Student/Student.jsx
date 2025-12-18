@@ -3134,15 +3134,31 @@ function Student() {
                             : 'border-slate-200 bg-gradient-to-r from-slate-50 to-red-50'
                         }`}>
                       <button
-                        onClick={() => {
-                          // Mark all as read via API
-                          markAllAsRead().catch(err => {
-                            console.error('Error marking all notifications as read:', err)
-                          })
-                          // Optimistically update UI - keep history but mark all as read
-                          const updatedNotifications = notifications.map(n => ({ ...n, read: true }))
-                          setNotifications(updatedNotifications)
-                          setUnreadNotificationCount(0)
+                        onClick={async () => {
+                          try {
+                            // Mark all notifications as read in MySQL (persistent)
+                            await markAllAsRead()
+                            console.log('✅ All notifications marked as read in MySQL')
+                            
+                            // Refresh notifications from database to get updated read status
+                            const refreshedNotifications = await getNotifications({ limit: 50 })
+                            console.log('✅ Refreshed notifications from database:', refreshedNotifications.length)
+                            
+                            // Update local state with refreshed data from database
+                            setNotifications(refreshedNotifications)
+                            
+                            // Refresh unread count from database
+                            const unreadCount = await getUnreadCount()
+                            console.log('✅ Refreshed unread count:', unreadCount)
+                            setUnreadNotificationCount(unreadCount)
+                          } catch (error) {
+                            console.error('❌ Failed to clear all notifications:', error)
+                            // Still update local state even if API call fails
+                            const updatedNotifications = notifications.map(n => ({ ...n, read: true }))
+                            setNotifications(updatedNotifications)
+                            setUnreadNotificationCount(0)
+                            addCustomAlert('error', 'Clear Failed', 'Failed to clear all notifications. Please try again.', false)
+                          }
                         }}
                             className="w-full text-center text-sm font-bold text-white hover:text-white bg-[#7A1315] hover:bg-red-800 px-4 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                       >

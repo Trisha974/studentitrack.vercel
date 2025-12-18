@@ -23,7 +23,7 @@ import { getStudentUidForSync, verifyStudentIdEmailPair } from '../../utils/stud
 import { migrateDashboardData, migrateStudents, migrateEnrollments, migrateRecords, migrateGrades } from '../../utils/studentIdMigration'
 import { useTheme } from '../../hooks/useTheme'
 import * as XLSX from 'xlsx'
-import { markAllAsRead } from '../../services/notifications'
+import { markAllAsRead, getNotifications, getUnreadCount } from '../../services/notifications'
 import { getDefaultAvatar } from '../../utils/avatarGenerator'
 import subjectIcon from './subject-icon.png.png'
 
@@ -8200,12 +8200,19 @@ function Prof() {
                             await markAllAsRead()
                             console.log('✅ All notifications marked as read in MySQL')
                             
-                            // Update local Firestore alerts state
-                            const updatedAlerts = alerts.map(a => ({ ...a, read: true }))
-                            setAlerts(updatedAlerts)
+                            // Refresh notifications from database to get updated read status
+                            const refreshedNotifications = await getNotifications({ limit: 50 })
+                            console.log('✅ Refreshed notifications from database:', refreshedNotifications.length)
+                            
+                            // Update local alerts state with refreshed data from database
+                            setAlerts(refreshedNotifications)
+                            
+                            // Refresh unread count from database
+                            const unreadCount = await getUnreadCount()
+                            console.log('✅ Refreshed unread count:', unreadCount)
                             
                             // Save to Firestore (for local state persistence)
-                            await saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true)
+                            await saveData(subjects, students, enrolls, refreshedNotifications, records, grades, profUid, true)
                             console.log('✅ All notifications cleared and saved')
                           } catch (error) {
                             console.error('❌ Failed to clear all notifications:', error)
