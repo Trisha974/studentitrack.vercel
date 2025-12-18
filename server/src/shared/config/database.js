@@ -7,9 +7,9 @@ require('dotenv').config()
 const DB_HOST = process.env.MYSQLHOST || process.env.DB_HOST || 'localhost'
 const DB_USER = process.env.MYSQLUSER || process.env.DB_USER || 'root'
 const DB_PASSWORD = process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || ''
-const DB_NAME = process.env.MYSQLDATABASE || process.env.DB_NAME || 'student_itrack'
+const DB_NAME = process.env.MYSQLDATABASE || process.env.DB_NAME || 'studentitrack'
 // Support Railway MySQL port if provided (priority: MYSQLPORT > DB_PORT > default)
-const DB_PORT = process.env.MYSQLPORT || process.env.DB_PORT || 3306
+const DB_PORT = process.env.MYSQLPORT || process.env.DB_PORT || 46804
 
 // Log database configuration (without password)
 console.log('📊 Database Configuration:')

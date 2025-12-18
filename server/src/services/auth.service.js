@@ -88,15 +88,15 @@ const register = async (data) => {
       // Create new student
       console.log(`Creating new student profile:`, { name, email, student_id, department })
       try {
-        const newStudent = await Student.create({
-          firebase_uid: null, // No longer using Firebase
-          name: name,
-          email: email,
-          student_id: student_id || null,
-          department: department || null,
-          photo_url: photo_url || null
-        })
-        user_id = newStudent.id
+      const newStudent = await Student.create({
+        firebase_uid: null, // No longer using Firebase
+        name: name,
+        email: email,
+        student_id: student_id || null,
+        department: department || null,
+        photo_url: photo_url || null
+      })
+      user_id = newStudent.id
         console.log(`Student profile created successfully:`, { id: newStudent.id })
       } catch (studentError) {
         console.error(`Error creating student profile:`, studentError.message)
@@ -123,14 +123,14 @@ const register = async (data) => {
       // Create new professor
       console.log(`Creating new professor profile:`, { name, email, department })
       try {
-        const newProfessor = await Professor.create({
-          firebase_uid: null, // No longer using Firebase
-          name: name,
-          email: email,
-          department: department || null,
-          photo_url: photo_url || null
-        })
-        user_id = newProfessor.id
+      const newProfessor = await Professor.create({
+        firebase_uid: null, // No longer using Firebase
+        name: name,
+        email: email,
+        department: department || null,
+        photo_url: photo_url || null
+      })
+      user_id = newProfessor.id
         console.log(`Professor profile created successfully:`, { id: newProfessor.id })
       } catch (profError) {
         console.error(`Error creating professor profile:`, profError.message)
