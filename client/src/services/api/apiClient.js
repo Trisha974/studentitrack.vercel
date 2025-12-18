@@ -118,10 +118,16 @@ export async function apiPost(endpoint, data) {
 }
 
 export async function apiPut(endpoint, data) {
-  return apiRequest(endpoint, {
-    method: 'PUT',
-    body: JSON.stringify(data)
-  })
+  const options = {
+    method: 'PUT'
+  }
+  
+  // Only include body if data is provided
+  if (data !== undefined && data !== null) {
+    options.body = JSON.stringify(data)
+  }
+  
+  return apiRequest(endpoint, options)
 }
 
 export async function apiDelete(endpoint) {

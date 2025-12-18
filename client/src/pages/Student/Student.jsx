@@ -3157,7 +3157,7 @@ function Student() {
                             const updatedNotifications = notifications.map(n => ({ ...n, read: true }))
                             setNotifications(updatedNotifications)
                             setUnreadNotificationCount(0)
-                            addCustomAlert('error', 'Clear Failed', 'Failed to clear all notifications. Please try again.', false)
+                            console.error('Failed to clear all notifications:', error)
                           }
                         }}
                             className="w-full text-center text-sm font-bold text-white hover:text-white bg-[#7A1315] hover:bg-red-800 px-4 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"

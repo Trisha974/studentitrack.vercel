@@ -157,7 +157,8 @@ export async function markAsRead(notificationId) {
  * @returns {Promise<Object>} Success message
  */
 export async function markAllAsRead() {
-  return apiClient.put('/notifications/read-all')
+  // Pass empty object to avoid "Body cannot be empty" error
+  return apiClient.put('/notifications/read-all', {})
 }
 
 /**
