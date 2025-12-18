@@ -1,0 +1,3444 @@
+/* Custom scrollbar styles for notification dropdowns */
+.notification-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notification-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.notification-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.notification-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Dark mode scrollbar */
+.dark .notification-scroll::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark .notification-scroll::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Profile Modal: Make file input and label more visible for professor */
+#editProfProfileModal label {
+    color: #7b1113;
+    font-weight: 600;
+}
+#editProfProfileModal input[type="file"]::-webkit-file-upload-button {
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5em 1.2em;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 1em;
+    transition: background 0.2s;
+}
+#editProfProfileModal input[type="file"]::-ms-browse {
+    background: #ff5151;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5em 1.2em;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 1em;
+    transition: background 0.2s;
+}
+#editProfProfileModal input[type="file"]::file-selector-button {
+    background: #ff5151;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5em 1.2em;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 1em;
+    transition: background 0.2s;
+}
+#editProfProfileModal input[type="file"]:hover::file-selector-button,
+#editProfProfileModal input[type="file"]:hover::-webkit-file-upload-button,
+#editProfProfileModal input[type="file"]:hover::-ms-browse {
+    background: #222;
+}
+#editProfProfileModal input[type="file"] {
+    background: #ffffff;
+    color: transparent;
+    border: 1px solid #f4b4b4;
+    border-radius: 0.5rem;
+    padding: 0.5em;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 100%;
+}
+#editProfProfileModal input[type="text"] {
+    background: #fff;
+    border: 1.5px solid #a04040;
+    font-size: 1rem;
+    font-weight: 500;
+}
+#editProfProfileModal small {
+    color: #a04040;
+    font-size: 0.85em;
+}
+#editProfProfileModal button[type="submit"],
+#editProfProfileModal button[type="button"] {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    min-width: 100px;
+    padding: 0.7em 1.5em;
+    margin-top: 0.5em;
+}
+#editProfProfileModal button[type="submit"] {
+    background: linear-gradient(135deg, #800000 0%, #a04040 100%);
+    color: #fff;
+    border: none;
+}
+#editProfProfileModal button[type="submit"]:hover {
+    background: linear-gradient(135deg, #a04040 0%, #800000 100%);
+}
+#editProfProfileModal button[type="button"] {
+    background: #fff3f3;
+    color: #7b1113;
+    border: 1px solid #a04040;
+}
+#editProfProfileModal button[type="button"]:hover {
+    background: #e5e7eb;
+    color: #a04040;
+}
+        /* Google Fonts - moved to top for better loading */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        /* Base body styles - ensure they persist on refresh */
+        body {
+            font-family: 'Inter', sans-serif !important;
+            letter-spacing: -0.01em !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Screen reader only - visually hidden but accessible to screen readers */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Global responsive fixes - consolidated to prevent conflicts */
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Prevent horizontal overflow */
+        html, body {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
+        /* Ensure containers respect viewport */
+        .max-w-7xl {
+            max-width: 100% !important;
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+
+        /* Prevent content from being too wide on large screens */
+        main.max-w-7xl {
+            max-width: 1200px !important;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        /* Subject Management and cards - limit width */
+        .glass.rounded-2xl.shadow-xl.p-8 {
+            max-width: 100%;
+        }
+
+        /* Subject cards grid - prevent too wide */
+        .grid.gap-6 {
+            max-width: 100%;
+        }
+
+        /* STABLE LAYOUT RULES - Prevent layout breaks on refresh */
+        /* These rules have high specificity to override Tailwind CDN */
+        header.flex.justify-between.items-center,
+        header .flex.justify-between.items-center,
+        header .max-w-7xl .flex.justify-between.items-center {
+            display: flex !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            justify-content: space-between !important;
+            align-items: flex-start !important;
+            flex-wrap: nowrap !important;
+        }
+
+        /* Ensure header container is stable */
+        header,
+        header.max-w-7xl,
+        header .max-w-7xl {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Left side - stable */
+        header .flex.items-center.space-x-4,
+        header .max-w-7xl .flex.items-center.space-x-4 {
+            display: flex !important;
+            align-items: flex-start !important;
+            flex-shrink: 1 !important;
+        }
+
+        /* Right side - stable */
+        header .flex.items-center.space-x-6,
+        header .max-w-7xl .flex.items-center.space-x-6 {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* Ensure header layout is stable on refresh */
+        header {
+            width: 100% !important;
+            box-sizing: border-box !important;
+            position: relative !important;
+        }
+
+        header .max-w-7xl {
+            width: 100% !important;
+            box-sizing: border-box !important;
+            position: relative !important;
+        }
+
+        /* Force header flex layout to be stable */
+        header .flex.justify-between.items-center {
+            display: flex !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            position: relative !important;
+        }
+
+        /* Prevent button/icon overlap - Global styles */
+        header .flex.items-center.space-x-6 > * {
+            flex-shrink: 0;
+            min-width: 0;
+        }
+
+        /* Ensure buttons don't wrap incorrectly */
+        header .flex.justify-between {
+            align-items: flex-start; /* Changed to flex-start for proper title/subtitle stacking */
+            flex-wrap: nowrap;
+        }
+
+        /* Left side: Logo and Title Group - Global */
+        header .flex.items-center.space-x-4 {
+            align-items: flex-start !important; /* Align to top for proper stacking */
+        }
+
+        /* Title and subtitle container - ensure proper stacking */
+        header .flex.items-center.space-x-4 > div:last-child {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0.125rem !important;
+        }
+
+        /* Right side: User Controls Group - Global */
+        header .flex.items-center.space-x-6 {
+            align-items: center !important;
+            justify-content: flex-end !important;
+        }
+
+        /* Icon button base styles */
+        .icon-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        /* Profile button base styles */
+        button.flex.items-center.space-x-3.rounded-2xl {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        /* Logout button base styles */
+        .logout-btn {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        /* Text overflow handling */
+        h1, h2, h3, h4, h5, h6, p, span {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Hide scrollbar for horizontal scrolling tabs */
+        .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;  /* Chrome, Safari and Opera */
+        }
+
+        /* Smooth scrolling for tabs */
+        .scrollbar-hide {
+            -webkit-overflow-scrolling: touch;
+        }
+        /* Simplified CSS class names to 1-3 words only */
+        .fade { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .animate-fade-in {
+          animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .shadowLg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .primary {
+            background: linear-gradient(135deg, #800000 0%, #a04040 100%);
+        }
+        
+        .secondary {
+            background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+        }
+        
+        .textGrad {
+            background: linear-gradient(135deg, #800000 0%, #a04040 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Override textGrad in dark mode to use maroon color */
+        body.dark-mode h1.textGrad,
+        body.dark-mode header h1.textGrad,
+        body.dark-mode .textGrad {
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            -webkit-text-fill-color: #7A1315 !important;
+            color: #7A1315 !important;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #991b1b 0%, #b91c1c 35%, #7f1d1d 100%);
+            transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(122, 19, 21, 0.3), 0 2px 4px -1px rgba(122, 19, 21, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px -2px rgba(122, 19, 21, 0.4), 0 4px 6px -1px rgba(122, 19, 21, 0.3);
+        }
+        
+        .card {
+            background: #ffffff;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+        }
+        .record-toggle-select {
+            min-width: 200px;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(148, 163, 184, 0.9); /* soft slate border, like profile card */
+            background-color: #ffffff;
+            font-weight: 500;
+            color: #0f172a;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        }
+
+        /* Dark mode styling for record toggle select */
+        body.dark-mode .record-toggle-select {
+            background-color: #1a1a1a !important;
+            border-color: rgba(100, 100, 100, 0.8) !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .record-toggle-select option {
+            background-color: #1a1a1a !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .record-toggle-select:hover {
+            background-color: #2c2c2c !important;
+            border-color: rgba(120, 120, 120, 0.8) !important;
+        }
+
+        body.dark-mode .record-toggle-select:focus {
+            background-color: #1a1a1a !important;
+            border-color: #7A1315 !important;
+            color: #ffffff !important;
+        }
+
+.subject-filter-select {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(148, 163, 184, 0.9);
+            background-color: #ffffff;
+            font-weight: 500;
+            min-width: 200px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        }
+
+/* ============================================================================
+   RESPONSIVE DESIGN - PROFESSOR DASHBOARD
+   ============================================================================ */
+
+/* Mobile devices (up to 640px) */
+@media (max-width: 640px) {
+  /* Header */
+  header {
+    padding: 0.5rem 0.5rem !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 40 !important;
+  }
+
+  header .max-w-7xl {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    overflow: visible !important;
+  }
+
+  /* Ensure header doesn't clip logout button */
+  header {
+    overflow: visible !important;
+  }
+
+  /* Header container - reduce vertical padding on mobile */
+  header .flex.justify-between.items-center.py-6 {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  header .flex.justify-between {
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    width: 100%;
+    overflow: visible !important;
+    justify-content: space-between !important;
+  }
+
+  /* Ensure header container doesn't clip any elements */
+  header .flex.justify-between.items-center {
+    overflow: visible !important;
+  }
+
+  /* Left side: Logo and Title Group */
+  header .flex.items-center.space-x-4 {
+    gap: 0.375rem !important;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: calc(100% - 200px) !important;
+    overflow: visible !important;
+    flex-shrink: 1 !important;
+    align-items: flex-start !important; /* Align to top for proper stacking */
+  }
+
+  /* Logo container */
+  header .flex.items-center.space-x-4 > div:first-child {
+    flex-shrink: 0;
+    overflow: visible !important;
+    margin-top: 0.125rem !important; /* Slight top alignment */
+  }
+
+  /* Title and subtitle container - ensure proper stacking */
+  header .flex.items-center.space-x-4 > div:last-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.125rem !important;
+  }
+
+  header .w-12.h-12 {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    flex-shrink: 0;
+    overflow: visible !important;
+  }
+
+  /* Main title - Student iTrack */
+  header h1.text-3xl {
+    font-size: 0.9375rem !important;
+    line-height: 1.2;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: visible !important;
+    text-overflow: clip;
+    letter-spacing: -0.01em;
+    max-width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Subtitle - Smart Academic Monitoring System */
+  header p.text-sm {
+    font-size: 0.625rem !important;
+    line-height: 1.3;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap;
+    overflow: visible !important;
+    text-overflow: clip;
+    display: block !important; /* Always show subtitle */
+  }
+
+  /* Right side: User Controls Group */
+  header .flex.items-center.space-x-6 {
+    gap: 0.375rem !important; /* Reduced gap for mobile */
+    flex-wrap: nowrap !important;
+    width: auto;
+    justify-content: flex-end;
+    flex-shrink: 0 !important;
+    min-width: 180px !important;
+    max-width: 200px !important;
+    overflow: visible !important;
+    padding-right: 0 !important;
+    margin-left: 0.5rem !important; /* Reduced margin for mobile */
+    align-items: center !important;
+  }
+
+  /* Ensure header controls don't overflow and have proper spacing */
+  header .flex.items-center.space-x-6 > * {
+    flex-shrink: 0 !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    position: relative !important;
+    margin: 0 !important;
+  }
+
+  /* Select dropdown - ensure fully visible and no overlap */
+  header .flex.items-center.space-x-6 .record-toggle-select {
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    min-width: 75px !important;
+    max-width: 85px !important;
+    margin: 0 !important;
+    font-size: 0.625rem !important;
+    padding: 0.375rem 0.5rem !important;
+  }
+
+  /* Notification button - ensure fully visible and no overlap */
+  header .flex.items-center.space-x-6 .icon-button {
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    margin: 0 !important;
+  }
+
+  /* Profile button - ensure fully visible and no overlap */
+  header .flex.items-center.space-x-6 button.flex.items-center.space-x-3.rounded-2xl {
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    margin: 0 !important;
+  }
+
+  /* Logout button - ensure it's always fully visible and no overlap */
+  header .flex.items-center.space-x-6 .logout-btn {
+    flex-shrink: 0 !important;
+    min-width: 2.5rem !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 10 !important;
+    margin: 0 !important;
+  }
+
+  /* Icon buttons - prevent overlap */
+  .icon-button {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    min-width: 2.25rem !important;
+    min-height: 2.25rem !important;
+    padding: 0.375rem !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+  }
+
+  .icon-button svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+
+  /* Profile button - compact on mobile */
+  button.flex.items-center.space-x-3.rounded-2xl {
+    padding: 0.25rem !important;
+    gap: 0 !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    min-width: 2.25rem !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+  }
+
+  button.flex.items-center.space-x-3.rounded-2xl .w-10.h-10,
+  button.flex.items-center.space-x-3.rounded-2xl .w-8.h-8,
+  button.flex.items-center.space-x-3.rounded-2xl .w-9.h-9 {
+    width: 1.875rem !important;
+    height: 1.875rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  button.flex.items-center.space-x-3.rounded-2xl .text-left {
+    display: none !important; /* Hide profile text on mobile */
+  }
+
+  button.flex.items-center.space-x-3.rounded-2xl svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    display: none !important; /* Hide dropdown arrow on mobile */
+  }
+
+  /* Logout button - icon only on mobile */
+  .logout-btn {
+    padding: 0.375rem !important;
+    min-width: 2.25rem !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 10 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .logout-btn span {
+    display: none !important; /* Hide "Logout" text on mobile */
+  }
+
+  .logout-btn svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+  }
+  
+  /* Main content padding adjustments */
+  main.max-w-7xl {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  /* Subject Management card padding */
+  .glass.rounded-2xl.shadow-xl.p-4,
+  .glass.rounded-2xl.shadow-xl.p-6,
+  .glass.rounded-2xl.shadow-xl.p-8 {
+    padding: 1rem !important;
+  }
+  
+  /* Navigation tabs - better mobile scrolling */
+  nav.flex.overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  nav.flex.overflow-x-auto::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Tab buttons - ensure proper spacing */
+  .tab-btn {
+    min-width: 80px !important;
+    padding: 0.75rem 0.5rem !important;
+  }
+  
+  /* Tab button text - prevent truncation issues */
+  .tab-btn span {
+    display: inline-block !important;
+    max-width: 100% !important;
+  }
+  
+  /* Students tab - ensure icon and text fit */
+  .tab-btn .relative.w-4 {
+    min-width: 1rem !important;
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+  
+  /* Ensure Students text doesn't get cut off */
+  .tab-btn span:contains("Students"),
+  .tab-btn span {
+    min-width: 3rem !important;
+  }
+  
+  @media (max-width: 480px) {
+    .tab-btn {
+      min-width: 75px !important;
+    }
+    
+    .tab-btn span {
+      min-width: 2.5rem !important;
+    }
+  }
+  
+  /* Subject cards grid - better mobile layout */
+  .grid.gap-6 {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  /* Action buttons container - better mobile layout */
+  .flex.flex-col.md\:flex-row.gap-2\\.5,
+  .flex.flex-col.md\:flex-row.gap-3,
+  .flex.gap-2\\.5:not(.flex-row),
+  .flex.gap-3:not(.flex-row) {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  
+  /* Action buttons - full width on mobile when stacked */
+  .flex.flex-col button,
+  .flex.gap-2\\.5 button:not(.flex-row button),
+  .flex.gap-3 button:not(.flex-row button) {
+    width: 100% !important;
+    flex: 1 1 auto !important;
+  }
+  
+  /* Keep side-by-side buttons when they should be horizontal */
+  .flex.flex-row.gap-2\\.5,
+  .flex.flex-row.gap-3 {
+    flex-direction: row !important;
+  }
+  
+  /* Search bar - full width on mobile */
+  input[type="text"],
+  input[type="search"] {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  
+  /* Modals - better mobile sizing */
+  .fixed.inset-0 {
+    padding: 0.5rem !important;
+  }
+  
+  .fixed.inset-0 > div {
+    max-height: calc(100vh - 1rem) !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Tables - horizontal scroll on mobile */
+  table {
+    display: block !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+  
+  /* Notification dropdown - full width on mobile */
+  .fixed.left-4.right-4 {
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+    max-width: calc(100vw - 1rem) !important;
+  }
+  
+  /* Subject Management header - better mobile layout */
+  .flex.flex-col.md\:flex-row.justify-between {
+    gap: 1rem !important;
+  }
+  
+  /* Subject icon and title - better mobile spacing */
+  .flex.items-center.gap-2,
+  .flex.items-center.gap-3 {
+    gap: 0.5rem !important;
+  }
+  
+  /* Subject title - smaller on mobile */
+  h2.text-xl.sm\:text-2xl.md\:text-3xl {
+    font-size: 1.125rem !important;
+    line-height: 1.3 !important;
+  }
+  
+  /* Subject description - smaller on mobile */
+  p.text-xs.sm\:text-sm.md\:text-base {
+    font-size: 0.75rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* Toggle switch buttons - better mobile sizing */
+  .toggle-switch-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .toggle-switch-container button {
+    font-size: 0.75rem !important;
+    padding: 0.75rem 0.5rem !important;
+    min-height: 48px !important;
+  }
+  
+  .toggle-switch-container button span {
+    display: block !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  
+  /* Filter buttons - better mobile layout */
+  .flex.flex-wrap.items-center.gap-2\\.5 button,
+  .flex.flex-wrap.items-center.gap-2 button {
+    min-width: calc(50% - 0.5rem) !important;
+    flex: 1 1 calc(50% - 0.5rem) !important;
+    font-size: 0.8125rem !important;
+  }
+  
+  /* Recycle Bin button - full width on mobile */
+  button[class*="Recycle"] {
+    width: 100% !important;
+    margin-top: 1rem !important;
+  }
+  
+  /* Subject cards - better mobile padding */
+  .glass.card {
+    padding: 1rem !important;
+  }
+  
+  /* Ensure no horizontal overflow */
+  * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Toggle switch container - prevent overflow */
+  .toggle-switch-container {
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+  
+  /* Toggle switch buttons - ensure they fit */
+  .toggle-switch-container button {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  
+  /* Student container adjustments for mobile */
+  /* Student list items - compact on mobile */
+  .flex.items-center.justify-between.px-4.py-3 {
+    padding: 0.75rem 0.875rem !important;
+    min-height: 60px !important;
+  }
+  
+  /* Student cards in grid - smaller padding on mobile */
+  div.p-4.rounded-xl.border,
+  div[class*="p-4"][class*="rounded-xl"][class*="border"] {
+    padding: 0.75rem !important;
+  }
+  
+  /* Student avatar - smaller on mobile */
+  .w-10.h-10 {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+  
+  .w-11.h-11 {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+  
+  .w-12.h-12 {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+  }
+  
+  /* Student name and ID text - better mobile sizing */
+  p.font-semibold.truncate {
+    font-size: 0.875rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  p.text-xs.truncate {
+    font-size: 0.75rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* Student container spacing - reduce on mobile */
+  .flex.items-center.space-x-3 {
+    gap: 0.75rem !important;
+  }
+  
+  /* Attendance student items - better mobile layout */
+  .flex.flex-col.sm\:flex-row.border.rounded-lg,
+  .flex.flex-col.sm\:flex-row.border.rounded-xl {
+    padding: 0.75rem !important;
+    gap: 0.75rem !important;
+  }
+  
+  /* Subject detail student items - compact on mobile */
+  .flex.items-center.justify-between.bg-slate-50.p-3 {
+    padding: 0.625rem 0.75rem !important;
+    min-height: 56px !important;
+  }
+  
+  /* Student grid - single column on mobile */
+  .grid.grid-cols-1.sm\:grid-cols-2,
+  .grid.grid-cols-1.lg\:grid-cols-3 {
+    gap: 0.75rem !important;
+  }
+  
+  /* Remove button - better mobile sizing */
+  button.text-red-500,
+  button.text-red-700 {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    padding: 0.5rem !important;
+    font-size: 0.875rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* View Record button - better mobile sizing */
+  button.text-sm.font-semibold[class*="View"] {
+    font-size: 0.8125rem !important;
+    padding: 0.5rem 0.75rem !important;
+    white-space: nowrap !important;
+  }
+  
+  /* General student container improvements */
+  [class*="student"] [class*="p-4"] {
+    padding: 0.75rem !important;
+  }
+  
+  /* Ensure student containers don't overflow */
+  .flex.items-center.justify-between {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  /* Better touch targets */
+  button, a, input, select {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+  
+  /* Prevent text overflow */
+  h1, h2, h3, h4, h5, h6, p, span {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .logout-btn .flex.items-center.space-x-2 {
+    gap: 0 !important;
+    justify-content: center;
+    align-items: center;
+    display: flex !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Notification dropdown */
+  .absolute.right-0.mt-2.w-\[420px\] {
+    width: calc(100vw - 2rem) !important;
+    max-width: 420px;
+    right: 0.5rem !important;
+    left: 0.5rem !important;
+    margin: 0.5rem auto !important;
+  }
+
+  /* Profile dropdown */
+  .absolute.right-0.mt-2 {
+    width: calc(100vw - 2rem) !important;
+    max-width: 300px;
+    right: 0.5rem !important;
+    left: 0.5rem !important;
+    margin: 0.5rem auto !important;
+  }
+
+  /* Select dropdown */
+  .record-toggle-select {
+    min-width: 90px !important;
+    width: auto !important;
+    max-width: 100px !important;
+    font-size: 0.6875rem !important;
+    padding: 0.375rem 0.4375rem !important;
+    min-height: 32px !important;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    border-width: 1px !important;
+    white-space: nowrap;
+    overflow: visible !important;
+    text-overflow: clip;
+    flex-shrink: 0 !important;
+  }
+
+  .record-toggle-select option {
+    font-size: 0.6875rem !important;
+    white-space: normal;
+  }
+
+  .subject-filter-select {
+    min-width: auto !important;
+    width: auto !important;
+    min-width: 140px !important;
+    font-size: 0.8125rem !important;
+    padding: 0.5rem 0.625rem !important;
+    border-radius: 0.5rem;
+            font-weight: 500;
+    border-width: 1px !important;
+  }
+
+  /* Main content */
+  main.max-w-7xl {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Ensure all containers respect viewport */
+  .max-w-7xl {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Navigation tabs */
+  nav.flex.px-8 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  nav.flex.px-8::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-btn {
+    padding: 0.875rem 0.75rem !important;
+    font-size: 0.8125rem !important;
+    min-width: auto;
+    white-space: nowrap;
+    min-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0;
+  }
+
+  .tab-btn svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+    flex-shrink: 0;
+  }
+
+  .tab-btn span {
+    font-size: 0.8125rem !important;
+    margin-left: 0.375rem;
+  }
+
+  .tab-btn .flex.items-center.space-x-2 {
+    gap: 0.375rem !important;
+  }
+
+  /* Cards */
+  .card {
+    padding: 1rem !important;
+    margin-bottom: 1rem;
+    border-radius: 1rem !important;
+  }
+
+  /* Subject cards */
+  .grid.gap-6 {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Ensure grid items don't overflow */
+  .grid.gap-6 > * {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* Subject Management Section */
+  .glass.rounded-2xl.shadow-xl.p-8 {
+    padding: 1rem !important;
+    border-radius: 1rem !important;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+    width: 100%;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center > div:first-child {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 h2.text-2xl {
+    font-size: 1.25rem !important;
+    line-height: 1.3;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 p.text-slate-600 {
+    font-size: 0.8125rem !important;
+    line-height: 1.5;
+    margin-top: 0.25rem;
+    word-wrap: break-word;
+  }
+
+  /* Add Subject button in Subject Management */
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center .btn {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.875rem !important;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  /* Archived Subjects Section - Mobile */
+  .glass.rounded-2xl.shadow-xl.p-8.mt-8 {
+    margin-top: 1rem !important;
+    padding: 1rem !important;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8.mt-8 h3.text-2xl {
+    font-size: 1.25rem !important;
+    line-height: 1.3;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8.mt-8 p.text-sm {
+    font-size: 0.8125rem !important;
+    line-height: 1.5;
+  }
+
+  /* Subject Card Elements */
+  .glass.card.shadowLg.p-6 {
+    padding: 1.125rem !important;
+    border-radius: 1rem !important;
+            transition: all 0.2s ease;
+            cursor: pointer;
+    position: relative;
+    min-height: 140px;
+  }
+
+  .glass.card.shadowLg.p-6:active {
+    transform: scale(0.98);
+    opacity: 0.95;
+  }
+
+  .glass.card.shadowLg.p-6 .flex.items-start.justify-between {
+    flex-direction: row !important;
+    gap: 0.875rem !important;
+    align-items: flex-start;
+    position: relative;
+    width: 100%;
+  }
+
+  .glass.card.shadowLg.p-6 .flex.items-center.space-x-4 {
+    width: 100%;
+    gap: 0.875rem !important;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .glass.card.shadowLg.p-6 .w-14.h-14 {
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+    flex-shrink: 0;
+    border-radius: 0.75rem !important;
+  }
+
+  .glass.card.shadowLg.p-6 .w-14.h-14 svg {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+  }
+
+  .glass.card.shadowLg.p-6 .flex.flex-col {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .glass.card.shadowLg.p-6 .text-sm.font-bold {
+    font-size: 1rem !important;
+    line-height: 1.4;
+    font-weight: 700;
+    margin-bottom: 0.375rem;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    color: #1e293b !important;
+  }
+
+  .glass.card.shadowLg.p-6 .text-xs {
+    font-size: 0.8125rem !important;
+    line-height: 1.5;
+    margin-top: 0.25rem;
+            color: #64748b !important;
+        }
+
+  .glass.card.shadowLg.p-6 .mt-3.text-xs {
+    margin-top: 0.75rem !important;
+    font-size: 0.6875rem !important;
+            color: #94a3b8 !important;
+    line-height: 1.4;
+  }
+
+  /* Subject card text overflow handling */
+  .glass.card.shadowLg.p-6 .flex.flex-col {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .glass.card.shadowLg.p-6 .flex.flex-col > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Ensure subject cards don't overflow */
+  .glass.card.shadowLg.p-6 {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* Delete button in subject cards */
+  .glass.card.shadowLg.p-6 button.absolute {
+    position: absolute !important;
+    top: 0.625rem !important;
+    right: 0.625rem !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    min-width: 2.25rem !important;
+    min-height: 2.25rem !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.125rem !important;
+    border-radius: 0.5rem !important;
+    z-index: 10;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  .glass.card.shadowLg.p-6 button.absolute:active {
+    transform: scale(0.9);
+    background: rgba(255, 255, 255, 1) !important;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 0.85rem 1.5rem !important;
+    font-size: 0.95rem !important;
+    min-height: 44px !important;
+    width: auto;
+    margin-bottom: 0;
+    white-space: nowrap;
+    border-radius: 999px !important;
+    font-weight: 600;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #8e0e12, #d52227);
+    border: none !important;
+    box-shadow: 0 12px 24px rgba(213, 34, 39, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 32px rgba(213, 34, 39, 0.35);
+    filter: brightness(1.05);
+  }
+
+  .btn:active {
+    transform: translateY(0);
+    box-shadow: 0 8px 18px rgba(213, 34, 39, 0.25);
+    filter: brightness(0.95);
+  }
+
+  .btn svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+    flex-shrink: 0;
+  }
+
+  /* Add Subject button - ensure proper stacking */
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 > div:first-child {
+    width: 100% !important;
+    order: 1;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 .btn {
+    width: 100% !important;
+    margin: 0 !important;
+    order: 2;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  @media (min-width: 1024px) {
+    .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 {
+      flex-direction: row !important;
+      align-items: center !important;
+      gap: 1.5rem !important;
+    }
+
+    .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 > div:first-child {
+      width: auto !important;
+      order: initial;
+    }
+
+    .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 .btn {
+      width: auto !important;
+      order: initial;
+      padding: 0.9rem 2.25rem !important;
+      font-size: 1rem !important;
+    }
+  }
+
+  /* Action buttons in subject detail */
+  .flex.items-center.space-x-4 .btn {
+    width: 100% !important;
+    margin-bottom: 0.5rem;
+  }
+
+  .flex.items-center.space-x-4 .btn:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Back button */
+  .w-12.h-12.bg-slate-100 {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    min-width: 2.75rem !important;
+    min-height: 2.75rem !important;
+  }
+
+  .w-12.h-12.bg-slate-100 svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+
+  /* Forms */
+  input[type="text"],
+  input[type="email"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 0.9375rem !important;
+    padding: 0.75rem !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* Tables - Responsive */
+  table {
+            font-size: 0.875rem;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  tbody td {
+    display: block;
+    text-align: right;
+    padding: 0.5rem 0;
+            border: none;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+    float: left;
+            font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+  }
+
+  /* Student Record View - Responsive */
+  .fadeIn.space-y-8 {
+    padding: 0.5rem 0 !important;
+  }
+
+  /* Student view subject cards */
+  .glass.rounded-2xl.shadow-xl.p-8 {
+    padding: 1rem !important;
+    margin-bottom: 1rem;
+  }
+
+  /* Student view preview stats grid */
+  .grid.grid-cols-1.md\\:grid-cols-3.gap-4 {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Student view enrolled students list */
+  .divide-y.rounded-2xl.border {
+    border-radius: 0.75rem !important;
+  }
+
+  .divide-y.rounded-2xl.border > div {
+    padding: 0.75rem 1rem !important;
+  }
+
+  /* Student detail view - Assessment and Attendance */
+  .grid.grid-cols-1.lg\\:grid-cols-2.gap-6 {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* Student detail tables */
+  table.min-w-full.text-sm {
+    font-size: 0.8125rem !important;
+  }
+
+  table.min-w-full.text-sm th {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  table.min-w-full.text-sm td {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.8125rem !important;
+  }
+
+  /* Attendance history cards */
+  .space-y-3.max-h-72 {
+    max-height: 200px !important;
+  }
+
+  .space-y-3.max-h-72 > div {
+    padding: 0.75rem 1rem !important;
+  }
+
+  /* Archived subjects section */
+  .glass.rounded-2xl.shadow-xl.p-8.mt-8 {
+    margin-top: 1rem !important;
+    padding: 1rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8.mt-8 h3.text-2xl {
+    font-size: 1.25rem !important;
+  }
+
+  /* Preview subject stats */
+  .p-4.rounded-2xl.border {
+    padding: 0.75rem !important;
+  }
+
+  .p-4.rounded-2xl.border .text-3xl {
+    font-size: 1.5rem !important;
+  }
+
+  /* Student Record View - Student Selector */
+  select[value*="student"] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Student view subject preview section */
+  .glass.rounded-2xl.shadow-xl.p-8.space-y-6 {
+    padding: 1rem !important;
+    gap: 1rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8.space-y-6 h3.text-2xl {
+    font-size: 1.25rem !important;
+  }
+
+  /* Student view buttons */
+  button.text-sm.font-semibold {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.8125rem !important;
+  }
+
+  /* Close detail button */
+  button.text-sm.font-semibold.transition-colors {
+    padding: 0.5rem !important;
+    font-size: 0.8125rem !important;
+  }
+
+  /* Student detail header */
+  .flex.items-center.justify-between {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  .flex.items-center.justify-between > button {
+    align-self: flex-end;
+  }
+
+  /* Student enrolled list items */
+  .flex.items-center.justify-between.px-4.py-3 {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+    padding: 0.75rem 1rem !important;
+  }
+
+  .flex.items-center.justify-between.px-4.py-3 > button {
+    align-self: flex-end;
+    margin-top: 0.25rem;
+  }
+
+  /* Modals */
+  .modal,
+  [class*="modal"],
+  .fixed.inset-0.z-50 > div {
+    width: calc(100vw - 1rem) !important;
+    max-width: 100% !important;
+    margin: 0.5rem !important;
+    padding: 1rem !important;
+    max-height: calc(100vh - 1rem) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 1rem !important;
+  }
+
+  /* Profile modal */
+  .fixed.inset-0 {
+    padding: 0.5rem;
+  }
+
+  /* Modal headers */
+  .modal h2,
+  .modal h3,
+  [class*="modal"] h2,
+  [class*="modal"] h3 {
+    font-size: 1.25rem !important;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+  }
+
+  /* Modal buttons */
+  .modal .btn,
+  [class*="modal"] .btn {
+    width: 100% !important;
+    margin-bottom: 0.75rem;
+  }
+
+  .modal .btn:last-child,
+  [class*="modal"] .btn:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Quick grade entry */
+  .grid.grid-cols-2,
+  .grid.grid-cols-3,
+  .grid.grid-cols-4 {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Form groups in modals */
+  .modal .form-field-group,
+  [class*="modal"] .form-field-group {
+    margin-bottom: 1rem;
+  }
+
+  .modal label,
+  [class*="modal"] label {
+    font-size: 0.875rem !important;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  /* Notification badge */
+  .absolute.-top-1.-right-1 {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    font-size: 0.6875rem !important;
+    padding: 0.125rem !important;
+  }
+
+  /* Empty state messages */
+  .text-center.text-slate-500 {
+    font-size: 0.875rem !important;
+    padding: 2rem 1rem !important;
+  }
+
+  /* Subject management section */
+  .glass.rounded-2xl.shadow-xl.p-8 {
+    padding: 1rem !important;
+  }
+
+  /* Student management modals */
+  .fixed.inset-0.z-50 {
+    padding: 0.5rem;
+  }
+
+  /* Modal content */
+  .bg-white.rounded-2xl,
+  .bg-\[#1a1a1a\].rounded-2xl {
+    max-height: calc(100vh - 1rem);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Icon buttons */
+        .icon-button {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    padding: 0.5rem !important;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    border-radius: 0.625rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .icon-button svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+
+  .icon-button:active {
+    transform: scale(0.95);
+  }
+
+  /* Logout button */
+  .logout-btn {
+    padding: 0.625rem 1rem !important;
+    font-size: 0.875rem !important;
+    min-height: 44px !important;
+    border-radius: 0.625rem;
+    font-weight: 600;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .logout-btn svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    flex-shrink: 0;
+  }
+
+  /* Profile button */
+  .relative button,
+  .relative .flex {
+    min-height: 44px;
+  }
+
+  /* Subject Detail View */
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.items-center.justify-between {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1.25rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.items-center.space-x-4 {
+    width: 100%;
+    gap: 0.875rem !important;
+    flex-wrap: wrap;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 h2.text-3xl {
+    font-size: 1.5rem !important;
+    line-height: 1.3;
+    font-weight: 700;
+    word-break: break-word;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .text-slate-600 {
+    font-size: 0.875rem !important;
+    margin-top: 0.375rem;
+    line-height: 1.5;
+  }
+
+  /* Subject detail action buttons */
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.items-center.space-x-4:last-child {
+            width: 100%;
+    flex-direction: column;
+    gap: 0.75rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.items-center.space-x-4:last-child .btn {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Student cards in subject detail */
+  .grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+    gap: 0.875rem !important;
+  }
+
+  .bg-white.p-4.rounded-xl {
+    padding: 1rem !important;
+    border-radius: 0.875rem !important;
+  }
+
+  .bg-white.p-4.rounded-xl .flex.items-center.space-x-3 {
+    gap: 0.75rem !important;
+  }
+
+  .bg-white.p-4.rounded-xl .w-10.h-10 {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    flex-shrink: 0;
+  }
+
+  .bg-white.p-4.rounded-xl .text-sm,
+  .bg-white.p-4.rounded-xl .font-semibold {
+    font-size: 0.875rem !important;
+    line-height: 1.4;
+  }
+
+  .bg-white.p-4.rounded-xl .text-xs {
+    font-size: 0.75rem !important;
+    line-height: 1.4;
+  }
+
+  /* Grid spacing improvements */
+  .grid.gap-6 {
+    gap: 1rem !important;
+  }
+
+  /* Better text wrapping */
+  .text-sm.font-bold,
+  .text-lg.font-bold,
+  h2.text-2xl,
+  h3.text-xl {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* Improved spacing for subject info */
+  .flex.flex-col .text-xs {
+    margin-top: 0.25rem;
+    line-height: 1.5;
+  }
+
+  /* Better button spacing in cards */
+  .glass.card.shadowLg.p-6 .space-y-4 > * + * {
+    margin-top: 0.875rem;
+  }
+
+  /* Subject card clickable area */
+  .glass.card.shadowLg.p-6.clickable {
+    min-height: 140px;
+    transition: all 0.2s ease;
+  }
+
+  .glass.card.shadowLg.p-6.clickable:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
+  /* Navigation tabs container improvements */
+  .glass.rounded-2xl.shadow-xl.mb-8 {
+    margin-bottom: 1.25rem !important;
+    border-radius: 1rem !important;
+  }
+
+  /* Empty state improvements */
+  .col-span-3.text-center,
+  .text-center.text-slate-500 {
+    padding: 2.5rem 1rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.6;
+  }
+
+  /* No subjects message */
+  .text-center.text-slate-500.text-lg {
+    font-size: 0.9375rem !important;
+    padding: 1.5rem 1rem !important;
+  }
+
+  /* Attendance and Grades sections */
+  .glass.rounded-2xl.shadow-xl.p-8 .text-center {
+    padding: 2rem 1rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .text-center p {
+    font-size: 0.875rem !important;
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Quick Grade Entry Form */
+  .glass.rounded-2xl.shadow-xl.p-8 form {
+            width: 100%;
+        }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .grid {
+    gap: 0.875rem !important;
+  }
+
+  /* Student Management Section */
+  .glass.rounded-2xl.shadow-xl.p-8 .mb-8 {
+    margin-bottom: 1.5rem !important;
+  }
+
+  /* Search and filter inputs */
+  input[type="search"],
+  input[type="text"].w-full {
+    width: 100% !important;
+    min-height: 44px !important;
+    font-size: 0.9375rem !important;
+    padding: 0.75rem !important;
+  }
+
+  /* Dropdown menus */
+  select.w-full {
+    width: 100% !important;
+    min-height: 44px !important;
+    font-size: 0.9375rem !important;
+    padding: 0.75rem !important;
+  }
+
+  /* Checkboxes and radio buttons */
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    min-width: 1.25rem !important;
+    min-height: 1.25rem !important;
+  }
+
+  /* Labels */
+  label {
+    font-size: 0.875rem !important;
+    margin-bottom: 0.5rem;
+    display: block;
+            font-weight: 500;
+  }
+
+  /* Text areas */
+  textarea {
+    width: 100% !important;
+    min-height: 100px !important;
+    font-size: 0.9375rem !important;
+    padding: 0.75rem !important;
+    resize: vertical;
+  }
+
+  /* Badge and chip elements */
+  .badge,
+  .chip,
+  span[class*="badge"],
+  span[class*="chip"] {
+    font-size: 0.75rem !important;
+    padding: 0.375rem 0.625rem !important;
+    border-radius: 0.5rem;
+  }
+
+  /* Loading states */
+  .loading,
+  .spinner {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  /* Tooltips */
+  [data-tooltip],
+  .tooltip {
+    font-size: 0.75rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  /* Dividers and separators */
+  hr,
+  .divider {
+    margin: 1rem 0 !important;
+  }
+
+  /* List items */
+  li {
+    padding: 0.5rem 0 !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Alert messages */
+  .alert,
+  .message,
+  [class*="alert"],
+  [class*="message"] {
+    padding: 0.875rem 1rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 0.625rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Progress bars */
+  .progress,
+  [class*="progress"] {
+    height: 0.5rem !important;
+    border-radius: 0.25rem;
+  }
+
+  /* Avatar sizes */
+  .avatar,
+  [class*="avatar"] {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+
+  /* Icon sizes in various contexts */
+  svg.w-5.h-5 {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+
+  svg.w-6.h-6 {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+
+  svg.w-7.h-7 {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+
+  /* Spacing utilities */
+  .space-y-4 > * + * {
+    margin-top: 0.875rem !important;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 1.25rem !important;
+  }
+
+  .space-x-4 > * + * {
+    margin-left: 0.875rem !important;
+  }
+
+  .space-x-6 > * + * {
+    margin-left: 1.25rem !important;
+  }
+
+  /* Padding utilities */
+  .p-4 {
+    padding: 0.875rem !important;
+  }
+
+  .p-6 {
+    padding: 1.125rem !important;
+  }
+
+  .p-8 {
+    padding: 1.25rem !important;
+  }
+
+  .px-4 {
+    padding-left: 0.875rem !important;
+    padding-right: 0.875rem !important;
+  }
+
+  .px-6 {
+    padding-left: 1.125rem !important;
+    padding-right: 1.125rem !important;
+  }
+
+  .py-4 {
+    padding-top: 0.875rem !important;
+    padding-bottom: 0.875rem !important;
+  }
+
+  .py-6 {
+    padding-top: 1.125rem !important;
+    padding-bottom: 1.125rem !important;
+  }
+
+  /* Margin utilities */
+  .mb-4 {
+    margin-bottom: 0.875rem !important;
+  }
+
+  .mb-6 {
+    margin-bottom: 1.125rem !important;
+  }
+
+  .mb-8 {
+    margin-bottom: 1.5rem !important;
+  }
+
+  .mt-4 {
+    margin-top: 0.875rem !important;
+  }
+
+  .mt-6 {
+    margin-top: 1.125rem !important;
+  }
+
+  /* Flex utilities */
+  .flex.items-center.space-x-2 {
+    gap: 0.5rem !important;
+  }
+
+  .flex.items-center.space-x-3 {
+    gap: 0.625rem !important;
+  }
+
+  /* Grid improvements */
+  .grid-cols-1 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Text size improvements */
+  .text-xs {
+    font-size: 0.75rem !important;
+    line-height: 1.5;
+  }
+
+  .text-sm {
+    font-size: 0.875rem !important;
+    line-height: 1.5;
+  }
+
+  .text-base {
+    font-size: 0.9375rem !important;
+    line-height: 1.5;
+  }
+
+  .text-lg {
+    font-size: 1.125rem !important;
+    line-height: 1.4;
+  }
+
+  .text-xl {
+    font-size: 1.25rem !important;
+    line-height: 1.3;
+  }
+
+  .text-2xl {
+    font-size: 1.375rem !important;
+    line-height: 1.3;
+  }
+
+  .text-3xl {
+    font-size: 1.5rem !important;
+    line-height: 1.3;
+  }
+
+  /* Additional mobile improvements */
+  /* Scrollable containers */
+  .overflow-y-auto,
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Focus states for accessibility */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid #7A1315 !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Prevent text selection on buttons */
+  button,
+  .btn {
+    -webkit-tap-highlight-color: rgba(122, 19, 21, 0.2);
+    user-select: none;
+  }
+
+  /* Improve touch targets */
+  a,
+  button,
+  input[type="button"],
+  input[type="submit"],
+  .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better spacing for stacked elements */
+  .flex-col > * + * {
+    margin-top: 0.75rem;
+  }
+
+  /* Improve readability */
+  p,
+  span,
+  div {
+    line-height: 1.6;
+  }
+
+  /* Better contrast for small text */
+  .text-slate-400,
+  .text-slate-500 {
+    color: #64748b !important;
+  }
+
+  /* Improve card shadows on mobile */
+  .card,
+  .glass {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Better border radius */
+  .rounded-xl,
+  .rounded-2xl {
+    border-radius: 0.875rem !important;
+  }
+
+  /* Improve button hover states for touch */
+  .btn:active,
+  button:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Prevent horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Better image handling */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Small mobile devices (up to 480px) */
+@media (max-width: 480px) {
+  /* Student containers - even more compact */
+  .flex.items-center.justify-between.px-4.py-3 {
+    padding: 0.625rem 0.75rem !important;
+    min-height: 56px !important;
+  }
+  
+  /* Student cards */
+  div.p-4.rounded-xl,
+  div[class*="p-4"][class*="rounded-xl"] {
+    padding: 0.625rem !important;
+  }
+  
+  /* Student avatars - smaller */
+  .w-10.h-10 {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+  }
+  
+  .w-11.h-11 {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+  }
+  
+  .w-12.h-12 {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+  
+  /* Text sizes */
+  p.font-semibold,
+  span.font-semibold {
+    font-size: 0.8125rem !important;
+  }
+  
+  p.text-xs,
+  div.text-xs,
+  span.text-xs {
+    font-size: 0.6875rem !important;
+  }
+  
+  /* Spacing */
+  .flex.items-center.space-x-3 {
+    gap: 0.5rem !important;
+  }
+  
+  /* Subject detail items */
+  .flex.items-center.justify-between.bg-slate-50.p-3 {
+    padding: 0.5rem 0.625rem !important;
+    min-height: 52px !important;
+  }
+  
+  /* Buttons */
+  button.text-red-500,
+  button.text-red-700 {
+    min-width: 32px !important;
+    min-height: 32px !important;
+    padding: 0.375rem !important;
+    font-size: 0.75rem !important;
+  }
+  
+  /* Ensure buttons are touch-friendly */
+  button {
+    min-height: 36px !important;
+  }
+  /* Header */
+  header {
+    padding: 0.625rem 0.75rem !important;
+  }
+
+  header .flex.justify-between {
+    gap: 0.5rem;
+  }
+
+  /* Left side: Logo and Title Group - Small Mobile */
+  header .flex.items-center.space-x-4 {
+    gap: 0.5rem !important;
+    max-width: calc(100% - 240px) !important;
+    overflow: visible !important;
+    flex-shrink: 1 !important;
+    align-items: flex-start !important;
+  }
+
+  /* Title and subtitle container */
+  header .flex.items-center.space-x-4 > div:last-child {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.125rem !important;
+  }
+
+  header h1.text-3xl {
+    font-size: 0.875rem !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  header p.text-sm {
+    font-size: 0.625rem !important;
+    display: block !important; /* Show subtitle */
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  header .w-12.h-12 {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Right side: User Controls Group - Small Mobile */
+  header .flex.items-center.space-x-6 {
+    gap: 0.5rem !important;
+    overflow: visible !important;
+    padding-right: 0 !important;
+    margin-left: 0.75rem !important;
+    min-width: 220px !important;
+    flex-shrink: 0 !important;
+    align-items: center !important;
+  }
+
+  /* Ensure all header controls are visible */
+  header .flex.items-center.space-x-6 > * {
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    margin: 0 !important;
+  }
+
+  /* Select dropdown - small mobile */
+  .record-toggle-select {
+    min-width: 85px !important;
+    max-width: 95px !important;
+    font-size: 0.625rem !important;
+  }
+
+  /* Icon buttons - even smaller on very small devices */
+  .icon-button {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    min-width: 2.25rem !important;
+    min-height: 2.25rem !important;
+    padding: 0.375rem !important;
+  }
+
+  .icon-button svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+
+  /* Profile button - icon only on very small devices */
+  button.flex.items-center.space-x-3.rounded-2xl {
+    padding: 0.25rem !important;
+    min-width: 2.25rem !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+  }
+
+  button.flex.items-center.space-x-3.rounded-2xl .w-10.h-10 {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+  }
+
+  /* Logout button - icon only */
+  .logout-btn {
+    padding: 0.375rem !important;
+    min-width: 2.25rem !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 10 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .logout-btn svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+  }
+
+  /* Ensure logout button container doesn't clip */
+  header .flex.items-center.space-x-6 {
+    overflow: visible !important;
+  }
+
+  header .flex.items-center.space-x-6 .logout-btn {
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Select dropdown */
+  .record-toggle-select {
+    font-size: 0.75rem !important;
+    padding: 0.4375rem 0.5rem !important;
+    min-width: 100px !important;
+    max-width: 110px !important;
+  }
+
+  /* Navigation tabs - Mobile optimized */
+  nav.flex.px-8,
+  nav.flex.overflow-x-auto {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    gap: 0.25rem !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Tab buttons container - prevent overflow */
+  nav.flex.overflow-x-auto .tab-btn {
+    flex-shrink: 0 !important;
+    min-width: auto !important;
+  }
+  
+  /* Tab button content - better mobile layout */
+  .tab-btn > div.flex.items-center {
+    gap: 0.25rem !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .tab-btn {
+    padding: 0.75rem 0.5rem !important;
+    font-size: 0.875rem !important;
+    min-height: 48px !important;
+    min-width: 80px !important;
+    max-width: 100% !important;
+    touch-action: manipulation;
+  }
+
+  .tab-btn > div {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+  }
+
+  .tab-btn svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .tab-btn span {
+    font-size: 0.75rem !important;
+    margin-left: 0.25rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+    min-width: 0 !important;
+  }
+  
+  /* Students tab icon - better mobile sizing */
+  .tab-btn .relative.w-4 {
+    flex-shrink: 0 !important;
+  }
+  
+  .tab-btn .relative.w-4 svg {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+  
+  /* Plus indicator on Students icon - better mobile sizing */
+  .tab-btn .relative .absolute {
+    width: 0.375rem !important; /* 6px - smaller on mobile */
+    height: 0.375rem !important; /* 6px - smaller on mobile */
+    bottom: -0.125rem !important;
+    right: -0.125rem !important;
+  }
+  
+  .tab-btn .relative .absolute svg {
+    width: 0.25rem !important; /* 4px - smaller on mobile */
+    height: 0.25rem !important; /* 4px - smaller on mobile */
+  }
+  
+  /* Medium screens and up - slightly larger */
+  @media (min-width: 640px) {
+    .tab-btn .relative .absolute {
+      width: 0.5rem !important; /* 8px */
+      height: 0.5rem !important; /* 8px */
+    }
+    
+    .tab-btn .relative .absolute svg {
+      width: 0.375rem !important; /* 6px */
+      height: 0.375rem !important; /* 6px */
+    }
+  }
+  
+  /* Large screens - full size */
+  @media (min-width: 768px) {
+    .tab-btn .relative .absolute {
+      width: 0.75rem !important; /* 12px */
+      height: 0.75rem !important; /* 12px */
+    }
+    
+    .tab-btn .relative .absolute svg {
+      width: 0.5rem !important; /* 8px */
+      height: 0.5rem !important; /* 8px */
+    }
+  }
+  
+  /* Better touch targets for all buttons on mobile */
+  button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Action buttons - Mobile optimized sizing */
+  button[class*="px-"]:not(.icon-button):not(.logout-btn):not(.tab-btn) {
+    min-height: 50px !important;
+    padding: 0.875rem 1rem !important;
+    font-size: 0.9375rem !important;
+  }
+  
+  /* Filter buttons - Equal width on mobile for better UX */
+  .flex.flex-wrap.items-center.gap-2\\.5 button,
+  .flex.flex-wrap.items-center.gap-2 button {
+    min-width: calc(33.333% - 0.667rem) !important;
+    flex: 1 1 calc(33.333% - 0.667rem) !important{}
+  }
+  
+  /* Toggle switch - Enhanced mobile design */
+  .relative.w-full.rounded-2xl {
+    width: 100% !important;
+    position: relative !important;
+  }
+  
+  /* Toggle switch container - Mobile optimized */
+  .toggle-switch-container {
+    position: relative !important;
+  }
+  
+  /* Toggle switch sliding indicator - Mobile only */
+  .toggle-indicator {
+    z-index: 1 !important;
+    pointer-events: none !important;
+    will-change: left, right !important;
+  }
+  
+  /* Mobile-specific: Perfect fit within button boundaries with sliding indicator */
+  @media (max-width: 639px) {
+    /* Container padding matches indicator positioning */
+    .toggle-switch-container {
+      padding: 0.375rem !important;
+      width: 100% !important;
+      display: flex !important;
+      gap: 0 !important;
+    }
+    
+    /* Indicator base - fits perfectly within padding */
+    .toggle-indicator {
+      top: 0.375rem !important;
+      bottom: 0.375rem !important;
+      height: auto !important;
+      border-radius: 0.75rem !important;
+    }
+    
+    /* Active state - indicator fits perfectly on left button */
+    .toggle-indicator-active {
+      left: 0.375rem !important;
+      right: calc(50% + 0.375rem) !important;
+      width: auto !important;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* Archived state - indicator fits perfectly on right button */
+    .toggle-indicator-archived {
+      left: calc(50% + 0.375rem) !important;
+      right: 0.375rem !important;
+      width: auto !important;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* Ensure buttons have equal width and proper spacing */
+    .toggle-switch-container button {
+      flex: 1 1 50% !important;
+      min-width: 0 !important;
+      padding: 0.75rem 0.5rem !important;
+      font-size: 0.8125rem !important;
+      line-height: 1.2 !important;
+      background: transparent !important;
+      min-height: 48px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    
+    /* Ensure text fits properly */
+    .toggle-switch-container button span,
+    .toggle-switch-container button {
+      font-size: 0.75rem !important;
+      font-weight: 700 !important;
+    }
+  }
+  
+  /* Very small mobile devices (up to 360px) */
+  @media (max-width: 360px) {
+    .toggle-switch-container {
+      padding: 0.25rem !important;
+    }
+    
+    .toggle-indicator {
+      top: 0.25rem !important;
+      bottom: 0.25rem !important;
+    }
+    
+    .toggle-indicator-active {
+      left: 0.25rem !important;
+      right: calc(50% + 0.25rem) !important;
+    }
+    
+    .toggle-indicator-archived {
+      left: calc(50% + 0.25rem) !important;
+      right: 0.25rem !important;
+    }
+    
+    .toggle-switch-container button {
+      padding: 0.625rem 0.375rem !important;
+      font-size: 0.6875rem !important;
+      min-height: 44px !important;
+    }
+  }
+  
+  /* Desktop: Red button background design (no sliding indicator) */
+  @media (min-width: 640px) {
+    /* Hide sliding indicator on desktop */
+    .toggle-indicator {
+      display: none !important;
+    }
+    
+    /* Selected button - Red gradient background */
+    .toggle-switch-container button[class*="sm:bg-gradient"] {
+      background: linear-gradient(135deg, #7A1315 0%, #8a1518 50%, #b91c1c 100%) !important;
+      box-shadow: 0 4px 12px rgba(122, 19, 21, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Unselected button - Transparent background */
+    .toggle-switch-container button:not([class*="sm:bg-gradient"]) {
+      background: transparent !important;
+    }
+    
+    /* Button hover states */
+    .toggle-switch-container button:hover:not([class*="sm:bg-gradient"]) {
+      background: rgba(0, 0, 0, 0.05) !important;
+    }
+  }
+  
+  /* Toggle switch buttons - Proper layering */
+  .toggle-switch-container button {
+    position: relative !important;
+    z-index: 20 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.01em !important;
+    pointer-events: auto !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  /* Mobile: Better text sizing and spacing */
+  @media (max-width: 640px) {
+    .toggle-switch-container {
+      margin: 0 auto !important;
+      max-width: 100% !important;
+    }
+    
+    .toggle-switch-container button {
+      font-size: 0.8125rem !important;
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+      min-height: 48px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    
+    /* Ensure text doesn't wrap */
+    .toggle-switch-container button {
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+  }
+  
+  /* Selected button text - Enhanced visibility */
+  .toggle-switch-container button[class*="text-white"] {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+  }
+  
+  /* Unselected button - Better contrast */
+  .toggle-switch-container button:not([class*="text-white"]) {
+    font-weight: 600 !important;
+  }
+  
+  /* Action buttons container - Better spacing */
+  .flex.gap-2\\.5 {
+    gap: 0.625rem !important;
+  }
+  
+  @media (min-width: 640px) {
+    button[class*="px-"]:not(.icon-button):not(.logout-btn):not(.tab-btn) {
+      min-height: auto !important;
+      padding: 0.75rem 1rem !important;
+      font-size: 0.875rem !important;
+    }
+    
+    /* Filter buttons - Auto width on desktop */
+    .flex.flex-wrap.items-center.gap-2\\.5 button,
+    .flex.flex-wrap.items-center.gap-2 button {
+      min-width: auto !important;
+      flex: 0 1 auto !important;
+    }
+    
+    /* Toggle switch - Auto width on desktop */
+    .relative.w-full.rounded-xl {
+      width: auto !important;
+    }
+  }
+
+  /* Cards */
+  .card {
+    padding: 0.875rem !important;
+    border-radius: 0.875rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 {
+    padding: 1rem !important;
+  }
+
+  /* Subject Management */
+  .glass.rounded-2xl.shadow-xl.p-8 {
+    padding: 1rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 h2.text-2xl {
+    font-size: 1.25rem !important;
+    line-height: 1.3;
+    font-weight: 700;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 p.text-slate-600 {
+    font-size: 0.75rem !important;
+    line-height: 1.5;
+    margin-top: 0.5rem;
+  }
+
+  /* Add Subject button in Subject Management */
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 .btn {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.8125rem !important;
+    min-height: 44px;
+  }
+
+  /* Archived Subjects Section - Small Mobile */
+  .glass.rounded-2xl.shadow-xl.p-8.mt-8 {
+    padding: 1rem !important;
+    margin-top: 1rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8.mt-8 h3.text-2xl {
+    font-size: 1.125rem !important;
+    line-height: 1.3;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8.mt-8 p.text-sm {
+    font-size: 0.75rem !important;
+    line-height: 1.5;
+  }
+
+  /* Subject cards */
+  .glass.card.shadowLg.p-6 {
+    padding: 1rem !important;
+    min-height: 130px;
+  }
+
+  .glass.card.shadowLg.p-6 .w-14.h-14 {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+
+  .glass.card.shadowLg.p-6 .w-14.h-14 svg {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+
+  .glass.card.shadowLg.p-6 .text-sm.font-bold {
+    font-size: 0.9375rem !important;
+  }
+
+  .glass.card.shadowLg.p-6 .text-xs {
+    font-size: 0.75rem !important;
+  }
+
+  .glass.card.shadowLg.p-6 button.absolute {
+    width: 2rem !important;
+    height: 2rem !important;
+    top: 0.5rem !important;
+    right: 0.5rem !important;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 0.6875rem 1rem !important;
+    font-size: 0.875rem !important;
+    min-height: 44px !important;
+  }
+
+  .btn svg {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+
+  /* Icon buttons */
+  .icon-button {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    padding: 0.4375rem !important;
+  }
+
+  .icon-button svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+
+  /* Logout button */
+  .logout-btn {
+    padding: 0.5625rem 0.875rem !important;
+    font-size: 0.8125rem !important;
+  }
+
+  /* Back button */
+  .w-12.h-12.bg-slate-100 {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+
+  .w-12.h-12.bg-slate-100 svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+
+  /* Forms */
+  input[type="text"],
+  input[type="email"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 0.875rem !important;
+    padding: 0.625rem 0.75rem !important;
+    min-height: 44px !important;
+    border-radius: 0.5rem !important;
+  }
+
+  /* Main content spacing */
+main.max-w-7xl {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+
+  /* Modals */
+  .modal,
+  [class*="modal"] {
+    width: calc(100vw - 1rem) !important;
+    margin: 0.5rem !important;
+    padding: 0.875rem !important;
+  }
+}
+
+/* Extra small devices (up to 360px) */
+@media (max-width: 360px) {
+  /* Header - ultra compact */
+  header {
+    padding: 0.5rem 0.625rem !important;
+  }
+
+  /* Header container - extra small */
+  header .flex.justify-between.items-center.py-6 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  header .flex.justify-between {
+    gap: 0.5rem !important;
+    justify-content: space-between !important;
+  }
+
+  /* Left side: Logo and Title Group - Extra Small */
+  header .flex.items-center.space-x-4 {
+    gap: 0.375rem !important;
+    max-width: calc(100% - 220px) !important;
+    overflow: visible !important;
+    flex-shrink: 1 !important;
+    align-items: flex-start !important;
+  }
+
+  /* Title and subtitle container */
+  header .flex.items-center.space-x-4 > div:last-child {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.125rem !important;
+  }
+
+  header h1.text-3xl {
+    font-size: 0.8125rem !important;
+    line-height: 1.2;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  header p.text-sm {
+    font-size: 0.5625rem !important; /* Smaller but still visible */
+    display: block !important; /* Show subtitle even on extra small */
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    line-height: 1.2;
+  }
+
+  header .w-12.h-12 {
+    width: 2rem !important;
+    height: 2rem !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Right side: User Controls Group - Extra Small */
+  header .flex.items-center.space-x-6 {
+    gap: 0.375rem !important;
+    overflow: visible !important;
+    padding-right: 0 !important;
+    margin-left: 0.75rem !important;
+    min-width: 200px !important;
+    flex-shrink: 0 !important;
+    align-items: center !important;
+  }
+
+  /* Ensure all header controls are visible on extra small and don't overlap */
+  header .flex.items-center.space-x-6 > * {
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    margin: 0 !important;
+  }
+
+  /* Hide view mode dropdown text on very small screens - show icon only */
+  .record-toggle-select {
+    font-size: 0.625rem !important;
+    padding: 0.375rem 0.4375rem !important;
+    min-width: 80px !important;
+    max-width: 90px !important;
+    overflow: visible !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Icon buttons - minimal size */
+  .icon-button {
+    width: 2rem !important;
+    height: 2rem !important;
+    min-width: 2rem !important;
+    min-height: 2rem !important;
+    padding: 0.3125rem !important;
+  }
+
+  .icon-button svg {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+
+  /* Profile button - minimal */
+  button.flex.items-center.space-x-3.rounded-2xl {
+    padding: 0.25rem !important;
+    min-width: 2rem !important;
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  button.flex.items-center.space-x-3.rounded-2xl .w-10.h-10 {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+
+  /* Logout button - minimal */
+  .logout-btn {
+    padding: 0.3125rem !important;
+    min-width: 2rem !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 10 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .logout-btn svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+  }
+
+  /* Ensure logout button container doesn't clip on extra small screens */
+  header .flex.items-center.space-x-6 {
+    overflow: visible !important;
+    padding-right: 0 !important;
+  }
+
+  header .flex.items-center.space-x-6 .logout-btn {
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    margin-right: 0 !important;
+  }
+}
+
+/* Landscape orientation adjustments for mobile */
+@media (max-width: 896px) and (orientation: landscape) {
+  header {
+    padding: 0.5rem 1rem !important;
+  }
+
+  header .flex.justify-between {
+    gap: 0.75rem !important;
+  }
+
+  header .flex.items-center.space-x-4 {
+    gap: 0.5rem !important;
+  }
+
+  header .flex.items-center.space-x-6 {
+    gap: 0.5rem !important;
+  }
+
+  header h1.text-3xl {
+    font-size: 1rem !important;
+  }
+
+  header p.text-sm {
+    font-size: 0.625rem !important;
+  }
+
+  .icon-button {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+  }
+
+  button.flex.items-center.space-x-3.rounded-2xl {
+    padding: 0.375rem 0.5rem !important;
+    min-width: auto !important;
+  }
+
+  .logout-btn {
+    padding: 0.5rem 0.75rem !important;
+    min-width: auto !important;
+  }
+
+  .logout-btn span {
+    display: inline !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Select dropdown - landscape */
+  .record-toggle-select {
+    min-width: 110px !important;
+    max-width: 130px !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+/* Tablet devices (641px to 1024px) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Header */
+  header {
+    padding: 0.875rem 1.25rem !important;
+  }
+
+  header .max-w-7xl {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+    max-width: 100% !important;
+  }
+
+  header .flex.justify-between {
+    gap: 1rem !important;
+  }
+
+  header .flex.items-center.space-x-4 {
+    gap: 0.75rem !important;
+  }
+
+  header .flex.items-center.space-x-6 {
+    gap: 0.75rem !important;
+  }
+
+  header h1.text-3xl {
+    font-size: 1.5rem !important;
+  }
+
+  header p.text-sm {
+    font-size: 0.75rem !important;
+  }
+
+  /* Select dropdown - tablet */
+  .record-toggle-select {
+    min-width: 140px !important;
+    max-width: 160px !important;
+    font-size: 0.875rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  /* Main content */
+  main.max-w-7xl {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    max-width: 100% !important;
+  }
+
+  /* Subject Management Section - Tablet */
+  .glass.rounded-2xl.shadow-xl.p-8 {
+    padding: 1.5rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 1.5rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 > div:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 .btn {
+    width: auto !important;
+    min-width: 140px !important;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* Subject cards */
+  .grid.gap-6 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.25rem !important;
+  }
+
+  /* Navigation tabs */
+  .tab-btn {
+    padding: 1rem 1.25rem !important;
+    font-size: 0.9375rem !important;
+  }
+
+  /* Archived Subjects Section - Tablet */
+  .glass.rounded-2xl.shadow-xl.p-8.mt-8 {
+    padding: 1.5rem !important;
+  }
+
+  /* Student Record View - Tablet */
+  .grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3.gap-6 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .grid.grid-cols-1.md\\:grid-cols-3.gap-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .grid.grid-cols-1.lg\\:grid-cols-2.gap-6 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Student detail tables - show headers on tablet */
+  table.min-w-full.text-sm thead {
+    display: table-header-group !important;
+  }
+
+  table.min-w-full.text-sm tbody tr {
+    display: table-row !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  table.min-w-full.text-sm tbody td {
+    display: table-cell !important;
+    text-align: left !important;
+    padding: 0.75rem !important;
+  }
+
+  table.min-w-full.text-sm tbody td::before {
+    display: none !important;
+  }
+}
+
+/* Large tablets and small desktops (1025px to 1280px) */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  /* Main content - limit width (not too wide) */
+  main.max-w-7xl {
+    max-width: 1100px !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  /* Subject Management Section */
+  .glass.rounded-2xl.shadow-xl.p-8 {
+    padding: 2rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 2rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 .btn {
+    width: auto !important;
+    flex-shrink: 0;
+  }
+
+  /* Subject cards */
+  .grid.gap-6 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    max-width: 100%;
+    gap: 1.5rem !important;
+  }
+
+  /* Archived Subjects Section */
+  .glass.rounded-2xl.shadow-xl.p-8.mt-8 {
+    padding: 2rem !important;
+  }
+}
+
+/* Desktop (1281px and above) */
+@media (min-width: 1281px) {
+  /* Main content - limit width for readability (not too wide) */
+  main.max-w-7xl {
+    max-width: 1200px !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  /* Subject Management Section */
+  .glass.rounded-2xl.shadow-xl.p-8 {
+    padding: 2rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 2rem !important;
+  }
+
+  .glass.rounded-2xl.shadow-xl.p-8 .flex.justify-between.items-center.mb-8 .btn {
+    width: auto !important;
+    flex-shrink: 0;
+  }
+
+  /* Subject cards - 3 columns on desktop but with max width */
+  .grid.gap-6 {
+    grid-template-columns: repeat(3, 1fr) !important;
+    max-width: 100%;
+    gap: 1.5rem !important;
+  }
+
+  /* Subject cards - prevent them from being too wide */
+  .glass.card.shadowLg.p-6 {
+    max-width: 100%;
+  }
+
+  /* Archived Subjects Section */
+  .glass.rounded-2xl.shadow-xl.p-8.mt-8 {
+    padding: 2rem !important;
+  }
+}
+
+/* Large desktop (1440px and above) */
+@media (min-width: 1440px) {
+  /* Keep content centered and not too wide */
+  main.max-w-7xl {
+    max-width: 1320px !important;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+
+  /* Subject Management Section */
+  .glass.rounded-2xl.shadow-xl.p-8 {
+    padding: 2.5rem !important;
+  }
+
+  /* Subject cards - maintain 3 columns but with better spacing */
+  .grid.gap-6 {
+    gap: 2rem !important;
+  }
+
+  /* Archived Subjects Section */
+  .glass.rounded-2xl.shadow-xl.p-8.mt-8 {
+    padding: 2.5rem !important;
+  }
+}
+
+/* Landscape orientation on mobile */
+@media (max-width: 896px) and (orientation: landscape) {
+header {
+    padding: 0.5rem 1rem !important;
+  }
+
+  header .flex.justify-between {
+    flex-direction: row;
+    align-items: center;
+  }
+
+main.max-w-7xl {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+
+  .tab-btn {
+    padding: 0.625rem 0.75rem !important;
+  }
+}
+
+  /* Very small mobile devices (up to 360px) */
+  @media (max-width: 360px) {
+    header h1.text-3xl {
+      font-size: 1rem !important;
+    }
+
+    header p.text-sm {
+      font-size: 0.625rem !important;
+    }
+
+    .tab-btn {
+      padding: 0.625rem 0.375rem !important;
+      font-size: 0.75rem !important;
+      min-width: 70px !important;
+    }
+    
+    .tab-btn span {
+      font-size: 0.6875rem !important;
+    }
+    
+    .tab-btn svg {
+      width: 0.875rem !important;
+      height: 0.875rem !important;
+    }
+    
+    /* Students icon plus indicator - smaller on very small screens */
+    .tab-btn .relative .absolute {
+      width: 0.3125rem !important; /* 5px - even smaller */
+      height: 0.3125rem !important; /* 5px - even smaller */
+      bottom: -0.0625rem !important; /* Adjust position */
+      right: -0.0625rem !important; /* Adjust position */
+    }
+    
+    .tab-btn .relative .absolute svg {
+      width: 0.1875rem !important; /* 3px - even smaller */
+      height: 0.1875rem !important; /* 3px - even smaller */
+    }
+
+    .card {
+      padding: 0.75rem !important;
+    }
+
+    .btn {
+      padding: 0.5rem 0.75rem !important;
+      font-size: 0.75rem !important;
+    }
+  }
+
+/* Dark mode form input fields - Quick Grade Entry */
+body.dark-mode .form-input-field-red,
+body.dark-mode .form-select-field-red,
+body.dark-mode input.form-input-field-red,
+body.dark-mode select.form-select-field-red {
+    background-color: #1a1a1a !important;
+    border-color: rgba(100, 100, 100, 0.8) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .form-input-field-red::placeholder,
+body.dark-mode input.form-input-field-red::placeholder {
+    color: rgba(180, 180, 180, 0.7) !important;
+}
+
+body.dark-mode .form-input-field-red:focus,
+body.dark-mode .form-select-field-red:focus,
+body.dark-mode input.form-input-field-red:focus,
+body.dark-mode select.form-select-field-red:focus {
+    background-color: #1a1a1a !important;
+    border-color: #7A1315 !important;
+    color: #ffffff !important;
+    outline: none !important;
+}
+
+body.dark-mode .form-select-field-red option,
+body.dark-mode select.form-select-field-red option {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+/* Override any blue/sky backgrounds in dark mode */
+body.dark-mode input[type="text"],
+body.dark-mode input[type="number"],
+body.dark-mode select {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border-color: rgba(100, 100, 100, 0.8) !important;
+}
+
+/* Dark mode responsive adjustments */
+@media (max-width: 640px) {
+  .dark-mode header {
+    background: #1a1a1a !important;
+  }
+
+  .dark-mode .card {
+    background: #1a1a1a !important;
+  }
+
+  .dark-mode .glass {
+    background: #1a1a1a !important;
+  }
+}
+
+/* Ensure white text on selected Archived Subjects button in light mode */
+.relative.z-10.flex-1 button.text-white {
+  color: #ffffff !important;
+}
+
+/* Hide spinner arrows on number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}

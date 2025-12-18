@@ -1,0 +1,820 @@
+/* Logout button maroon gradient style for consistency */
+.logout-btn {
+    background: linear-gradient(135deg, #800000 0%, #a04040 100%);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(128,0,0,0.15);
+}
+
+
+.logout-btn:hover {
+    background: linear-gradient(135deg, #a04040 0%, #800000 100%);
+    color: #fff;
+    /* No transform - static header element */
+    box-shadow: 0 8px 25px rgba(128,0,0,0.25);
+}
+/* Avatar initials style to match maroon circle in design */
+.avatar-initials {
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    background: #a11a1a;
+    color: #fff;
+}
+:root {
+    --maroon: #7b1113;
+    --gold: #f2b705;
+    --light: #f8f9fa;
+}
+
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f9fafb;
+}
+
+
+.text-gradient {
+    background: linear-gradient(135deg, var(--maroon) 0%, #9d2b2d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Custom scrollbar styles for notification dropdowns */
+.notification-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notification-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.notification-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.notification-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Dark mode scrollbar */
+.dark .notification-scroll::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark .notification-scroll::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+.textGrad {
+    background: linear-gradient(135deg, #800000 0%, #a04040 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+ 
+.glass {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease-in-out;
+}
+
+
+.glass:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+
+.fade {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Exam card flip animation */
+.rotate-y-180 {
+    transform: rotateY(180deg);
+}
+
+/* Fix text orientation in flipped cards - unmirror the back face content */
+.glass .card-back-face {
+    transform: rotateY(180deg) scaleX(-1) !important;
+}
+
+/* Ensure back face content is properly contained */
+.glass .card-back-face > div {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+
+.subject-card {
+    transition: all 0.2s ease;
+}
+
+
+.subject-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(123, 17, 19, 0.1), 0 2px 4px -1px rgba(123, 17, 19, 0.06);
+}
+
+
+.notif-item.unread {
+    background-color: #f0f7ff;
+}
+
+
+.progress {
+    transition: width 0.8s ease-in-out;
+}
+
+
+/* Hide scrollbar but keep scrolling */
+body {
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+ 
+body::-webkit-scrollbar {
+    display: none;
+}
+ 
+.custom-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+
+.custom-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* Focus states for accessibility */
+button:focus, a:focus {
+    outline: 2px solid var(--maroon);
+    outline-offset: 2px;
+}
+
+
+/* Profile Modal: Make file input and label more visible */
+#editStudentProfileModal label {
+    color: #7b1113;
+    font-weight: 600;
+}
+#editStudentProfileModal input[type="file"]::-webkit-file-upload-button {
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5em 1.2em;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 1em;
+    transition: background 0.2s;
+}
+#editStudentProfileModal input[type="file"]::-ms-browse {
+    background: #ff5151;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5em 1.2em;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 1em;
+    transition: background 0.2s;
+}
+#editStudentProfileModal input[type="file"]::file-selector-button {
+    background: #ff5151;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5em 1.2em;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 1em;
+    transition: background 0.2s;
+}
+#editStudentProfileModal input[type="file"]:hover::file-selector-button,
+#editStudentProfileModal input[type="file"]:hover::-webkit-file-upload-button,
+#editStudentProfileModal input[type="file"]:hover::-ms-browse {
+    background: #222;
+}
+#editStudentProfileModal input[type="file"] {
+    background: transparent;
+    color: transparent;
+    border: none;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    width: auto;
+}
+#editStudentProfileModal input[type="text"] {
+    color: #222;
+    background: #fff;
+    border: 1.5px solid #a04040;
+    font-size: 1rem;
+    font-weight: 500;
+}
+#editStudentProfileModal small {
+    color: #a04040;
+    font-size: 0.85em;
+}
+#editStudentProfileModal button[type="submit"],
+#editStudentProfileModal button[type="button"] {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    min-width: 100px;
+    padding: 0.7em 1.5em;
+    margin-top: 0.5em;
+}
+#editStudentProfileModal button[type="submit"] {
+    background: linear-gradient(135deg, #800000 0%, #a04040 100%);
+    color: #fff;
+    border: none;
+}
+#editStudentProfileModal button[type="submit"]:hover {
+    background: linear-gradient(135deg, #a04040 0%, #800000 100%);
+}
+#editStudentProfileModal button[type="button"] {
+    background: #f3f4f6;
+    color: #7b1113;
+    border: 1px solid #a04040;
+}
+#editStudentProfileModal button[type="button"]:hover {
+    background: #e5e7eb;
+    color: #a04040;
+}
+
+
+/* Loading animation */
+.loading {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+
+/* Animations */
+@keyframes slideRight {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+
+.slide-right {
+    animation: slideRight 0.5s ease-out;
+}
+
+
+.slide-up {
+    animation: slideUp 0.5s ease-out;
+}
+
+
+.stat {
+    transition: all 0.3s ease;
+}
+
+
+.stat:hover {
+    transform: translateY(-3px) scale(1.02);
+}
+
+
+.notif-ping {
+    animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+
+@keyframes ping {
+    75%, 100% { transform: scale(1.5); opacity: 0; }
+}
+
+
+.grade-progress {
+    transition: all 1s ease-in-out;
+}
+
+
+.expand {
+    transition: all 0.3s ease;
+}
+
+
+.expand:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 25px -5px rgba(123, 17, 19, 0.15);
+}
+
+
+.modal-appear {
+    animation: modalAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+
+@keyframes modalAppear {
+    from { transform: scale(0.95) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+
+/* Ensure sticky modal header covers content behind while scrolling */
+.modal-sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: #ffffff;
+}
+
+/* Dark mode override for modal header */
+body.dark-mode .modal-sticky-header {
+    background: #1a1a1a !important;
+}
+
+
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+
+.ripple:after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, #7b1113 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform .5s, opacity 1s;
+}
+
+
+.ripple:active:after {
+    transform: scale(0, 0);
+    opacity: .3;
+    transition: 0s;
+}
+
+
+.text-maroon {
+    color: #7b1113;
+}
+
+
+html, body {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+ 
+/* WebKit browsers (Chrome, Edge, Safari) */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+}
+ 
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+    background: transparent !important;
+}
+ 
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+ 
+*::-webkit-scrollbar-button,
+*::-webkit-scrollbar-corner {
+    display: none !important;
+    background: transparent !important;
+}
+
+/* Hide file input text (No file chosen) */
+.file-input-no-text {
+    color: transparent;
+    width: auto;
+    display: inline-block;
+}
+
+.file-input-no-text::file-selector-button {
+    margin-right: 0;
+}
+
+.file-input-no-text::-webkit-file-upload-button {
+    margin-right: 0;
+}
+
+.file-input-no-text::-ms-browse {
+    margin-right: 0;
+}
+
+/* Additional classes to match Professor Dashboard */
+.shadowLg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.modal {
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.form-input-field {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgb(226, 232, 240);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    font-size: 0.875rem;
+    color: rgb(51, 65, 85);
+    transition: all 0.2s;
+}
+
+.form-input-field:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(127, 29, 29, 0.5);
+    border-color: transparent;
+}
+
+.icon-button {
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgb(226, 232, 240);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.icon-button:hover {
+    background-color: rgb(255, 255, 255);
+}
+
+/* Dark mode icon button styling */
+body.dark-mode .icon-button {
+    background-color: rgba(26, 26, 26, 0.9) !important;
+    border-color: rgba(64, 64, 64, 0.8) !important;
+}
+
+body.dark-mode .icon-button:hover {
+    background-color: rgba(44, 44, 44, 0.95) !important;
+    border-color: rgba(100, 100, 100, 0.8) !important;
+}
+
+.badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* ============================================================================
+   SYSTEM-WIDE DARK MODE STYLES
+   ============================================================================ */
+
+/* Dark Mode Base Styles */
+body.dark-mode {
+    background: #000000;
+    color: #ffffff;
+}
+
+body.dark-mode .bg-gradient-to-br {
+    background: linear-gradient(to bottom right, #000000, #1a1a1a);
+}
+
+/* Dark Mode Glass/Card Components */
+body.dark-mode .glass {
+    background: #1a1a1a;
+    border-color: rgba(64, 64, 64, 0.5);
+    color: #ffffff;
+}
+
+body.dark-mode .card {
+    background: #1a1a1a;
+    border-color: rgba(64, 64, 64, 0.5);
+    color: #ffffff;
+}
+
+/* Dark Mode Text Colors */
+body.dark-mode .text-slate-800,
+body.dark-mode .text-slate-700,
+body.dark-mode .text-slate-600 {
+    color: #e5e5e5 !important;
+}
+
+body.dark-mode .text-slate-500,
+body.dark-mode .text-slate-400 {
+    color: #b0b0b0 !important;
+}
+
+body.dark-mode .text-black {
+    color: #ffffff !important;
+}
+
+/* Dark Mode Backgrounds */
+body.dark-mode .bg-white {
+    background-color: #1a1a1a !important;
+}
+
+/* Handle Tailwind opacity classes - use attribute selector for classes with slashes */
+body.dark-mode [class*="bg-white/80"],
+body.dark-mode [class*="bg-white/60"],
+body.dark-mode [class*="bg-white/30"],
+body.dark-mode [class*="bg-white/20"] {
+    background-color: #1a1a1a !important;
+}
+
+body.dark-mode .bg-slate-50,
+body.dark-mode .bg-slate-100 {
+    background-color: #1a1a1a !important;
+}
+
+body.dark-mode [class*="bg-slate-50/60"],
+body.dark-mode [class*="bg-slate-50/30"],
+body.dark-mode [class*="bg-slate-50/50"] {
+    background-color: #1a1a1a !important;
+}
+
+body.dark-mode .bg-red-50,
+body.dark-mode .bg-rose-50,
+body.dark-mode .bg-red-100 {
+    background-color: rgba(122, 19, 21, 0.2) !important;
+}
+
+/* Dark Mode Gradients */
+body.dark-mode [class*="bg-gradient-to-b"][class*="from-slate-50"][class*="to-white"],
+body.dark-mode [class*="bg-gradient-to-b"][class*="from-white"][class*="to-slate-50"] {
+    background: linear-gradient(to bottom, #1a1a1a, #000000) !important;
+}
+
+body.dark-mode [class*="bg-gradient-to-br"][class*="from-slate-50"][class*="to-white"] {
+    background: linear-gradient(to bottom right, #1a1a1a, #000000) !important;
+}
+
+/* Dark Mode Borders */
+body.dark-mode .border-slate-200,
+body.dark-mode .border-slate-300 {
+    border-color: #404040 !important;
+}
+
+/* Dark Mode Input Fields */
+body.dark-mode .form-input-field,
+body.dark-mode .form-select-field {
+    background-color: #1a1a1a !important;
+    border-color: #404040 !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .form-input-field::placeholder {
+    color: #b0b0b0 !important;
+}
+
+body.dark-mode .form-input-field:focus,
+body.dark-mode .form-select-field:focus {
+    border-color: #8B1A1D !important;
+    background-color: #1a1a1a !important;
+}
+
+/* Dark Mode Buttons - Maroon Accent Retained */
+body.dark-mode .btn,
+body.dark-mode button[class*="bg-maroon"],
+body.dark-mode button[class*="bg-\[#7A1315\]"] {
+    background-color: #8B1A1D !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .btn:hover,
+body.dark-mode button[class*="bg-maroon"]:hover,
+body.dark-mode button[class*="bg-\[#7A1315\]"]:hover {
+    background-color: #9B2A2D !important;
+}
+
+/* Dark Mode Header */
+body.dark-mode header {
+    background: #1a1a1a !important;
+    border-color: rgba(64, 64, 64, 0.5) !important;
+}
+
+/* Dark Mode Notification Cards */
+body.dark-mode .bg-white.rounded-xl {
+    background-color: #1a1a1a !important;
+    border-color: #404040 !important;
+}
+
+/* Dark Mode Metric Cards */
+body.dark-mode .metric-card,
+body.dark-mode .stat {
+    background-color: #1a1a1a !important;
+    border-color: rgba(64, 64, 64, 0.5) !important;
+    color: #ffffff !important;
+}
+
+/* Dark Mode Widgets and Time Boxes */
+body.dark-mode .timeBox,
+body.dark-mode .widget {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important;
+    border-color: #404040 !important;
+}
+
+body.dark-mode .timeText {
+    color: #ffffff !important;
+}
+
+body.dark-mode .dateText {
+    color: #b0b0b0 !important;
+}
+
+/* Dark Mode Tables */
+body.dark-mode thead.bg-slate-50 {
+    background-color: #000000 !important;
+}
+
+body.dark-mode tbody tr.bg-slate-50 {
+    background-color: #1a1a1a !important;
+}
+
+/* Dark Mode Hover States */
+body.dark-mode .hover\:bg-slate-100:hover,
+body.dark-mode .hover\:bg-slate-50:hover {
+    background-color: #2c2c2c !important;
+}
+
+body.dark-mode .hover\:bg-red-100:hover {
+    background-color: rgba(122, 19, 21, 0.3) !important;
+}
+
+/* Dark Mode Empty State Messages */
+body.dark-mode .p-4.bg-slate-50,
+body.dark-mode .p-12.bg-gradient-to-b {
+    background-color: #1a1a1a !important;
+    color: #b0b0b0 !important;
+}
+
+/* Dark Mode Notification Dropdown */
+body.dark-mode .absolute.right-0.mt-2.bg-white,
+body.dark-mode .bg-white.rounded-2xl {
+    background-color: #1a1a1a !important;
+    border-color: #404040 !important;
+}
+
+body.dark-mode .bg-white\/20.backdrop-blur-sm {
+    background-color: rgba(26, 26, 26, 0.3) !important;
+}
+
+/* Dark Mode Additional White Background Overrides */
+body.dark-mode [class*="border-white/60"] {
+    border-color: rgba(64, 64, 64, 0.6) !important;
+}
+
+body.dark-mode [class*="border-white/30"] {
+    border-color: rgba(64, 64, 64, 0.3) !important;
+}
+
+body.dark-mode [class*="hover:bg-white"]:hover {
+    background-color: #404040 !important;
+}
+
+body.dark-mode [class*="hover:bg-slate-50/50"]:hover {
+    background-color: rgba(26, 26, 26, 0.5) !important;
+}
+
+/* Dark Mode Subject Cards and Student Cards */
+body.dark-mode .bg-white.p-4.rounded-xl,
+body.dark-mode .bg-white.border.border-slate-200 {
+    background-color: #1a1a1a !important;
+    border-color: #404040 !important;
+}
+
+/* Dark Mode Grade Entry Forms */
+body.dark-mode .bg-white.border.border-slate-300 {
+    background-color: #2c2c2c !important;
+    border-color: #404040 !important;
+}
+
+/* Dark Mode Tab Navigation */
+body.dark-mode .hover\:bg-slate-50\/50:hover {
+    background-color: rgba(44, 44, 44, 0.5) !important;
+}
+
+/* Dark Mode Notification Card Backgrounds */
+body.dark-mode .relative.m-3.bg-white.rounded-xl {
+    background-color: #2c2c2c !important;
+    border-color: #404040 !important;
+}
+
+/* Dark Mode Header Elements */
+body.dark-mode header.bg-white {
+    background-color: #1a1a1a !important;
+}
+
+/* Dark Mode Main Content Areas */
+body.dark-mode main.bg-white,
+body.dark-mode .max-w-7xl.bg-white {
+    background-color: #000000 !important;
+}
+
+/* Dark Mode Welcome Header */
+body.dark-mode .p-4.bg-white.rounded-xl,
+body.dark-mode .p-6.bg-white.rounded-xl {
+    background-color: #1a1a1a !important;
+    border-color: #404040 !important;
+}
+
+/* Dark Mode Tables */
+body.dark-mode table {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode thead {
+    background-color: #000000 !important;
+}
+
+body.dark-mode tbody tr {
+    border-color: #404040 !important;
+}
+
+/* Dark Mode Transitions */
+.dark-mode-transition {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ============================================================================
+   STATIC LAYOUT ELEMENTS - NO MOVEMENT ON HOVER/CLICK
+   ============================================================================ */
+
+/* Header and all its children must remain static - no transforms allowed */
+header {
+    transform: none !important;
+}
+
+header *,
+header button,
+header .icon-button,
+header .logout-btn,
+header select {
+    transform: none !important;
+}
+
+header button:hover,
+header .icon-button:hover,
+header .logout-btn:hover,
+header select:hover,
+header button:active,
+header .icon-button:active,
+header .logout-btn:active {
+    transform: none !important;
+}
+

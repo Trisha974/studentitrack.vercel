@@ -1,0 +1,39 @@
+{
+  "name": "student-itrack-server",
+  "version": "1.0.0",
+  "description": "Fastify backend server for Student iTrack application",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "start:silent": "node src/server.js 2>&1 | grep -v 'npm warn config production' || node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test-db": "node scripts/test-db-connection.js",
+    "setup-db": "node scripts/setup-database.js"
+  },
+  "keywords": [
+    "student",
+    "tracking",
+    "academic",
+    "fastify",
+    "mysql"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^8.4.0",
+    "ajv-formats": "^3.0.1",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.3.1",
+    "fastify": "^4.24.3",
+    "fastify-plugin": "^4.5.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.6.5",
+    "pino-pretty": "^10.2.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

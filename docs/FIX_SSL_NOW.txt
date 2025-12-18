@@ -1,0 +1,35 @@
+IMMEDIATE FIX FOR SSL CERTIFICATE ERROR
+========================================
+
+Run these commands on your VPS (one by one):
+
+1. CHECK DNS FIRST:
+   dig studentitrack.org +short
+   (Should show your VPS IP address)
+
+2. CREATE WEBROOT DIRECTORY:
+   mkdir -p /var/www/studentitrack.org/public_html
+   echo "test" > /var/www/studentitrack.org/public_html/index.html
+   chown -R lsadm:lsadm /var/www/studentitrack.org
+
+3. CONFIGURE OPENLITESPEED:
+   - Get admin password: cat /root/.litespeed_password
+   - Go to: http://YOUR-VPS-IP:7080
+   - Login with admin and password
+   - Go to: Virtual Hosts → studentitrack.org → General
+   - Set Document Root: /var/www/studentitrack.org/public_html
+   - Click "Save" then "Graceful Restart"
+
+4. TEST WEB SERVER:
+   curl http://studentitrack.org
+   (Should show "test")
+
+5. RETRY SSL CERTIFICATE:
+   certbot certonly --webroot -w /var/www/studentitrack.org/public_html -d studentitrack.org -d www.studentitrack.org
+
+ALTERNATIVE: If webroot doesn't work, use standalone mode:
+   systemctl stop lsws
+   certbot certonly --standalone -d studentitrack.org -d www.studentitrack.org
+   systemctl start lsws
+
+

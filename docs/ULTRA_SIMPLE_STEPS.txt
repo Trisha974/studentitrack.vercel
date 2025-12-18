@@ -1,0 +1,29 @@
+ULTRA SIMPLE: Connect VPS to Domain
+====================================
+
+STEP 1: Get VPS IP
+-------------------
+On VPS, run: hostname -I
+Write down the IP address
+
+STEP 2: Update DNS in Hostinger
+-------------------------------
+1. Login to Hostinger hPanel
+2. Go to: Domains → studentitrack.org → DNS
+3. Add A record:
+   Name: @
+   Value: YOUR-VPS-IP
+4. Add A record:
+   Name: www
+   Value: YOUR-VPS-IP
+5. Save
+6. Wait 10-30 minutes
+
+STEP 3: Test
+-----------
+On VPS: curl http://studentitrack.org
+In browser: http://studentitrack.org
+
+DONE! ✅
+
+
