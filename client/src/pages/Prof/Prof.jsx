@@ -7912,24 +7912,27 @@ function Prof() {
         isDarkMode ? 'bg-[#1a1a1a]/95' : ''
       } shadow-sm`}>
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-2 sm:py-3 md:py-4 gap-2 sm:gap-3">
-            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-shrink">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-md overflow-hidden flex-shrink-0 border-2 border-red-500">
+          <div className="flex justify-between items-center py-2.5 sm:py-3 md:py-4 gap-3 sm:gap-4">
+            {/* Left side - Logo and Title */}
+            <div className="flex items-center space-x-2.5 sm:space-x-3 md:space-x-4 min-w-0 flex-1">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-md overflow-hidden flex-shrink-0 border-2 border-red-500">
                 <img src="/assets/logos/um logo.png" alt="UM Logo" className="w-full h-full object-contain p-1" />
               </div>
-              <div className="min-w-0">
-                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#7A1315] leading-tight">Student iTrack</h1>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-[#7A1315] leading-tight whitespace-nowrap">Student iTrack</h1>
                 <p className={`text-[10px] sm:text-xs md:text-sm font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-600'} hidden sm:block`}>Smart Academic Monitoring System</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+            
+            {/* Right side - View Mode, Notifications, Profile */}
+            <div className="flex items-center space-x-2 sm:space-x-2.5 md:space-x-3 flex-shrink-0">
               <label htmlFor="view-mode-select" className="sr-only">View Mode</label>
               <select
                 id="view-mode-select"
                 name="view-mode-select"
                 value={viewMode}
                 onChange={(e) => setViewMode(e.target.value)}
-                className={`record-toggle-select focus:ring-2 focus:ring-maroon-500 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 ${
+                className={`record-toggle-select focus:ring-2 focus:ring-maroon-500 text-[10px] sm:text-xs md:text-sm px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 ${
                   isDarkMode ? 'text-white' : ''
                 }`}
               >
@@ -7944,7 +7947,7 @@ function Prof() {
                     setShowNotifDropdown(!showNotifDropdown)
                     setShowProfileDropdown(false)
                   }}
-                  className={`icon-button relative p-2 rounded-lg transition-all duration-200 ${
+                  className={`icon-button relative p-1.5 sm:p-2 rounded-lg transition-all duration-200 ${
                     isDarkMode
                       ? showNotifDropdown 
                           ? 'bg-red-900/50 text-red-300' 
@@ -7954,18 +7957,25 @@ function Prof() {
                         : 'hover:bg-slate-100'
                   }`}
                 >
-                  <svg className={`w-5 h-5 ${
-                    isDarkMode ? 'text-white' : 'text-slate-700'
+                  <svg className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                    isDarkMode ? 'text-slate-400' : 'text-slate-600'
                   }`} fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
                   </svg>
                   {unreadAlertsCount > 0 && (
-                    <span className={`absolute -top-1 -right-1 w-5 h-5 bg-[#7A1315] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-md ${
+                    <span className={`absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 bg-[#7A1315] text-white text-[8px] sm:text-[9px] md:text-[10px] font-bold rounded-full flex items-center justify-center border border-white shadow-sm ${
                       isDarkMode
                           ? 'bg-[#7A1315] text-white border-slate-800'
                         : 'bg-[#7A1315] text-white border-white'
                     }`}>
-                      {unreadAlertsCount > 9 ? '9+' : unreadAlertsCount}
+                      {unreadAlertsCount > 9 ? (
+                        <span className="leading-none">
+                          <span className="text-[7px] sm:text-[8px] md:text-[9px]">9</span>
+                          <span className="text-[6px] sm:text-[7px] md:text-[8px]">+</span>
+                        </span>
+                      ) : (
+                        unreadAlertsCount
+                      )}
                     </span>
                   )}
                 </button>
@@ -8244,9 +8254,9 @@ function Prof() {
                     setShowProfileDropdown(!showProfileDropdown)
                     setShowNotifDropdown(false)
                   }}
-                  className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 rounded-xl sm:rounded-2xl border border-slate-200 px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-white transition-all focus:outline-none focus:ring-2 focus:ring-maroon-500"
+                  className="flex items-center space-x-1 sm:space-x-2 rounded-lg sm:rounded-xl border border-slate-200 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 hover:bg-white transition-all focus:outline-none focus:ring-2 focus:ring-maroon-500"
                 >
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-gradient-to-r from-red-800 to-red-600 rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 bg-gradient-to-r from-red-800 to-red-600 rounded-full flex items-center justify-center text-white font-semibold text-[10px] sm:text-xs md:text-sm flex-shrink-0">
                   {profPic ? (
                       <img src={profPic} alt="Profile" className="w-full h-full rounded-full object-cover" />
                   ) : (
@@ -8257,7 +8267,7 @@ function Prof() {
                     <p className={`text-[10px] md:text-xs uppercase tracking-wide ${isDarkMode ? 'text-slate-300' : 'text-slate-400'}`}>Profile</p>
                     <p className={`text-xs md:text-sm font-semibold truncate max-w-[100px] sm:max-w-[120px] md:max-w-[150px] lg:max-w-none ${isDarkMode ? 'text-white' : 'text-slate-700'}`}>{profName}</p>
                 </div>
-                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M6 9l6 6 6-6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
