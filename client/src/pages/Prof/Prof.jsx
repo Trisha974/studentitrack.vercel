@@ -7911,28 +7911,29 @@ function Prof() {
       <header className={`sticky top-0 z-40 bg-white/95 backdrop-blur-md ${
         isDarkMode ? 'bg-[#1a1a1a]/95' : ''
       } shadow-sm`}>
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-2.5 sm:py-3 md:py-4 gap-3 sm:gap-4">
-            {/* Left side - Logo and Title */}
-            <div className="flex items-center space-x-2.5 sm:space-x-3 md:space-x-4 min-w-0 flex-1">
-              <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-md overflow-hidden flex-shrink-0 border-2 border-red-500">
-                <img src="/assets/logos/um logo.png" alt="UM Logo" className="w-full h-full object-contain p-1" />
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+          <div className="flex justify-between items-center py-2 sm:py-3 gap-2 sm:gap-3">
+            {/* Logo and Title Section */}
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md overflow-hidden flex-shrink-0 border-2 border-red-500/20">
+                <img src="/assets/logos/um logo.png" alt="UM Logo" className="w-full h-full object-contain" />
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-[#7A1315] leading-tight whitespace-nowrap">Student iTrack</h1>
-                <p className={`text-[10px] sm:text-xs md:text-sm font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-600'} hidden sm:block`}>Smart Academic Monitoring System</p>
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-[#7A1315] leading-tight">Student iTrack</h1>
+                <p className={`text-[10px] sm:text-xs font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-600'} leading-tight`}>Smart Academic Monitoring System</p>
               </div>
             </div>
             
-            {/* Right side - View Mode, Notifications, Profile */}
-            <div className="flex items-center space-x-2 sm:space-x-2.5 md:space-x-3 flex-shrink-0">
+            {/* Right Side: View Mode, Notifications, Profile */}
+            <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 flex-shrink-0">
+              {/* View Mode Selector - Hidden on mobile, shown on larger screens */}
               <label htmlFor="view-mode-select" className="sr-only">View Mode</label>
               <select
                 id="view-mode-select"
                 name="view-mode-select"
                 value={viewMode}
                 onChange={(e) => setViewMode(e.target.value)}
-                className={`record-toggle-select focus:ring-2 focus:ring-maroon-500 text-[10px] sm:text-xs md:text-sm px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 ${
+                className={`record-toggle-select focus:ring-2 focus:ring-maroon-500 text-xs sm:text-sm px-2 py-1.5 sm:px-2.5 sm:py-2 hidden sm:block ${
                   isDarkMode ? 'text-white' : ''
                 }`}
               >
@@ -7953,29 +7954,22 @@ function Prof() {
                           ? 'bg-red-900/50 text-red-300' 
                         : 'hover:bg-slate-700'
                       : showNotifDropdown 
-                        ? 'bg-red-100 text-red-700' 
+                        ? 'bg-slate-100 text-red-700' 
                         : 'hover:bg-slate-100'
                   }`}
                 >
-                  <svg className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                    isDarkMode ? 'text-slate-400' : 'text-slate-600'
+                  <svg className={`w-5 h-5 sm:w-5 sm:h-5 ${
+                    isDarkMode ? 'text-white' : 'text-slate-600'
                   }`} fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
                   </svg>
                   {unreadAlertsCount > 0 && (
-                    <span className={`absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 bg-[#7A1315] text-white text-[8px] sm:text-[9px] md:text-[10px] font-bold rounded-full flex items-center justify-center border border-white shadow-sm ${
+                    <span className={`absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-[#7A1315] text-white text-[10px] sm:text-xs rounded-full flex items-center justify-center font-bold shadow-md ${
                       isDarkMode
-                          ? 'bg-[#7A1315] text-white border-slate-800'
-                        : 'bg-[#7A1315] text-white border-white'
+                          ? 'bg-[#7A1315] text-white'
+                        : 'bg-[#7A1315] text-white'
                     }`}>
-                      {unreadAlertsCount > 9 ? (
-                        <span className="leading-none">
-                          <span className="text-[7px] sm:text-[8px] md:text-[9px]">9</span>
-                          <span className="text-[6px] sm:text-[7px] md:text-[8px]">+</span>
-                        </span>
-                      ) : (
-                        unreadAlertsCount
-                      )}
+                      {unreadAlertsCount > 9 ? '9+' : unreadAlertsCount}
                     </span>
                   )}
                 </button>
@@ -7989,7 +7983,7 @@ function Prof() {
                   }
                   
                   return (
-                    <div className={`fixed sm:absolute left-2 right-2 sm:left-auto sm:right-0 top-14 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-80 md:w-96 max-w-[calc(100vw-1rem)] sm:max-w-[384px] max-h-[calc(100vh-4rem)] sm:max-h-[500px] rounded-xl shadow-2xl border-2 z-50 overflow-hidden flex flex-col ${
+                    <div className={`fixed sm:absolute left-2 right-2 sm:left-auto sm:right-0 top-14 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-80 max-w-[calc(100vw-1rem)] sm:max-w-[320px] max-h-[calc(100vh-4rem)] sm:max-h-[500px] rounded-xl shadow-2xl border-2 z-50 overflow-hidden flex flex-col ${
                       isDarkMode 
                         ? 'bg-[#1a1a1a] border-slate-700' 
                         : 'bg-white border-slate-200'
@@ -8025,7 +8019,7 @@ function Prof() {
                       </div>
                       
                       {/* Notifications List */}
-                      <div className={`notification-scroll flex-1 min-h-0 overflow-y-auto max-h-[calc(100vh-12rem)] sm:max-h-[400px] ${
+                      <div className={`notification-scroll flex-1 min-h-0 overflow-y-auto max-h-[calc(100vh-16rem)] sm:max-h-[400px] ${
                         isDarkMode 
                           ? 'bg-[#1a1a1a]' 
                           : 'bg-gradient-to-b from-slate-50 to-white'
@@ -8064,13 +8058,13 @@ function Prof() {
                             return (
                           <div
                             key={alert.id}
-                                className={`relative m-1.5 sm:m-2 rounded-lg shadow-sm border transition-all duration-200 cursor-pointer group ${
+                                className={`relative m-2 sm:m-3 rounded-xl shadow-md border-2 transition-all duration-200 cursor-pointer group ${
                                   isDarkMode
                                     ? 'bg-[#1a1a1a]'
                                     : 'bg-white'
                                 } ${
                                    isUrgent ? 'border-[#7A1315]' : isDarkMode ? 'border-slate-700' : 'border-slate-200'
-                                } ${!alert.read ? 'shadow-md' : 'hover:shadow-md'} ${isAdmin ? 'opacity-80' : ''}`}
+                                } ${!alert.read ? 'shadow-lg' : 'hover:shadow-lg'} ${isAdmin ? 'opacity-80' : ''}`}
                             onClick={() => {
                               const updatedAlerts = alerts.map(a =>
                                 a.id === alert.id ? { ...a, read: true } : a
@@ -8092,9 +8086,9 @@ function Prof() {
                                 {/* Card Content - Compact, Self-Contained */}
                                 <div className="p-2 sm:p-2.5">
                                   {/* Header - Bold title with per-notification delete button */}
-                                  <div className="flex items-start justify-between mb-1">
-                                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                                      <h4 className={`text-xs font-bold leading-tight truncate ${
+                                  <div className="flex items-start justify-between mb-1 sm:mb-1.5">
+                                    <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                                      <h4 className={`text-xs sm:text-sm font-bold leading-tight truncate ${
                                         isDarkMode
                                             ? isUrgent ? 'text-red-400' : isAdmin ? 'text-white' : 'text-white'
                                           : isAdmin ? 'text-slate-700' : 'text-[#7A1315]'
@@ -8143,7 +8137,7 @@ function Prof() {
                                           console.warn('Background save failed', err)
                                         )
                                       }}
-                                      className={`ml-1 rounded-full p-0.5 text-[10px] font-bold flex-shrink-0 ${
+                                      className={`ml-1 sm:ml-2 rounded-full p-0.5 sm:p-1 text-[10px] sm:text-xs font-bold ${
                                         isDarkMode
                                           ? 'text-slate-300 hover:text-white hover:bg-slate-700'
                                           : 'text-slate-500 hover:text-red-700 hover:bg-red-50'
@@ -8155,17 +8149,17 @@ function Prof() {
                                   </div>
                               
                                   {/* Body - Brief, Single-Sentence Statement */}
-                                  <p className={`text-[10px] sm:text-xs leading-snug mb-1.5 line-clamp-2 ${
-                                    isDarkMode ? 'text-slate-300' : 'text-slate-600'
+                                  <p className={`text-[11px] sm:text-xs leading-relaxed mb-2 sm:mb-3 ${
+                                    isDarkMode ? 'text-white' : 'text-slate-700'
                                   }`}>
                                     {formattedBody}
                                   </p>
                                   
                                   {/* Footer - Timestamp and Single Maroon Action Button */}
-                                  <div className={`flex items-center justify-between pt-1 border-t ${
+                                  <div className={`flex items-center justify-between pt-1.5 sm:pt-2 border-t ${
                                     isDarkMode ? 'border-slate-700' : 'border-slate-100'
                                   }`}>
-                                    <p className={`text-[9px] sm:text-[10px] font-medium ${
+                                    <p className={`text-[10px] sm:text-xs font-medium ${
                                       isDarkMode ? 'text-slate-400' : 'text-slate-500'
                                     }`}>
                                       {timestamp}
@@ -8183,7 +8177,7 @@ function Prof() {
                                           )
                                           action.action()
                                         }}
-                                        className="bg-[#7A1315] hover:bg-red-800 text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded transition-all duration-200 shadow-sm hover:shadow-md"
+                                        className="bg-[#7A1315] hover:bg-red-800 text-white text-[10px] sm:text-xs font-semibold px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                                       >
                                         {action.text}
                                       </button>
@@ -8198,7 +8192,7 @@ function Prof() {
                       
                       {/* Enhanced Footer */}
                       {displayNotifications.length > 0 && (
-                        <div className={`p-2 sm:p-2.5 border-t-2 flex-shrink-0 ${
+                        <div className={`p-2.5 sm:p-4 border-t-2 flex-shrink-0 ${
                           isDarkMode 
                             ? 'border-slate-700 bg-[#1a1a1a]' 
                             : 'border-slate-200 bg-gradient-to-r from-slate-50 to-red-50'
@@ -8235,7 +8229,7 @@ function Prof() {
                             addCustomAlert('error', 'Clear Failed', 'Failed to clear all notifications. Please try again.', false)
                           }
                         }}
-                        className="w-full text-center text-xs font-bold text-white hover:text-white bg-[#7A1315] hover:bg-red-800 px-3 py-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                        className="w-full text-center text-xs sm:text-sm font-bold text-white hover:text-white bg-[#7A1315] hover:bg-red-800 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                       >
                         Clear All Notifications
                       </button>
@@ -8254,9 +8248,9 @@ function Prof() {
                     setShowProfileDropdown(!showProfileDropdown)
                     setShowNotifDropdown(false)
                   }}
-                  className="flex items-center space-x-1 sm:space-x-2 rounded-lg sm:rounded-xl border border-slate-200 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 hover:bg-white transition-all focus:outline-none focus:ring-2 focus:ring-maroon-500"
+                  className="flex items-center space-x-1 sm:space-x-2 rounded-lg sm:rounded-xl border border-slate-200 px-1.5 sm:px-2 py-1 sm:py-1.5 hover:bg-slate-50 transition-all focus:outline-none focus:ring-2 focus:ring-maroon-500"
                 >
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 bg-gradient-to-r from-red-800 to-red-600 rounded-full flex items-center justify-center text-white font-semibold text-[10px] sm:text-xs md:text-sm flex-shrink-0">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-r from-red-800 to-red-600 rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0 overflow-hidden">
                   {profPic ? (
                       <img src={profPic} alt="Profile" className="w-full h-full rounded-full object-cover" />
                   ) : (
@@ -8264,10 +8258,10 @@ function Prof() {
                   )}
                 </div>
                   <div className="text-left min-w-0 hidden sm:block">
-                    <p className={`text-[10px] md:text-xs uppercase tracking-wide ${isDarkMode ? 'text-slate-300' : 'text-slate-400'}`}>Profile</p>
-                    <p className={`text-xs md:text-sm font-semibold truncate max-w-[100px] sm:max-w-[120px] md:max-w-[150px] lg:max-w-none ${isDarkMode ? 'text-white' : 'text-slate-700'}`}>{profName}</p>
+                    <p className={`text-[10px] sm:text-xs uppercase tracking-wide ${isDarkMode ? 'text-slate-300' : 'text-slate-400'}`}>Profile</p>
+                    <p className={`text-xs sm:text-sm font-semibold truncate max-w-[100px] sm:max-w-[120px] ${isDarkMode ? 'text-white' : 'text-slate-700'}`}>{profName}</p>
                 </div>
-                  <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M6 9l6 6 6-6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
