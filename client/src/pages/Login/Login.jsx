@@ -18,8 +18,7 @@ const CONFIG = {
     STUDENT: 'Student'
   },
   DEPARTMENTS: [
-    'Department of Computing Education',
-    'Department of Engineering Education'
+    'Department of Computing Education'
   ]
 }
 
