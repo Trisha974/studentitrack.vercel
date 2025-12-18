@@ -4562,37 +4562,38 @@ function Prof() {
                     .map(student => {
                       const atRisk = previewSubject ? isStudentAtRisk(student.id, previewSubject.code) : false
                       return (
-                    <div key={student.id} className={`flex items-center justify-between px-4 py-3 ${
-                      isDarkMode ? 'bg-[#1a1a1a]' : 'bg-white/80'
-                    }`}>
-                      <div className="flex items-center space-x-3 flex-1 min-w-0">
-                        <StudentAvatar student={student} className="w-10 h-10" />
-                        <div className="flex-1 min-w-0">
-                          <p className={`font-semibold truncate ${
-                            atRisk 
-                              ? 'text-red-600 dark:text-red-400' 
-                              : (isDarkMode ? 'text-white' : 'text-slate-800')
-                          }`}>
-                            {student.name}
-                            {atRisk && <span className="ml-2 text-xs font-normal">(At Risk)</span>}
-                          </p>
-                          <p className={`text-xs truncate ${
-                            isDarkMode ? 'text-slate-400' : 'text-slate-500'
-                          }`}>ID: {student.id}</p>
+                        <div key={student.id} className={`flex items-center justify-between px-4 py-3 ${
+                          isDarkMode ? 'bg-[#1a1a1a]' : 'bg-white/80'
+                        }`}>
+                          <div className="flex items-center space-x-3 flex-1 min-w-0">
+                            <StudentAvatar student={student} className="w-10 h-10" />
+                            <div className="flex-1 min-w-0">
+                              <p className={`font-semibold truncate ${
+                                atRisk 
+                                  ? 'text-red-600 dark:text-red-400' 
+                                  : (isDarkMode ? 'text-white' : 'text-slate-800')
+                              }`}>
+                                {student.name}
+                                {atRisk && <span className="ml-2 text-xs font-normal">(At Risk)</span>}
+                              </p>
+                              <p className={`text-xs truncate ${
+                                isDarkMode ? 'text-slate-400' : 'text-slate-500'
+                              }`}>ID: {student.id}</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleViewRecordClick(student.id, previewSubject.code)}
+                            className={`text-sm font-semibold transition-colors flex-shrink-0 ${
+                              isDarkMode 
+                                  ? 'text-red-400 hover:text-red-300' 
+                                : 'text-[#7A1315] hover:text-red-800'
+                            }`}
+                          >
+                            View Record
+                          </button>
                         </div>
-                      </div>
-                      <button
-                        onClick={() => handleViewRecordClick(student.id, previewSubject.code)}
-                        className={`text-sm font-semibold transition-colors flex-shrink-0 ${
-                          isDarkMode 
-                              ? 'text-red-400 hover:text-red-300' 
-                            : 'text-[#7A1315] hover:text-red-800'
-                        }`}
-                      >
-                        View Record
-                      </button>
-                    </div>
-                  ))}
+                      )
+                    })}
                 </div>
               ) : (
                 <div className={`p-4 rounded-xl text-sm text-center ${
