@@ -46,7 +46,7 @@ DB_HOST=switchback.proxy.rlwy.net
 DB_USER=root
 DB_PASSWORD=<paste from MySQL service>
 DB_NAME=<paste from MySQL service>
-DB_PORT=46804
+DB_PORT=3306
 DB_SSL=true
 ```
 
