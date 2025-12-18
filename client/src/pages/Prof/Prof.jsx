@@ -4823,14 +4823,25 @@ function Prof() {
         }
 
         // Legacy: Also sync to student dashboard (for backward compatibility)
+        if (studentData && studentData.id) {
           const enrolledSubjects = newStudent.subjects.map(code => {
             const subject = subjects.find(s => s.code === code)
             return subject || { code, name: code }
           })
-          await syncStudentSubjects(studentUid, enrolledSubjects)
-        console.log(`✅ Legacy sync: Updated student dashboard for ${studentToUse.id}`)
-        } else {
-        console.warn(`⚠️ Could not find/create student UID for ${studentToUse.id}. Student may need to sign up first.`)
+          // Try to get student UID for legacy sync (optional)
+          try {
+            const verification = await verifyStudentIdEmailPair(studentToUse.id, studentToUse.email)
+            if (verification.verified && verification.uid) {
+              await syncStudentSubjects(verification.uid, enrolledSubjects)
+              console.log(`✅ Legacy sync: Updated student dashboard for ${studentToUse.id}`)
+            }
+          } catch (syncError) {
+            console.warn('⚠️ Legacy sync failed (non-critical):', syncError)
+          }
+        }
+      } else {
+        console.warn(`⚠️ Could not find/create student data for ${studentToUse.id}. Student may need to sign up first.`)
+        addCustomAlert('warning', 'Student Creation', 'Student was added locally but may need to sign up to access the system.', false)
       }
     } catch (error) {
       console.error('❌ Error in multi-part write (users + enrollments):', error)
