@@ -33,6 +33,21 @@ async function createGradeNotification(studentId, courseId, gradeId, gradeData) 
       title: notification.title
     })
 
+    // Check if grade is deficient and create deficiency notification
+    const score = parseFloat(gradeData.score)
+    const maxPoints = parseFloat(gradeData.max_points)
+    if (!isNaN(score) && !isNaN(maxPoints) && maxPoints > 0) {
+      const percentage = (score / maxPoints) * 100
+      const deficiencyThreshold = process.env.DEFICIENCY_THRESHOLD || 75 // Default 75%
+      
+      if (percentage < deficiencyThreshold) {
+        console.log(`⚠️ Grade is deficient: ${percentage.toFixed(1)}% (below ${deficiencyThreshold}%)`)
+        await createDeficiencyNotification(studentId, courseId, gradeId, gradeData, percentage).catch(err => {
+          console.error('⚠️ Failed to create deficiency notification (non-critical):', err.message)
+        })
+      }
+    }
+
     return notification
   } catch (error) {
     console.error('❌ Error creating grade notification:', error)
@@ -46,6 +61,55 @@ async function createGradeNotification(studentId, courseId, gradeId, gradeData) 
     })
     // Don't throw - notification failure shouldn't block grade creation
     // Return null to indicate notification wasn't created
+    return null
+  }
+}
+
+async function createDeficiencyNotification(studentId, courseId, gradeId, gradeData, percentage) {
+  try {
+    console.log(`📬 Creating deficiency notification for student_id: ${studentId}, course_id: ${courseId}, grade_id: ${gradeId}`)
+
+    const course = await Course.findById(courseId)
+    const courseName = course ? (course.name || course.code) : 'Unknown Course'
+
+    const assessmentType = gradeData.assessment_type || 'Assessment'
+    const readableType = assessmentType.charAt(0).toUpperCase() + assessmentType.slice(1)
+    const percentageStr = percentage.toFixed(1)
+    
+    const title = `${courseName}: Academic Deficiency Alert`
+    const message = `Your ${readableType.toLowerCase()} "${gradeData.assessment_title}" score is ${gradeData.score}/${gradeData.max_points} (${percentageStr}%), which is below the passing threshold. Please review and take necessary action.`
+
+    const notification = await Notification.create({
+      user_id: studentId,
+      user_type: 'Student',
+      type: 'grade', // Use 'grade' type, but with deficiency-specific message
+      title,
+      message,
+      course_id: courseId,
+      grade_id: gradeId
+    })
+
+    console.log(`✅ Deficiency notification created successfully:`, {
+      id: notification.id,
+      user_id: notification.user_id,
+      user_type: notification.user_type,
+      title: notification.title,
+      percentage: percentageStr
+    })
+
+    return notification
+  } catch (error) {
+    console.error('❌ Error creating deficiency notification:', error)
+    console.error('❌ Error details:', {
+      message: error.message,
+      sqlMessage: error.sqlMessage,
+      sqlCode: error.code,
+      studentId,
+      courseId,
+      gradeId,
+      percentage
+    })
+    // Don't throw - deficiency notification failure shouldn't block grade creation
     return null
   }
 }
@@ -147,6 +211,7 @@ module.exports = {
   createGradeNotification,
   createAttendanceNotification,
   createEnrollmentNotification,
-  createProfessorNotification
+  createProfessorNotification,
+  createDeficiencyNotification
 }
 
