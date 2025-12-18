@@ -669,11 +669,11 @@ function Prof() {
         try {
           console.log('📬 Loading notifications from API to sync with dashboard state...')
           const apiNotifications = await getNotifications({ limit: 50, unreadOnly: false })
-          if (Array.isArray(apiNotifications) && apiNotifications.length > 0) {
+          if (Array.isArray(apiNotifications)) {
+            // ALWAYS use API notifications (even if empty) to ensure we have the latest data
             console.log('✅ Loaded', apiNotifications.length, 'notifications from API')
-            // Use API notifications if available, otherwise fall back to dashboard state
             setAlerts(apiNotifications)
-            // Update dashboard state with API notifications
+            // Update dashboard state with API notifications (even if empty)
             await saveDashboardState({
               ...migrated,
               alerts: apiNotifications,
@@ -682,8 +682,8 @@ function Prof() {
             })
             console.log('✅ Synced notifications from API to dashboard state')
           } else {
-            // If API has no notifications, use dashboard state (might be empty initially)
-            console.log('⚠️ API returned no notifications, using dashboard state alerts')
+            // If API returns invalid data, use dashboard state as fallback
+            console.warn('⚠️ API returned invalid data, using dashboard state alerts')
             setAlerts(migrated.alerts || [])
           }
         } catch (error) {
@@ -1076,18 +1076,71 @@ function Prof() {
       
       if (dashboardLoaded) {
         console.log('Dashboard data loaded successfully from Firestore on page load/refresh')
-        // Rebuild enrolls from MySQL after successful load
+        // CRITICAL: Sync courses from MySQL to dashboard state if professor has courses in MySQL
         if (profile && profile.id) {
           try {
-            const currentSubjects = subjects.length > 0 ? subjects : []
-            const rebuiltResult = await buildEnrollsFromMySQL(profile.id, currentSubjects)
+            // Load courses from MySQL for this professor
+            const mysqlCourses = await getCoursesByProfessor(profile.id)
+            console.log('📚 Found', mysqlCourses.length, 'courses in MySQL for professor', profile.name)
+            
+            if (mysqlCourses.length > 0) {
+              // Get current dashboard state to merge with
+              const currentState = await getDashboardState().catch(() => null)
+              const currentSubjects = currentState?.subjects || subjects || []
+              
+              // Convert MySQL courses to dashboard subject format
+              const courseSubjects = mysqlCourses.map(course => ({
+                code: course.code,
+                name: course.name,
+                credits: course.credits || 0,
+                term: course.term || 'first',
+                id: course.id?.toString() || course.code
+              }))
+              
+              // Merge with existing subjects (avoid duplicates)
+              const existingSubjectCodes = new Set(currentSubjects.map(s => s.code))
+              const newSubjects = courseSubjects.filter(cs => !existingSubjectCodes.has(cs.code))
+              
+              if (newSubjects.length > 0) {
+                console.log('✅ Syncing', newSubjects.length, 'courses from MySQL to dashboard state')
+                const updatedSubjects = [...currentSubjects, ...newSubjects]
+                setSubjects(updatedSubjects)
+                
+                // Save updated subjects to dashboard state, preserving other data
+                await saveDashboardState({
+                  subjects: updatedSubjects,
+                  removedSubjects: currentState?.removedSubjects || removedSubjects || [],
+                  recycleBinSubjects: currentState?.recycleBinSubjects || recycleBinSubjects || [],
+                  students: currentState?.students || students || [],
+                  alerts: currentState?.alerts || alerts || [],
+                  records: currentState?.records || records || {},
+                  grades: currentState?.grades || grades || {}
+                })
+                console.log('✅ Courses synced to dashboard state')
+              } else {
+                console.log('ℹ️ All courses already in dashboard state')
+              }
+            }
+            
+            // Rebuild enrolls from MySQL after successful load
+            const currentStateForEnrolls = await getDashboardState().catch(() => null)
+            const subjectsForEnrolls = (currentStateForEnrolls?.subjects || subjects).length > 0 
+              ? (currentStateForEnrolls?.subjects || subjects)
+              : (mysqlCourses.length > 0 ? mysqlCourses.map(course => ({
+                  code: course.code,
+                  name: course.name,
+                  credits: course.credits || 0,
+                  term: course.term || 'first',
+                  id: course.id?.toString() || course.code
+                })) : [])
+            const rebuiltResult = await buildEnrollsFromMySQL(profile.id, subjectsForEnrolls)
             const rebuiltEnrolls = rebuiltResult.enrolls || rebuiltResult
             if (Object.keys(rebuiltEnrolls).length > 0) {
               setNormalizedEnrolls(rebuiltEnrolls)
               console.log('✅ Rebuilt enrolls from MySQL after data load')
             }
           } catch (error) {
-            console.error('Failed to rebuild enrolls after load:', error)
+            console.error('Failed to sync courses or rebuild enrolls after load:', error)
           }
         }
       } else if (dashboardLoaded === false) {
@@ -1250,39 +1303,6 @@ function Prof() {
       }
     }
   }, [navigate, loadData, waitForAuthUser])
-
-  // CRITICAL: Load and refresh notifications periodically to ensure they're always visible
-  useEffect(() => {
-    if (!profUid) return
-
-    const loadNotificationsFromAPI = async () => {
-      try {
-        console.log('🔄 Periodic notification refresh...')
-        const apiNotifications = await getNotifications({ limit: 50, unreadOnly: false })
-        if (Array.isArray(apiNotifications)) {
-          console.log('✅ Refreshed', apiNotifications.length, 'notifications from API')
-          setAlerts(apiNotifications)
-          // Also update dashboard state (use current state values via closure)
-          saveData(subjects, students, enrolls, apiNotifications, records, grades, profUid, false).catch(err =>
-            console.warn('Background save failed during notification refresh:', err)
-          )
-        }
-      } catch (error) {
-        console.error('❌ Failed to refresh notifications:', error)
-      }
-    }
-
-    // Load immediately
-    loadNotificationsFromAPI()
-
-    // Refresh every 30 seconds to keep notifications up to date
-    const refreshInterval = setInterval(loadNotificationsFromAPI, 30000)
-
-    return () => {
-      clearInterval(refreshInterval)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profUid]) // Only depend on profUid to avoid infinite loops
 
   // Set up real-time listener for dashboard updates
   useEffect(() => {
@@ -8044,7 +8064,20 @@ function Prof() {
               {/* Notifications - Compact */}
               <div className="relative">
                 <button
-                  onClick={() => {
+                  onClick={async () => {
+                    // CRITICAL: Load notifications from API when opening dropdown if alerts are empty
+                    if (!showNotifDropdown && (!alerts || alerts.length === 0)) {
+                      try {
+                        console.log('📬 Loading notifications from API when opening dropdown...')
+                        const apiNotifications = await getNotifications({ limit: 50, unreadOnly: false })
+                        if (Array.isArray(apiNotifications)) {
+                          console.log('✅ Loaded', apiNotifications.length, 'notifications from API')
+                          setAlerts(apiNotifications)
+                        }
+                      } catch (error) {
+                        console.error('❌ Failed to load notifications when opening dropdown:', error)
+                      }
+                    }
                     setShowNotifDropdown(!showNotifDropdown)
                     setShowProfileDropdown(false)
                   }}
@@ -8075,41 +8108,12 @@ function Prof() {
                 </button>
                 
                 {showNotifDropdown && (() => {
-                  // CRITICAL: Debug logging to track notification display
-                  console.log('🔔 Notification dropdown opened:', {
-                    totalAlerts: alerts.length,
-                    alerts: alerts.map(a => ({ id: a.id, title: a.title, read: a.read })),
-                    alertsState: alerts
-                  })
-                  
-                  // CRITICAL: Ensure we have alerts to display
-                  if (!Array.isArray(alerts) || alerts.length === 0) {
-                    console.warn('⚠️ No alerts in state - attempting to reload from API...')
-                    // Try to reload notifications from API if state is empty
-                    getNotifications({ limit: 50, unreadOnly: false })
-                      .then(refreshedNotifications => {
-                        if (Array.isArray(refreshedNotifications) && refreshedNotifications.length > 0) {
-                          console.log('✅ Reloaded', refreshedNotifications.length, 'notifications from API')
-                          setAlerts(refreshedNotifications)
-                        }
-                      })
-                      .catch(err => console.error('❌ Failed to reload notifications:', err))
-                  }
-                  
                   const { academic, administrative } = categorizeNotifications(alerts)
                   const adminSummary = groupAdministrativeNotifications(administrative)
                   const displayNotifications = [...academic]
                   if (adminSummary) {
                     displayNotifications.push(adminSummary)
                   }
-                  
-                  console.log('📋 Display notifications:', {
-                    academic: academic.length,
-                    administrative: administrative.length,
-                    adminSummary: adminSummary ? 'yes' : 'no',
-                    totalDisplay: displayNotifications.length,
-                    displayNotifications: displayNotifications.map(n => ({ id: n.id, title: n.title, read: n.read }))
-                  })
                   
                   return (
                     <div className={`fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-16 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-96 md:w-[420px] max-w-[280px] sm:max-w-[420px] max-h-[calc(100vh-5rem)] sm:max-h-[600px] rounded-2xl shadow-2xl border-2 z-50 overflow-hidden flex flex-col ${
