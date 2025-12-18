@@ -153,6 +153,15 @@ export async function markAsRead(notificationId) {
 }
 
 /**
+ * Toggle notification read status (read <-> unread)
+ * @param {number} notificationId - Notification MySQL ID
+ * @returns {Promise<Object>} Updated notification
+ */
+export async function toggleRead(notificationId) {
+  return apiClient.put(`/notifications/${notificationId}/toggle-read`)
+}
+
+/**
  * Mark all notifications as read
  * @returns {Promise<Object>} Success message
  */

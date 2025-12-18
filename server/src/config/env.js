@@ -8,7 +8,7 @@ module.exports = {
   DB_PASSWORD: process.env.DB_PASSWORD || '',
   DB_NAME: process.env.DB_NAME || 'student_itrack',
   DB_SSL: process.env.DB_SSL === 'true',
-  FRONTEND_URL: process.env.FRONTEND_URL || 'https://studentitrack.vercel.app',
+  FRONTEND_URL: process.env.FRONTEND_URL || 'https://studentitrack1.vercel.app',
   CSRF_SECRET: process.env.CSRF_SECRET,
   JWT_SECRET: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d'

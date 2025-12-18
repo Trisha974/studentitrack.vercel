@@ -13,6 +13,10 @@ export async function markAsRead(notificationId) {
   return await notificationsApi.markAsRead(notificationId)
 }
 
+export async function toggleRead(notificationId) {
+  return await notificationsApi.toggleRead(notificationId)
+}
+
 export async function markAllAsRead() {
   return await notificationsApi.markAllAsRead()
 }

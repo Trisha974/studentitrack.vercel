@@ -23,7 +23,7 @@ import { getStudentUidForSync, verifyStudentIdEmailPair } from '../../utils/stud
 import { migrateDashboardData, migrateStudents, migrateEnrollments, migrateRecords, migrateGrades } from '../../utils/studentIdMigration'
 import { useTheme } from '../../hooks/useTheme'
 import * as XLSX from 'xlsx'
-import { markAllAsRead, getNotifications, getUnreadCount } from '../../services/notifications'
+import { markAllAsRead, getNotifications, getUnreadCount, toggleRead } from '../../services/notifications'
 import { getDefaultAvatar } from '../../utils/avatarGenerator'
 import subjectIcon from './subject-icon.png.png'
 
@@ -8104,22 +8104,44 @@ function Prof() {
                                 } ${
                                    isUrgent ? 'border-[#7A1315]' : isDarkMode ? 'border-slate-700' : 'border-slate-200'
                                 } ${!alert.read ? 'shadow-lg' : 'hover:shadow-lg'} ${isAdmin ? 'opacity-80' : ''}`}
-                            onClick={() => {
-                              const updatedAlerts = alerts.map(a =>
-                                a.id === alert.id ? { ...a, read: true } : a
-                              )
-                                  if (isAdmin && alert.originalNotifications) {
-                                    alert.originalNotifications.forEach(orig => {
-                                      const index = updatedAlerts.findIndex(a => a.id === orig.id)
-                                      if (index !== -1) {
-                                        updatedAlerts[index].read = true
-                                      }
-                                    })
-                                  }
-                              setAlerts(updatedAlerts)
-                              saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid).catch(err => 
-                                console.warn('Background save failed', err)
-                              )
+                            onClick={async () => {
+                              try {
+                                // Toggle read status in database (persistent) - DOES NOT DELETE
+                                const updatedNotification = await toggleRead(alert.id)
+                                console.log('✅ Notification read status toggled:', updatedNotification)
+                                
+                                // Update local state with toggled notification
+                                const updatedAlerts = alerts.map(a =>
+                                  a.id === alert.id ? { ...a, read: updatedNotification.read } : a
+                                )
+                                
+                                // Handle administrative summary notifications
+                                if (isAdmin && alert.originalNotifications) {
+                                  alert.originalNotifications.forEach(orig => {
+                                    const index = updatedAlerts.findIndex(a => a.id === orig.id)
+                                    if (index !== -1) {
+                                      updatedAlerts[index].read = updatedNotification.read
+                                    }
+                                  })
+                                }
+                                
+                                setAlerts(updatedAlerts)
+                                
+                                // Save to dashboard state
+                                saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid).catch(err => 
+                                  console.warn('Background save failed', err)
+                                )
+                              } catch (error) {
+                                console.error('❌ Failed to toggle notification read status:', error)
+                                // Fallback: update local state only (toggle read status)
+                                const updatedAlerts = alerts.map(a =>
+                                  a.id === alert.id ? { ...a, read: !a.read } : a
+                                )
+                                setAlerts(updatedAlerts)
+                                saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid).catch(err => 
+                                  console.warn('Background save failed', err)
+                                )
+                              }
                             }}
                           >
                                 {/* Card Content - Compact, Self-Contained */}

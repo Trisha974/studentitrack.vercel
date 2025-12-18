@@ -22,6 +22,12 @@ async function notificationsRoutes(fastify, options) {
     handler: notificationsController.markAsRead
   })
 
+  // PUT /api/notifications/:id/toggle-read - Toggle notification read status
+  fastify.put('/:id/toggle-read', {
+    schema: notificationIdParamSchema,
+    handler: notificationsController.toggleRead
+  })
+
   // PUT /api/notifications/read-all - Mark all notifications as read
   fastify.put('/read-all', {
     handler: notificationsController.markAllAsRead

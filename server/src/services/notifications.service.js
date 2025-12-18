@@ -153,6 +153,10 @@ const markAsRead = async (id) => {
   return await Notification.markAsRead(id)
 }
 
+const toggleRead = async (id) => {
+  return await Notification.toggleRead(id)
+}
+
 const markAllAsRead = async (userId, userEmail, userRole) => {
   const { userMySQLId, userType } = await getUserMySQLId(userId, userEmail, userRole)
   return await Notification.markAllAsRead(userMySQLId, userType)
@@ -166,6 +170,7 @@ module.exports = {
   getNotifications,
   getUnreadCount,
   markAsRead,
+  toggleRead,
   markAllAsRead,
   deleteNotification
 }
