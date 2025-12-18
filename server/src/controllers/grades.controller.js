@@ -147,15 +147,15 @@ const createGrade = async (request, reply) => {
     // Create notification (don't fail grade creation if notification fails)
     // Note: createGradeNotification now returns null on error instead of throwing
     const notification = await createGradeNotification(
-      grade.student_id,
-      grade.course_id,
-      grade.id,
-      {
-        assessment_type: grade.assessment_type,
-        assessment_title: grade.assessment_title,
-        score: grade.score,
-        max_points: grade.max_points
-      }
+        grade.student_id,
+        grade.course_id,
+        grade.id,
+        {
+          assessment_type: grade.assessment_type,
+          assessment_title: grade.assessment_title,
+          score: grade.score,
+          max_points: grade.max_points
+        }
     ).catch(err => {
       // Extra safety - catch any errors that might still be thrown
       console.error('⚠️ Failed to create grade notification (grade was still saved):', err.message)

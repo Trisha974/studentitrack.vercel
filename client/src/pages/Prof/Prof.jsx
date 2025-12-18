@@ -4746,27 +4746,38 @@ function Prof() {
     // A. Create/update user in users collection (via students collection)
     // B. Create enrollments in enrollments collection
     try {
-      // Verify the numerical Student ID + Email pairing to get the correct Firebase Auth UID
-      const verification = await verifyStudentIdEmailPair(studentToUse.id, studentToUse.email)
-      let studentUid = verification.verified ? verification.uid : null
+      // Get student data from MySQL (create if doesn't exist)
+      let studentData = await getStudentByNumericalId(studentToUse.id)
       
-      if (!studentUid) {
-        // Fallback to direct lookup
-        const studentDoc = await getStudentByNumericalId(studentToUse.id)
-        studentUid = studentDoc?.id
-      }
+      // If student doesn't exist in MySQL, we need to create them
+      if (!studentData) {
+        // Verify the numerical Student ID + Email pairing to get the correct Firebase Auth UID
+        const verification = await verifyStudentIdEmailPair(studentToUse.id, studentToUse.email)
+        let studentUid = verification.verified ? verification.uid : null
+        
+        if (!studentUid) {
+          // Fallback to direct lookup
+          const studentDoc = await getStudentByNumericalId(studentToUse.id)
+          studentUid = studentDoc?.id
+        }
 
         if (studentUid) {
-        // A. Ensure student exists in users/students collection
-        await setStudent(studentUid, {
-          name: studentToUse.name,
-          email: studentEmail,
-          studentId: studentToUse.id,
-          role: 'Student',
-        })
-        console.log(`✅ Student profile created/updated in users collection: ${studentUid}`)
+          // A. Ensure student exists in users/students collection
+          await setStudent(studentUid, {
+            name: studentToUse.name,
+            email: studentEmail,
+            studentId: studentToUse.id,
+            role: 'Student',
+          })
+          console.log(`✅ Student profile created/updated in users collection: ${studentUid}`)
+          
+          // Get student data again after creation
+          studentData = await getStudentByNumericalId(studentToUse.id)
+        }
+      }
 
-        // B. Create enrollments for each selected subject
+      // B. Create enrollments for each selected subject
+      if (studentData && studentData.id) {
         for (const subjectCode of newStudent.subjects) {
           const subject = subjects.find(s => s.code === subjectCode)
           if (!subject) continue
@@ -4801,10 +4812,13 @@ function Prof() {
             const courseIdNum = parseInt(course.id, 10)
             if (!isNaN(studentIdNum) && !isNaN(courseIdNum)) {
               await createEnrollment(studentIdNum, courseIdNum)
+              console.log(`✅ Created enrollment in MySQL: Student ${studentToUse.id} (MySQL ID: ${studentData.id}) → Course ${subjectCode}`)
             } else {
-              throw new Error(`Invalid IDs: studentId=${studentData.id}, courseId=${course.id}`)
+              console.error(`❌ Invalid IDs: studentId=${studentData.id}, courseId=${course.id}`)
+              addCustomAlert('error', 'Enrollment Error', `Failed to create enrollment: Invalid student or course ID.`, false)
             }
-            console.log(`✅ Created enrollment in MySQL: Student ${studentToUse.id} (MySQL ID: ${studentData.id}) → Course ${subjectCode}`)
+          } else {
+            console.log(`ℹ️ Enrollment already exists: Student ${studentToUse.id} → Course ${subjectCode}`)
           }
         }
 
@@ -5486,14 +5500,11 @@ function Prof() {
         }
         
         // NOTE: enrolls is no longer saved to Firestore - MySQL is the single source of truth
-        await saveData(subjects, updatedStudents, null, updatedAlerts, records, grades, profUid, true)
+        await saveData(subjects, updatedStudents, null, alerts, records, grades, profUid, true)
         console.log(`✅ Student ${student.id} archived from ${subjectCode} and saved to Firestore`, {
           studentId: normalizedId,
           subjectCode: subjectCode,
           archivedSubjects: studentAfterUpdate?.archivedSubjects || [],
-          enrollsForSubject: updatedEnrolls[subjectCode] || [],
-          enrollsCount: updatedEnrolls[subjectCode]?.length || 0,
-          studentInEnrolls: updatedEnrolls[subjectCode]?.some(id => normalizeStudentId(id) === normalizedId) || false,
           verification: {
             isArchived: isInArchived
           }
@@ -8164,46 +8175,53 @@ function Prof() {
                                     </div>
                                     <button
                                       type="button"
-                                      onClick={(e) => {
+                                      onClick={async (e) => {
                                         e.stopPropagation()
-                                        let updatedAlerts
-                                        
-                                        // Handle administrative summary notifications - delete all original notifications
-                                        if (isAdmin && alert.originalNotifications && alert.originalNotifications.length > 0) {
-                                          // Delete all the original notifications that make up this summary
-                                          const originalIds = new Set(alert.originalNotifications.map(n => n.id))
-                                          updatedAlerts = alerts.filter(a => !originalIds.has(a.id))
-                                          console.log(`Deleted ${originalIds.size} administrative notifications`)
-                                        } else if (alert.id === 'admin-summary') {
-                                          // Fallback: if it's an admin summary but no originalNotifications, delete all administrative ones
-                                          updatedAlerts = alerts.filter(a => {
-                                            const title = a.title || ''
-                                            const message = a.message || ''
-                                            return !(title.includes('Student Archived') || 
-                                                    title.includes('Successfully restored') ||
-                                                    title.includes('Archive') ||
-                                                    title.includes('Restore') ||
-                                                    message.includes('archived') ||
-                                                    message.includes('restored'))
-                                          })
-                                          console.log('Deleted all administrative notifications')
-                                        } else {
-                                          // Regular notification - just filter by ID
-                                          updatedAlerts = alerts.filter(a => a.id !== alert.id)
+                                        try {
+                                          // Mark notification as read instead of deleting (persistent)
+                                          const updatedNotification = await toggleRead(alert.id)
+                                          console.log('✅ Notification marked as read (not deleted):', updatedNotification)
+                                          
+                                          // Update local state - mark as read but keep visible
+                                          const updatedAlerts = alerts.map(a =>
+                                            a.id === alert.id ? { ...a, read: true } : a
+                                          )
+                                          
+                                          // Handle administrative summary notifications - mark all as read
+                                          if (isAdmin && alert.originalNotifications && alert.originalNotifications.length > 0) {
+                                            alert.originalNotifications.forEach(orig => {
+                                              const index = updatedAlerts.findIndex(a => a.id === orig.id)
+                                              if (index !== -1) {
+                                                updatedAlerts[index].read = true
+                                              }
+                                            })
+                                            console.log(`Marked ${alert.originalNotifications.length} administrative notifications as read`)
+                                          }
+                                          
+                                          setAlerts(updatedAlerts)
+                                          
+                                          // Save to dashboard state
+                                          saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true).catch(err =>
+                                            console.warn('Background save failed', err)
+                                          )
+                                        } catch (error) {
+                                          console.error('❌ Failed to mark notification as read:', error)
+                                          // Fallback: update local state only
+                                          const updatedAlerts = alerts.map(a =>
+                                            a.id === alert.id ? { ...a, read: true } : a
+                                          )
+                                          setAlerts(updatedAlerts)
+                                          saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true).catch(err =>
+                                            console.warn('Background save failed', err)
+                                          )
                                         }
-                                        
-                                        setAlerts(updatedAlerts)
-                                        // Save to Firestore immediately (critical operation)
-                                        saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true).catch(err =>
-                                          console.warn('Background save failed', err)
-                                        )
                                       }}
                                       className={`ml-1 sm:ml-2 rounded-full p-0.5 sm:p-1 text-[10px] sm:text-xs font-bold ${
                                         isDarkMode
                                           ? 'text-slate-300 hover:text-white hover:bg-slate-700'
                                           : 'text-slate-500 hover:text-red-700 hover:bg-red-50'
                                       }`}
-                                      aria-label="Delete notification"
+                                      aria-label="Mark notification as read"
                                     >
                                       ✕
                                     </button>
