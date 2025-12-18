@@ -323,27 +323,31 @@ console.warn('⚠️ Returning empty array due to error')
     return this.findById(id)
   }
 
-  static async toggleRead(id) {
-    // Get current read status
-    const notification = await this.findById(id)
-    if (!notification) {
-      return null
-    }
-    // Toggle read status
-    const newReadStatus = !notification.read
-    await pool.execute(
-      'UPDATE notifications SET `read` = ? WHERE id = ?',
-      [newReadStatus, id]
-    )
-    return this.findById(id)
-  }
-
   static async markAllAsRead(user_id, user_type) {
     await pool.execute(
       'UPDATE notifications SET `read` = TRUE WHERE user_id = ? AND user_type = ? AND `read` = FALSE',
       [user_id, user_type]
     )
     return true
+  }
+
+  static async findRecentAtRisk(user_id, course_id, notificationType = 'at-risk', days = 7) {
+    try {
+      const dateThreshold = new Date()
+      dateThreshold.setDate(dateThreshold.getDate() - days)
+      
+      const [rows] = await pool.execute(
+        `SELECT * FROM notifications 
+         WHERE user_id = ? AND course_id = ? AND type = 'system' 
+         AND title LIKE ? AND created_at >= ?
+         ORDER BY created_at DESC LIMIT 1`,
+        [user_id, course_id, `%${notificationType === 'at-risk' ? 'Risk' : 'Missing Assessments'}%`, dateThreshold]
+      )
+      return rows[0] || null
+    } catch (error) {
+      console.error('❌ Error finding recent at-risk notification:', error)
+      return null
+    }
   }
 
   static async delete(id) {

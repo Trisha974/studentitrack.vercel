@@ -14,6 +14,7 @@ async function routes(fastify, options) {
   await fastify.register(require('./notifications.routes'), { prefix: '/api/notifications' })
   await fastify.register(require('./reports.routes'), { prefix: '/api/reports' })
   await fastify.register(require('./dashboard.routes'), { prefix: '/api/dashboard' })
+  await fastify.register(require('./atRisk.routes'), { prefix: '/api/at-risk' })
 }
 
 module.exports = fp(routes)

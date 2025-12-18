@@ -183,18 +183,6 @@ const markAsRead = async (request, reply) => {
   }
 }
 
-const toggleRead = async (request, reply) => {
-  try {
-    const notification = await notificationsService.toggleRead(request.params.id)
-    if (!notification) {
-      return reply.code(404).send({ error: 'Notification not found' })
-    }
-    return notification
-  } catch (error) {
-    throw error
-  }
-}
-
 const markAllAsRead = async (request, reply) => {
   try {
     // Use JWT user ID (request.user.id) instead of Firebase UID
@@ -225,7 +213,6 @@ module.exports = {
   getNotifications,
   getUnreadCount,
   markAsRead,
-  toggleRead,
   markAllAsRead,
   deleteNotification
 }

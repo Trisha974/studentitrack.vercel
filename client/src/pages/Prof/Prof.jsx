@@ -3933,6 +3933,30 @@ function Prof() {
     }
   }
 
+  // Check if student is at risk for a specific subject
+  const isStudentAtRisk = (studentId, subjectCode) => {
+    const gradeSummary = getSubjectGradeSummary(studentId, subjectCode)
+    const attendanceSummary = getSubjectAttendanceSummary(studentId, subjectCode)
+    
+    // Student is at risk if:
+    // 1. Average grade is below 75% (or N/A if no grades but assessments exist)
+    // 2. Attendance rate is below 75%
+    const gradeAtRisk = gradeSummary.average !== 'N/A' 
+      ? parseFloat(gradeSummary.average) < 75
+      : (gradeSummary.total > 0 && gradeSummary.completed === 0) // Has assessments but hasn't taken any
+    
+    const attendanceAtRisk = attendanceSummary.total > 0 && attendanceSummary.rate < 75
+    
+    return gradeAtRisk || attendanceAtRisk
+  }
+
+  // Check if student is not taking any assessments for a subject
+  const isStudentNotTakingAssessments = (studentId, subjectCode) => {
+    const gradeSummary = getSubjectGradeSummary(studentId, subjectCode)
+    // Has assessments but hasn't completed any
+    return gradeSummary.total > 0 && gradeSummary.completed === 0
+  }
+
   const getSubjectAssessmentsForStudent = (studentId, subjectCode) => {
     const subjectGrades = grades[subjectCode] || {}
     const rows = []
@@ -4535,7 +4559,9 @@ function Prof() {
                       const idMatch = student.id?.toString().includes(searchLower) || false
                       return nameMatch || idMatch
                     })
-                    .map(student => (
+                    .map(student => {
+                      const atRisk = previewSubject ? isStudentAtRisk(student.id, previewSubject.code) : false
+                      return (
                     <div key={student.id} className={`flex items-center justify-between px-4 py-3 ${
                       isDarkMode ? 'bg-[#1a1a1a]' : 'bg-white/80'
                     }`}>
@@ -4543,8 +4569,13 @@ function Prof() {
                         <StudentAvatar student={student} className="w-10 h-10" />
                         <div className="flex-1 min-w-0">
                           <p className={`font-semibold truncate ${
-                            isDarkMode ? 'text-white' : 'text-slate-800'
-                          }`}>{student.name}</p>
+                            atRisk 
+                              ? 'text-red-600 dark:text-red-400' 
+                              : (isDarkMode ? 'text-white' : 'text-slate-800')
+                          }`}>
+                            {student.name}
+                            {atRisk && <span className="ml-2 text-xs font-normal">(At Risk)</span>}
+                          </p>
                           <p className={`text-xs truncate ${
                             isDarkMode ? 'text-slate-400' : 'text-slate-500'
                           }`}>ID: {student.id}</p>
@@ -9915,6 +9946,7 @@ function Prof() {
                 {enrolls[selectedSubject.code] && enrolls[selectedSubject.code].length > 0 ? (
                   enrolls[selectedSubject.code].map(studentId => {
                     const student = students.find(s => normalizeStudentId(s.id) === normalizeStudentId(studentId))
+                    const atRisk = student ? isStudentAtRisk(student.id, selectedSubject.code) : false
                     return student ? (
                       <div key={studentId} className={`p-4 rounded-xl border transition-all hover:shadow-md ${
                         isDarkMode 
@@ -9925,8 +9957,13 @@ function Prof() {
                           <StudentAvatar student={student} className="w-12 h-12" />
                           <div className="flex-1 min-w-0">
                             <p className={`font-semibold truncate ${
-                              isDarkMode ? 'text-white' : 'text-slate-800'
-                            }`}>{student.name}</p>
+                              atRisk 
+                                ? 'text-red-600 dark:text-red-400' 
+                                : (isDarkMode ? 'text-white' : 'text-slate-800')
+                            }`}>
+                              {student.name}
+                              {atRisk && <span className="ml-2 text-xs font-normal">(At Risk)</span>}
+                            </p>
                             <p className={`text-xs truncate ${
                               isDarkMode ? 'text-slate-400' : 'text-slate-500'
                             }`}>ID: {student.id}</p>
@@ -10120,6 +10157,7 @@ function Prof() {
                     const student = students.find(s => normalizeStudentId(s.id) === normalizeStudentId(studentId))
                     if (!student) return null
                     const status = getAttendanceStatus(studentId)
+                    const atRisk = isStudentAtRisk(student.id, currentSubject.code)
                     return (
                       <div
                         key={studentId}
@@ -10133,8 +10171,13 @@ function Prof() {
                           <StudentAvatar student={student} className="w-11 h-11 sm:w-12 sm:h-12 flex-shrink-0" />
                           <div className="flex-grow min-w-0">
                             <p className={`font-semibold truncate text-sm sm:text-base ${
-                              isDarkMode ? 'text-white' : 'text-slate-800'
-                            }`}>{student.name}</p>
+                              atRisk 
+                                ? 'text-red-600 dark:text-red-400' 
+                                : (isDarkMode ? 'text-white' : 'text-slate-800')
+                            }`}>
+                              {student.name}
+                              {atRisk && <span className="ml-2 text-xs font-normal">(At Risk)</span>}
+                            </p>
                             <p className={`text-xs sm:text-sm truncate ${
                               isDarkMode ? 'text-slate-400' : 'text-slate-500'
                             }`}>ID: {student.id}</p>
@@ -10382,6 +10425,7 @@ function Prof() {
                           {currentSubject && enrolls[currentSubject.code] && enrolls[currentSubject.code].map((studentId, index) => {
                             const student = students.find(s => normalizeStudentId(s.id) === normalizeStudentId(studentId))
                             if (!student) return null
+                            const atRisk = isStudentAtRisk(student.id, currentSubject.code)
                             return (
                               <tr key={studentId} className={isDarkMode && index % 2 === 0 ? 'bg-[#1a1a1a]' : isDarkMode ? 'bg-[#1a1a1a]' : ''}>
                                 <td className={`px-3 py-2 text-sm border-b ${
@@ -10390,10 +10434,15 @@ function Prof() {
                                     : 'text-slate-700 border-slate-200'
                                 }`}>{student.id}</td>
                                 <td className={`px-3 py-2 text-sm border-b ${
-                                  isDarkMode 
-                                    ? 'text-white border-slate-700' 
-                                    : 'text-slate-700 border-slate-200'
-                                }`}>{student.name}</td>
+                                  atRisk 
+                                    ? 'text-red-600 dark:text-red-400 font-semibold' 
+                                    : (isDarkMode 
+                                        ? 'text-white border-slate-700' 
+                                        : 'text-slate-700 border-slate-200')
+                                }`}>
+                                  {student.name}
+                                  {atRisk && <span className="ml-2 text-xs font-normal">(At Risk)</span>}
+                                </td>
                                 <td className={`px-3 py-2 border-b ${
                                   isDarkMode ? 'border-slate-700' : 'border-slate-200'
                                 }`}>

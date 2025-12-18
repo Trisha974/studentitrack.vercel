@@ -1,5 +1,6 @@
 const gradesService = require('../services/grades.service')
-const { createGradeNotification } = require('../shared/utils/notificationHelper')
+const { createGradeNotification, createAtRiskNotification, createNotTakingAssessmentsNotification } = require('../shared/utils/notificationHelper')
+const atRiskService = require('../services/atRisk.service')
 
 const getGradesByStudent = async (request, reply) => {
   try {
@@ -147,15 +148,15 @@ const createGrade = async (request, reply) => {
     // Create notification (don't fail grade creation if notification fails)
     // Note: createGradeNotification now returns null on error instead of throwing
     const notification = await createGradeNotification(
-        grade.student_id,
-        grade.course_id,
-        grade.id,
-        {
-          assessment_type: grade.assessment_type,
-          assessment_title: grade.assessment_title,
-          score: grade.score,
-          max_points: grade.max_points
-        }
+      grade.student_id,
+      grade.course_id,
+      grade.id,
+      {
+        assessment_type: grade.assessment_type,
+        assessment_title: grade.assessment_title,
+        score: grade.score,
+        max_points: grade.max_points
+      }
     ).catch(err => {
       // Extra safety - catch any errors that might still be thrown
       console.error('⚠️ Failed to create grade notification (grade was still saved):', err.message)
@@ -167,6 +168,11 @@ const createGrade = async (request, reply) => {
     } else {
       console.log('⚠️ Grade notification not created (non-critical)')
     }
+
+    // Check and notify if student is at risk or not taking assessments (non-blocking)
+    atRiskService.checkAndNotifyAfterGradeChange(grade.student_id, grade.course_id).catch(err => {
+      console.error('⚠️ Failed to check at-risk status (non-critical):', err.message)
+    })
 
     // Always return success if grade was created, regardless of notification status
     return reply.code(201).send(grade)
@@ -227,6 +233,11 @@ const updateGrade = async (request, reply) => {
     } catch (notifError) {
       console.error('Failed to create grade update notification:', notifError)
     }
+
+    // Check and notify if student is at risk or not taking assessments (non-blocking)
+    atRiskService.checkAndNotifyAfterGradeChange(grade.student_id, grade.course_id).catch(err => {
+      console.error('⚠️ Failed to check at-risk status (non-critical):', err.message)
+    })
 
     return grade
   } catch (error) {

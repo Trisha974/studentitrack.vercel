@@ -211,11 +211,85 @@ async function createProfessorNotification(professorId, type, title, message, co
   }
 }
 
+async function createAtRiskNotification(studentId, courseId, reason) {
+  try {
+    console.log(`📬 Creating at-risk notification for student_id: ${studentId}, course_id: ${courseId}, reason: ${reason}`)
+
+    const course = await Course.findById(courseId)
+    const courseName = course ? (course.name || course.code) : 'Unknown Course'
+
+    const title = `${courseName}: Academic Risk Alert`
+    const message = reason === 'grades' 
+      ? `Your average grade in ${courseName} is below 75%. Please review your performance and take necessary action.`
+      : reason === 'attendance'
+      ? `Your attendance rate in ${courseName} is below 75%. Please improve your attendance.`
+      : reason === 'both'
+      ? `Your grade and attendance in ${courseName} are below 75%. Please review your performance and improve your attendance.`
+      : `You are at risk in ${courseName}. Please review your performance and take necessary action.`
+
+    const notification = await Notification.create({
+      user_id: studentId,
+      user_type: 'Student',
+      type: 'system',
+      title,
+      message,
+      course_id: courseId
+    })
+
+    console.log(`✅ At-risk notification created successfully:`, {
+      id: notification.id,
+      user_id: notification.user_id,
+      user_type: notification.user_type,
+      title: notification.title
+    })
+
+    return notification
+  } catch (error) {
+    console.error('❌ Error creating at-risk notification:', error)
+    return null
+  }
+}
+
+async function createNotTakingAssessmentsNotification(studentId, courseId) {
+  try {
+    console.log(`📬 Creating notification for student not taking assessments: student_id: ${studentId}, course_id: ${courseId}`)
+
+    const course = await Course.findById(courseId)
+    const courseName = course ? (course.name || course.code) : 'Unknown Course'
+
+    const title = `${courseName}: Missing Assessments`
+    const message = `You have not taken any assessments in ${courseName}. Please complete the required assessments to avoid academic risk.`
+
+    const notification = await Notification.create({
+      user_id: studentId,
+      user_type: 'Student',
+      type: 'system',
+      title,
+      message,
+      course_id: courseId
+    })
+
+    console.log(`✅ Not-taking-assessments notification created successfully:`, {
+      id: notification.id,
+      user_id: notification.user_id,
+      user_type: notification.user_type,
+      title: notification.title
+    })
+
+    return notification
+  } catch (error) {
+    console.error('❌ Error creating not-taking-assessments notification:', error)
+    return null
+  }
+}
+
 module.exports = {
   createGradeNotification,
   createAttendanceNotification,
   createEnrollmentNotification,
   createProfessorNotification,
-  createDeficiencyNotification
+  createDeficiencyNotification,
+  createAtRiskNotification,
+  createNotTakingAssessmentsNotification
 }
 
