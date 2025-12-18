@@ -8208,27 +8208,35 @@ function Prof() {
                                   
                                   // CRITICAL: Refresh notifications from API to ensure we have the latest state
                                   // This prevents notifications from disappearing
-                                  const refreshedNotifications = await getNotifications({ limit: 50, unreadOnly: false })
-                                  if (Array.isArray(refreshedNotifications) && refreshedNotifications.length > 0) {
-                                    console.log('✅ Refreshed notifications from API after marking as read:', refreshedNotifications.length)
-                                    setAlerts(refreshedNotifications)
-                                    // Save to dashboard state for local persistence
-                                    await saveData(subjects, students, enrolls, refreshedNotifications, records, grades, profUid, true)
-                                  } else {
-                                    // Fallback: update local state if API returns empty
-                                    console.warn('⚠️ API returned no notifications, updating local state only')
+                                  try {
+                                    const refreshedNotifications = await getNotifications({ limit: 50, unreadOnly: false })
+                                    if (Array.isArray(refreshedNotifications) && refreshedNotifications.length > 0) {
+                                      console.log('✅ Refreshed notifications from API after marking as read:', refreshedNotifications.length)
+                                      setAlerts(refreshedNotifications)
+                                      // Save to dashboard state for local persistence
+                                      await saveData(subjects, students, enrolls, refreshedNotifications, records, grades, profUid, true)
+                                    } else {
+                                      // CRITICAL: If API returns empty, preserve existing notifications and just mark as read
+                                      console.warn('⚠️ API returned no notifications, preserving existing and marking as read')
+                                      const updatedAlerts = alerts.map(a =>
+                                        a.id === alert.id ? { ...a, read: true } : a
+                                      )
+                                      setAlerts(updatedAlerts)
+                                      await saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true)
+                                    }
+                                  } catch (refreshError) {
+                                    // CRITICAL: If refresh fails, preserve existing notifications and just mark as read
+                                    console.error('❌ Failed to refresh notifications, preserving existing:', refreshError)
                                     const updatedAlerts = alerts.map(a =>
                                       a.id === alert.id ? { ...a, read: true } : a
                                     )
                                     setAlerts(updatedAlerts)
-                                    saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true).catch(err => 
-                                      console.warn('Background save failed', err)
-                                    )
+                                    await saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true)
                                   }
                                 }
                               } catch (error) {
                                 console.error('❌ Failed to mark notification as read:', error)
-                                // Fallback: update local state only
+                                // CRITICAL: Always preserve notifications, just mark as read locally
                                 const updatedAlerts = alerts.map(a =>
                                   a.id === alert.id ? { ...a, read: true } : a
                                 )
@@ -8329,18 +8337,32 @@ function Prof() {
                                             if (!alert.read) {
                                               await markAsRead(alert.id)
                                               console.log('✅ Notification marked as read in database:', alert.id)
+                                              
+                                              // CRITICAL: Refresh notifications from API to ensure we have the latest state
+                                              try {
+                                                const refreshedNotifications = await getNotifications({ limit: 50, unreadOnly: false })
+                                                if (Array.isArray(refreshedNotifications) && refreshedNotifications.length > 0) {
+                                                  console.log('✅ Refreshed notifications from API after marking as read:', refreshedNotifications.length)
+                                                  setAlerts(refreshedNotifications)
+                                                  await saveData(subjects, students, enrolls, refreshedNotifications, records, grades, profUid, true)
+                                                } else {
+                                                  // Fallback: preserve existing notifications
+                                                  const updatedAlerts = alerts.map(a =>
+                                                    a.id === alert.id ? { ...a, read: true } : a
+                                                  )
+                                                  setAlerts(updatedAlerts)
+                                                  await saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true)
+                                                }
+                                              } catch (refreshError) {
+                                                // Fallback: preserve existing notifications
+                                                console.error('❌ Failed to refresh notifications, preserving existing:', refreshError)
+                                                const updatedAlerts = alerts.map(a =>
+                                                  a.id === alert.id ? { ...a, read: true } : a
+                                                )
+                                                setAlerts(updatedAlerts)
+                                                await saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true)
+                                              }
                                             }
-                                            
-                                            // Update local state
-                                            const updatedAlerts = alerts.map(a =>
-                                              a.id === alert.id ? { ...a, read: true } : a
-                                            )
-                                            setAlerts(updatedAlerts)
-                                            
-                                            // Save to dashboard state for local persistence
-                                            saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid).catch(err =>
-                                              console.warn('Background save failed', err)
-                                            )
                                             
                                             // Execute the action
                                             action.action()
@@ -8379,42 +8401,64 @@ function Prof() {
                             
                             // CRITICAL: Refresh notifications from database to get updated read status
                             // Explicitly set unreadOnly: false to ensure ALL notifications (read and unread) are returned
-                            const refreshedNotifications = await getNotifications({ limit: 50, unreadOnly: false })
-                            console.log('✅ Refreshed notifications from database:', refreshedNotifications.length, 'notifications (all read/unread)')
-                            console.log('✅ Notification details:', refreshedNotifications.map(n => ({ id: n.id, title: n.title, read: n.read })))
+                            let refreshedNotifications = []
+                            try {
+                              refreshedNotifications = await getNotifications({ limit: 50, unreadOnly: false })
+                              console.log('✅ Refreshed notifications from database:', refreshedNotifications.length, 'notifications (all read/unread)')
+                              console.log('✅ Notification details:', refreshedNotifications.map(n => ({ id: n.id, title: n.title, read: n.read })))
+                              
+                              // CRITICAL: Verify we have notifications before updating state
+                              if (!Array.isArray(refreshedNotifications)) {
+                                console.error('❌ getNotifications did not return an array:', typeof refreshedNotifications)
+                                throw new Error('Invalid notifications response')
+                              }
+                            } catch (refreshError) {
+                              console.error('❌ Failed to refresh notifications from API:', refreshError)
+                              // CRITICAL: If refresh fails, preserve existing notifications and mark all as read
+                              console.warn('⚠️ Preserving existing notifications and marking all as read locally')
+                              refreshedNotifications = alerts.map(a => ({ ...a, read: true }))
+                            }
                             
-                            // CRITICAL: Verify we have notifications before updating state
-                            if (!Array.isArray(refreshedNotifications)) {
-                              console.error('❌ getNotifications did not return an array:', typeof refreshedNotifications)
-                              throw new Error('Invalid notifications response')
+                            // CRITICAL: If API returned empty but we have existing notifications, preserve them
+                            if (refreshedNotifications.length === 0 && alerts.length > 0) {
+                              console.warn('⚠️ API returned empty, preserving existing notifications and marking all as read')
+                              refreshedNotifications = alerts.map(a => ({ ...a, read: true }))
                             }
                             
                             // CRITICAL: Update local alerts state with ALL refreshed notifications
                             // This ensures notifications remain visible, just marked as read
-                            setAlerts(refreshedNotifications)
-                            console.log('✅ Updated alerts state with', refreshedNotifications.length, 'notifications')
-                            
-                            // Refresh unread count from database (should be 0 after marking all as read)
-                            const unreadCount = await getUnreadCount()
-                            console.log('✅ Refreshed unread count:', unreadCount, '(should be 0)')
-                            
-                            // CRITICAL: Save to dashboard state for local persistence (includes all notifications)
-                            // This ensures notifications persist even after page refresh
-                            await saveData(subjects, students, enrolls, refreshedNotifications, records, grades, profUid, true)
-                            console.log('✅ All notifications marked as read and saved to dashboard state (notifications remain visible)')
-                            
-                            // Verify alerts state was updated correctly
-                            console.log('✅ Final alerts count:', refreshedNotifications.length, 'notifications (all should be marked as read)')
+                            if (refreshedNotifications.length > 0) {
+                              setAlerts(refreshedNotifications)
+                              console.log('✅ Updated alerts state with', refreshedNotifications.length, 'notifications')
+                              
+                              // Refresh unread count from database (should be 0 after marking all as read)
+                              const unreadCount = await getUnreadCount()
+                              console.log('✅ Refreshed unread count:', unreadCount, '(should be 0)')
+                              
+                              // CRITICAL: Save to dashboard state for local persistence (includes all notifications)
+                              // This ensures notifications persist even after page refresh
+                              await saveData(subjects, students, enrolls, refreshedNotifications, records, grades, profUid, true)
+                              console.log('✅ All notifications marked as read and saved to dashboard state (notifications remain visible)')
+                              
+                              // Verify alerts state was updated correctly
+                              console.log('✅ Final alerts count:', refreshedNotifications.length, 'notifications (all should be marked as read)')
+                            } else {
+                              console.warn('⚠️ No notifications to update (both API and local state are empty)')
+                            }
                           } catch (error) {
                             console.error('❌ Failed to mark all notifications as read:', error)
                             console.error('❌ Error details:', error.message, error.stack)
-                            // Still update local state even if API call fails - mark as read but keep visible
-                            const updatedAlerts = alerts.map(a => ({ ...a, read: true }))
-                            setAlerts(updatedAlerts)
-                            saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true).catch(err =>
-                              console.warn('Background save failed', err)
-                            )
-                            addCustomAlert('error', 'Clear Failed', 'Failed to mark all notifications as read. Please try again.', false)
+                            // CRITICAL: Always preserve existing notifications, just mark as read locally
+                            const updatedAlerts = alerts.length > 0 
+                              ? alerts.map(a => ({ ...a, read: true }))
+                              : []
+                            if (updatedAlerts.length > 0) {
+                              setAlerts(updatedAlerts)
+                              saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true).catch(err =>
+                                console.warn('Background save failed', err)
+                              )
+                            }
+                            addCustomAlert('error', 'Clear Failed', 'Failed to mark all notifications as read. Notifications preserved.', false)
                           }
                         }}
                         className="w-full text-center text-xs sm:text-sm font-bold text-white hover:text-white bg-[#7A1315] hover:bg-red-800 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
