@@ -2,12 +2,16 @@ const enrollmentSchema = {
   body: {
     type: 'object',
     properties: {
-      studentId: { type: 'integer' },
-      student_id: { type: 'integer' },
-      courseId: { type: 'integer' },
-      course_id: { type: 'integer' }
+      studentId: { type: ['integer', 'string'] },
+      student_id: { type: ['integer', 'string'] },
+      courseId: { type: ['integer', 'string'] },
+      course_id: { type: ['integer', 'string'] }
     },
-    required: []
+    required: [],
+    anyOf: [
+      { required: ['studentId', 'courseId'] },
+      { required: ['student_id', 'course_id'] }
+    ]
   }
 }
 

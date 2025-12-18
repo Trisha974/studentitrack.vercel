@@ -35,9 +35,17 @@ const getEnrollmentsByCourse = async (request, reply) => {
 
 const createEnrollment = async (request, reply) => {
   try {
+    // Convert string IDs to integers if needed
+    const studentId = parseInt(request.body.studentId || request.body.student_id, 10)
+    const courseId = parseInt(request.body.courseId || request.body.course_id, 10)
+    
+    if (isNaN(studentId) || isNaN(courseId)) {
+      return reply.code(400).send({ error: 'Valid studentId and courseId are required' })
+    }
+    
     const enrollment = await enrollmentsService.createEnrollment({
-      studentId: request.body.studentId || request.body.student_id,
-      courseId: request.body.courseId || request.body.course_id
+      studentId,
+      courseId
     })
 
     // Create notification

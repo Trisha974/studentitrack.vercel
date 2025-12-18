@@ -20,23 +20,21 @@ function isRealtimeDisabled() {
 
 export function subscribeToProfessorDashboard(professorUid, onUpdate) {
   if (!professorUid) {
-    console.warn('Cannot subscribe to professor dashboard: No UID provided')
     return () => {}
   }
 
-  // Firestore disabled - real-time updates not available
-  console.warn('⚠️ Real-time updates disabled (Firestore removed)')
+  // Real-time updates disabled - system uses MySQL with polling instead
+  // No warning needed - this is expected behavior
   return () => {}
 }
 
 export function subscribeToStudentDashboard(studentUid, onUpdate) {
   if (!studentUid) {
-    console.warn('Cannot subscribe to student dashboard: No UID provided')
     return () => {}
   }
 
-  // Firestore disabled - real-time updates not available
-  console.warn('⚠️ Real-time updates disabled (Firestore removed)')
+  // Real-time updates disabled - system uses MySQL with polling instead
+  // No warning needed - this is expected behavior
   return () => {}
 }
 

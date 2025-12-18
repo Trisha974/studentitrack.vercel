@@ -1860,7 +1860,7 @@ function Prof() {
               await syncStudentSubjects(studentUid, updatedStudentSubjects)
               console.log(`✅ Synced term update to student ${student.name} (${student.id})`)
             } else {
-              console.warn(`⚠️ Could not find Firebase UID for student ${student.id}, term will sync when student logs in`)
+              console.warn(`⚠️ Could not find student ${student.id} in MySQL, term will sync when student logs in`)
             }
           } catch (error) {
             console.error(`❌ Failed to sync term update to student ${studentId}:`, error)
@@ -4890,30 +4890,17 @@ function Prof() {
         try {
           console.log(`📚 Creating enrollment: Student ${student.id} → Subject ${selectedSubjectForStudent}`)
         
-        // 1. Get or create student in MySQL
+        // 1. Get or create student in MySQL (Pure MySQL - no Firebase)
         let studentData = await getStudentByNumericalId(student.id)
         if (!studentData) {
           // Create student in MySQL if they don't exist
           console.log(`📝 Creating new student in MySQL: ${student.name} (ID: ${student.id})`)
           
-          // Try to find student by email to get their Firebase UID if they've logged in before
-          let firebaseUid = 'temp_' + Date.now()
-          try {
-            const studentByEmail = await getStudentByEmail(student.email)
-            if (studentByEmail && studentByEmail.firebase_uid && !studentByEmail.firebase_uid.startsWith('temp_')) {
-              firebaseUid = studentByEmail.firebase_uid
-              console.log(`🔗 Found existing Firebase UID for student: ${firebaseUid}`)
-            }
-          } catch (err) {
-            console.log('No existing student found by email, using temp UID')
-          }
-          
           try {
           const studentMySQLId = await addStudent({
             studentId: student.id,
             name: student.name,
-              email: student.email || '',
-            firebase_uid: firebaseUid
+            email: student.email || ''
           })
             
             if (!studentMySQLId || isNaN(studentMySQLId)) {
@@ -4926,31 +4913,11 @@ function Prof() {
               throw new Error(`Student was created but could not be retrieved: ${student.id}`)
             }
             
-            console.log(`✅ Created student in MySQL: ${student.name} (MySQL ID: ${studentData.id}, Firebase UID: ${firebaseUid})`)
+            console.log(`✅ Created student in MySQL: ${student.name} (MySQL ID: ${studentData.id})`)
           } catch (createError) {
             console.error(`❌ Failed to create student ${student.name} (${student.id}) in MySQL:`, createError)
             failedStudents.push({ student, error: createError.message || 'Failed to create student in database' })
             continue // Skip to next student
-          }
-        } else {
-          // Student exists - ensure Firebase UID is linked if student has logged in
-          if (!studentData.firebase_uid || studentData.firebase_uid.startsWith('temp_')) {
-            console.log(`🔗 Student exists but Firebase UID not linked, checking by email...`)
-            try {
-              const studentByEmail = await getStudentByEmail(student.email)
-              if (studentByEmail && studentByEmail.firebase_uid && !studentByEmail.firebase_uid.startsWith('temp_')) {
-                // Update the student record with the Firebase UID
-                console.log(`🔗 Linking Firebase UID ${studentByEmail.firebase_uid} to MySQL student ${studentData.id}`)
-                await setStudent(studentByEmail.firebase_uid, {
-                  name: studentData.name,
-                  email: studentData.email,
-                  studentId: studentData.student_id,
-                })
-                studentData.firebase_uid = studentByEmail.firebase_uid
-              }
-            } catch (err) {
-              console.log('Could not link Firebase UID, student will need to log in first')
-            }
           }
         }
         
@@ -4961,7 +4928,7 @@ function Prof() {
         }
         
         const studentMySQLId = studentData.id
-        console.log(`👤 Student: ${student.name} (Numerical ID: ${student.id}, MySQL ID: ${studentMySQLId}, Firebase UID: ${studentData.firebase_uid || 'not linked'})`)
+        console.log(`👤 Student: ${student.name} (Numerical ID: ${student.id}, MySQL ID: ${studentMySQLId})`)
 
         // 2. Get or create course in MySQL
         let course = await getCourseByCode(selectedSubjectForStudent)
@@ -6621,7 +6588,7 @@ function Prof() {
                   studentId: student.id,
                   name: student.name,
                   email: student.email,
-                  firebase_uid: 'temp_' + Date.now() // Temporary UID, will be updated when student logs in
+                  // Student will be created in MySQL when they log in
                 })
                 studentData = { id: studentMySQLId, student_id: student.id, name: student.name, email: student.email }
                 console.log(`✅ Created student in MySQL: ${student.name} (MySQL ID: ${studentMySQLId})`)
