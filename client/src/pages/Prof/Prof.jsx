@@ -1011,9 +1011,29 @@ function Prof() {
         setProfileForm(prev => ({ ...prev, name: userData.name }))
       }
 
+      // CRITICAL: Verify user role before proceeding
+      if (userData.type && userData.type !== 'Professor') {
+        console.error('❌ Access denied: User is not a professor. Role:', userData.type)
+        // Clear session and redirect to login
+        localStorage.removeItem('auth_token')
+        sessionStorage.removeItem('auth_token')
+        sessionStorage.removeItem('currentUser')
+        navigate('/login', { replace: true })
+        return
+      }
+
       // Get profile using current professor endpoint (JWT-based)
       const profilePromise = getCurrentProfessor().catch(err => {
         console.warn('Unable to load professor profile from database', err)
+        // If error is 403 or indicates role mismatch, redirect to login
+        if (err.message?.includes('403') || err.message?.includes('Insufficient permissions') || err.message?.includes('role')) {
+          console.error('❌ Access denied: User is not a professor')
+          localStorage.removeItem('auth_token')
+          sessionStorage.removeItem('auth_token')
+          sessionStorage.removeItem('currentUser')
+          navigate('/login', { replace: true })
+          return null
+        }
         return null
       })
 
@@ -8266,19 +8286,19 @@ function Prof() {
                 </svg>
               </button>
               
-                {/* Profile Dropdown Menu */}
+                {/* Profile Dropdown Menu - Compact */}
                 {showProfileDropdown && (
-                  <div className={`fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-16 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-56 max-w-[280px] sm:max-w-none max-h-[calc(100vh-5rem)] sm:max-h-none rounded-xl shadow-2xl border-2 z-50 overflow-hidden ${
+                  <div className={`fixed sm:absolute left-2 right-2 sm:left-auto sm:right-0 top-14 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-52 md:w-56 max-w-[calc(100vw-1rem)] sm:max-w-none max-h-[calc(100vh-5rem)] sm:max-h-none rounded-lg sm:rounded-xl shadow-2xl border-2 z-50 overflow-hidden ${
                     isDarkMode 
                       ? 'bg-[#1a1a1a] border-slate-700' 
                       : 'bg-white border-slate-200'
                   }`}>
-                    {/* Profile Header */}
-                    <div className={`p-4 border-b ${
+                    {/* Profile Header - Compact for mobile */}
+                    <div className={`p-2 sm:p-3 md:p-4 border-b ${
                       isDarkMode ? 'border-slate-700' : 'border-slate-200'
                     }`}>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-red-800 to-red-600 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                      <div className="flex items-center space-x-2 sm:space-x-3">
+                        <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-gradient-to-r from-red-800 to-red-600 rounded-full flex items-center justify-center text-white font-semibold text-[10px] sm:text-xs md:text-sm flex-shrink-0">
                           {profPic ? (
                             <img src={profPic} alt="Profile" className="w-full h-full rounded-full object-cover" />
                           ) : (
@@ -8286,29 +8306,29 @@ function Prof() {
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className={`text-sm font-semibold truncate ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{profName}</p>
-                          <p className={`text-xs truncate ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{profEmail || 'Professor'}</p>
+                          <p className={`text-xs sm:text-sm font-semibold truncate ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{profName}</p>
+                          <p className={`text-[10px] sm:text-xs truncate ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{profEmail || 'Professor'}</p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Menu Items */}
-                    <div className="py-2">
+                    {/* Menu Items - Compact */}
+                    <div className="py-1 sm:py-2">
               <button
                         onClick={() => {
                           setShowProfileModal(true)
                           setShowProfileDropdown(false)
                         }}
-                        className={`w-full px-4 py-3 text-left flex items-center space-x-3 transition-colors ${
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-left flex items-center space-x-2 sm:space-x-3 transition-colors ${
                           isDarkMode 
                             ? 'hover:bg-slate-800/50 text-white' 
                             : 'hover:bg-slate-50 text-slate-700'
                         }`}
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        <span className="text-sm font-medium">Profile Settings</span>
+                        <span className="text-xs sm:text-sm font-medium">Profile Settings</span>
                       </button>
                       
                       <button
@@ -8316,16 +8336,16 @@ function Prof() {
                           setShowProfileDropdown(false)
                           handleLogoutClick()
                         }}
-                        className={`w-full px-4 py-3 text-left flex items-center space-x-3 transition-colors ${
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-left flex items-center space-x-2 sm:space-x-3 transition-colors ${
                           isDarkMode 
                             ? 'hover:bg-slate-800/50 text-white' 
                             : 'hover:bg-slate-50 text-slate-700'
                         }`}
                       >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M16 17v-3H9v-4h7V7l5 5-5 5M14 2a2 2 0 012 2v2h-2V4H4v16h10v-2h2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2h10z" />
                 </svg>
-                        <span className="text-sm font-medium">Logout</span>
+                        <span className="text-xs sm:text-sm font-medium">Logout</span>
               </button>
                     </div>
                   </div>

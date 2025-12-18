@@ -40,9 +40,15 @@ export default function ProtectedRoute({ children, requiredRole = 'Professor' })
             ? await getCurrentStudent()
             : null
 
+        // CRITICAL: Verify role matches exactly - prevent cross-role access
         if (profile && profile.role === requiredRole) {
           setAuthorized(true)
         } else {
+          // Role mismatch - clear session and redirect to login
+          console.warn(`Role mismatch: Expected ${requiredRole}, got ${profile?.role || 'none'}`)
+          localStorage.removeItem('auth_token')
+          sessionStorage.removeItem('auth_token')
+          sessionStorage.removeItem('currentUser')
           setAuthorized(false)
         }
       } catch (e) {

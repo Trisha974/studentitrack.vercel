@@ -245,6 +245,16 @@ const trimmedPassword = loginData.password.trim()
 
       persistSessionUser(userData)
 
+      // CRITICAL: Verify role matches userType before navigation
+      // Prevent students from accessing professor routes and vice versa
+      const actualRole = userFromAPI?.role || profile?.role
+      if (isProfessor && actualRole !== 'Professor') {
+        throw new Error('Access denied: Student accounts cannot access professor dashboard')
+      }
+      if (!isProfessor && actualRole !== 'Student') {
+        throw new Error('Access denied: Professor accounts cannot access student dashboard')
+      }
+
       navigate(isProfessor ? '/prof' : '/student', { replace: true })
     } catch (error) {
       console.error('Login error:', error)
