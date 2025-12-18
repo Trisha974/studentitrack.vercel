@@ -8128,31 +8128,53 @@ function Prof() {
                                 } ${!alert.read ? 'shadow-lg' : 'hover:shadow-lg'} ${isAdmin ? 'opacity-80' : ''}`}
                             onClick={async () => {
                               try {
-                                // Toggle read status in database (persistent) - DOES NOT DELETE
-                                const updatedNotification = await toggleRead(alert.id)
-                                console.log('✅ Notification read status toggled:', updatedNotification)
-                                
-                                // Update local state with toggled notification
-                                const updatedAlerts = alerts.map(a =>
-                                  a.id === alert.id ? { ...a, read: updatedNotification.read } : a
-                                )
-                                
-                                // Handle administrative summary notifications
-                                if (isAdmin && alert.originalNotifications) {
-                                  alert.originalNotifications.forEach(orig => {
-                                    const index = updatedAlerts.findIndex(a => a.id === orig.id)
-                                    if (index !== -1) {
-                                      updatedAlerts[index].read = updatedNotification.read
+                                // Handle admin-summary (synthetic notification) differently
+                                if (alert.id === 'admin-summary' && alert.originalNotifications) {
+                                  // Toggle all original notifications individually
+                                  const togglePromises = alert.originalNotifications.map(orig => toggleRead(orig.id))
+                                  await Promise.all(togglePromises)
+                                  console.log(`✅ Toggled ${alert.originalNotifications.length} administrative notifications`)
+                                  
+                                  // Update local state - mark all original notifications as toggled
+                                  const updatedAlerts = alerts.map(a => {
+                                    const isOriginal = alert.originalNotifications.some(orig => orig.id === a.id)
+                                    if (isOriginal) {
+                                      return { ...a, read: !a.read }
                                     }
+                                    return a
                                   })
+                                  
+                                  // Update admin-summary read status based on all originals
+                                  const allRead = alert.originalNotifications.every(orig => {
+                                    const updated = updatedAlerts.find(a => a.id === orig.id)
+                                    return updated ? updated.read : orig.read
+                                  })
+                                  const adminSummaryIndex = updatedAlerts.findIndex(a => a.id === 'admin-summary')
+                                  if (adminSummaryIndex !== -1) {
+                                    updatedAlerts[adminSummaryIndex].read = allRead
+                                  }
+                                  
+                                  setAlerts(updatedAlerts)
+                                  saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid).catch(err => 
+                                    console.warn('Background save failed', err)
+                                  )
+                                } else {
+                                  // Regular notification - toggle read status in database
+                                  const updatedNotification = await toggleRead(alert.id)
+                                  console.log('✅ Notification read status toggled:', updatedNotification)
+                                  
+                                  // Update local state with toggled notification
+                                  const updatedAlerts = alerts.map(a =>
+                                    a.id === alert.id ? { ...a, read: updatedNotification.read } : a
+                                  )
+                                  
+                                  setAlerts(updatedAlerts)
+                                  
+                                  // Save to dashboard state
+                                  saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid).catch(err => 
+                                    console.warn('Background save failed', err)
+                                  )
                                 }
-                                
-                                setAlerts(updatedAlerts)
-                                
-                                // Save to dashboard state
-                                saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid).catch(err => 
-                                  console.warn('Background save failed', err)
-                                )
                               } catch (error) {
                                 console.error('❌ Failed to toggle notification read status:', error)
                                 // Fallback: update local state only (toggle read status)
@@ -8189,32 +8211,51 @@ function Prof() {
                                       onClick={async (e) => {
                                         e.stopPropagation()
                                         try {
-                                          // Mark notification as read instead of deleting (persistent)
-                                          const updatedNotification = await toggleRead(alert.id)
-                                          console.log('✅ Notification marked as read (not deleted):', updatedNotification)
-                                          
-                                          // Update local state - mark as read but keep visible
-                                          const updatedAlerts = alerts.map(a =>
-                                            a.id === alert.id ? { ...a, read: true } : a
-                                          )
-                                          
-                                          // Handle administrative summary notifications - mark all as read
-                                          if (isAdmin && alert.originalNotifications && alert.originalNotifications.length > 0) {
-                                            alert.originalNotifications.forEach(orig => {
-                                              const index = updatedAlerts.findIndex(a => a.id === orig.id)
-                                              if (index !== -1) {
-                                                updatedAlerts[index].read = true
+                                          // Handle admin-summary (synthetic notification) differently
+                                          if (alert.id === 'admin-summary' && alert.originalNotifications) {
+                                            // Mark all original notifications as read
+                                            const markPromises = alert.originalNotifications
+                                              .filter(orig => !orig.read)
+                                              .map(orig => toggleRead(orig.id))
+                                            await Promise.all(markPromises)
+                                            console.log(`✅ Marked ${markPromises.length} administrative notifications as read`)
+                                            
+                                            // Update local state - mark all original notifications as read
+                                            const updatedAlerts = alerts.map(a => {
+                                              const isOriginal = alert.originalNotifications.some(orig => orig.id === a.id)
+                                              if (isOriginal) {
+                                                return { ...a, read: true }
                                               }
+                                              return a
                                             })
-                                            console.log(`Marked ${alert.originalNotifications.length} administrative notifications as read`)
+                                            
+                                            // Mark admin-summary as read
+                                            const adminSummaryIndex = updatedAlerts.findIndex(a => a.id === 'admin-summary')
+                                            if (adminSummaryIndex !== -1) {
+                                              updatedAlerts[adminSummaryIndex].read = true
+                                            }
+                                            
+                                            setAlerts(updatedAlerts)
+                                            saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true).catch(err =>
+                                              console.warn('Background save failed', err)
+                                            )
+                                          } else {
+                                            // Regular notification - mark as read instead of deleting (persistent)
+                                            const updatedNotification = await toggleRead(alert.id)
+                                            console.log('✅ Notification marked as read (not deleted):', updatedNotification)
+                                            
+                                            // Update local state - mark as read but keep visible
+                                            const updatedAlerts = alerts.map(a =>
+                                              a.id === alert.id ? { ...a, read: true } : a
+                                            )
+                                            
+                                            setAlerts(updatedAlerts)
+                                            
+                                            // Save to dashboard state
+                                            saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true).catch(err =>
+                                              console.warn('Background save failed', err)
+                                            )
                                           }
-                                          
-                                          setAlerts(updatedAlerts)
-                                          
-                                          // Save to dashboard state
-                                          saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true).catch(err =>
-                                            console.warn('Background save failed', err)
-                                          )
                                         } catch (error) {
                                           console.error('❌ Failed to mark notification as read:', error)
                                           // Fallback: update local state only
