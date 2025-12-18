@@ -663,7 +663,35 @@ function Prof() {
         setRecycleBinSubjects(migrated.recycleBinSubjects || []) // Load recycle bin subjects
         setStudents(studentsWithArchived)
         setNormalizedEnrolls(finalEnrolls)
-        setAlerts(migrated.alerts || [])
+        
+        // CRITICAL: Load notifications from API to ensure we have the latest data
+        // Dashboard state might have stale or empty notifications
+        try {
+          console.log('📬 Loading notifications from API to sync with dashboard state...')
+          const apiNotifications = await getNotifications({ limit: 50, unreadOnly: false })
+          if (Array.isArray(apiNotifications) && apiNotifications.length > 0) {
+            console.log('✅ Loaded', apiNotifications.length, 'notifications from API')
+            // Use API notifications if available, otherwise fall back to dashboard state
+            setAlerts(apiNotifications)
+            // Update dashboard state with API notifications
+            await saveDashboardState({
+              ...migrated,
+              alerts: apiNotifications,
+              removedSubjects: migrated.removedSubjects || [],
+              recycleBinSubjects: migrated.recycleBinSubjects || []
+            })
+            console.log('✅ Synced notifications from API to dashboard state')
+          } else {
+            // If API has no notifications, use dashboard state (might be empty initially)
+            console.log('⚠️ API returned no notifications, using dashboard state alerts')
+            setAlerts(migrated.alerts || [])
+          }
+        } catch (error) {
+          console.error('❌ Failed to load notifications from API, using dashboard state:', error)
+          // Fallback to dashboard state if API fails
+          setAlerts(migrated.alerts || [])
+        }
+        
         setRecords(migrated.records || {})
         setGrades(migrated.grades || {})
         
@@ -8112,30 +8140,25 @@ function Prof() {
                                   await markAsRead(alert.id)
                                   console.log('✅ Notification marked as read in database:', alert.id)
                                   
-                                  // Update local state
-                                  const updatedAlerts = alerts.map(a =>
-                                    a.id === alert.id ? { ...a, read: true } : a
-                                  )
-                                  
-                                  // Handle admin notifications
-                                  if (isAdmin && alert.originalNotifications) {
-                                    alert.originalNotifications.forEach(orig => {
-                                      const index = updatedAlerts.findIndex(a => a.id === orig.id)
-                                      if (index !== -1 && !updatedAlerts[index].read) {
-                                        // Mark original notifications as read in database
-                                        markAsRead(orig.id).catch(err => 
-                                          console.warn('Failed to mark admin notification as read:', err)
-                                        )
-                                        updatedAlerts[index].read = true
-                                      }
-                                    })
+                                  // CRITICAL: Refresh notifications from API to ensure we have the latest state
+                                  // This prevents notifications from disappearing
+                                  const refreshedNotifications = await getNotifications({ limit: 50, unreadOnly: false })
+                                  if (Array.isArray(refreshedNotifications) && refreshedNotifications.length > 0) {
+                                    console.log('✅ Refreshed notifications from API after marking as read:', refreshedNotifications.length)
+                                    setAlerts(refreshedNotifications)
+                                    // Save to dashboard state for local persistence
+                                    await saveData(subjects, students, enrolls, refreshedNotifications, records, grades, profUid, true)
+                                  } else {
+                                    // Fallback: update local state if API returns empty
+                                    console.warn('⚠️ API returned no notifications, updating local state only')
+                                    const updatedAlerts = alerts.map(a =>
+                                      a.id === alert.id ? { ...a, read: true } : a
+                                    )
+                                    setAlerts(updatedAlerts)
+                                    saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true).catch(err => 
+                                      console.warn('Background save failed', err)
+                                    )
                                   }
-                                  
-                                  setAlerts(updatedAlerts)
-                                  // Save to dashboard state for local persistence
-                                  saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid).catch(err => 
-                                    console.warn('Background save failed', err)
-                                  )
                                 }
                               } catch (error) {
                                 console.error('❌ Failed to mark notification as read:', error)
@@ -8144,7 +8167,7 @@ function Prof() {
                                   a.id === alert.id ? { ...a, read: true } : a
                                 )
                                 setAlerts(updatedAlerts)
-                                saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid).catch(err => 
+                                saveData(subjects, students, enrolls, updatedAlerts, records, grades, profUid, true).catch(err => 
                                   console.warn('Background save failed', err)
                                 )
                               }
