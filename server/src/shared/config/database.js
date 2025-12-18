@@ -8,6 +8,8 @@ const DB_HOST = process.env.MYSQLHOST || process.env.DB_HOST || 'localhost'
 const DB_USER = process.env.MYSQLUSER || process.env.DB_USER || 'root'
 const DB_PASSWORD = process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || ''
 const DB_NAME = process.env.MYSQLDATABASE || process.env.DB_NAME || 'student_itrack'
+// Support Railway MySQL port if provided (priority: MYSQLPORT > DB_PORT > default)
+const DB_PORT = process.env.MYSQLPORT || process.env.DB_PORT || 3306
 
 // Log database configuration (without password)
 console.log('📊 Database Configuration:')
@@ -27,9 +29,6 @@ if (mysqlVars.length === 0) {
   console.log('   📝 Add: MYSQLHOST, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE, MYSQLPORT')
   console.log('   📝 Or use: DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT')
 }
-
-// Support Railway MySQL port if provided (priority: MYSQLPORT > DB_PORT > default)
-const DB_PORT = process.env.MYSQLPORT || process.env.DB_PORT || 3306
 
 // Enable SSL for Railway MySQL (Railway requires SSL) or if explicitly set
 // Railway provides MYSQL* variables, so if those are present, enable SSL
