@@ -2,27 +2,38 @@ const User = require('../models/User')
 const Student = require('../student/models/Student')
 const Professor = require('../professor/models/Professor')
 const { generateToken } = require('../utils/jwt')
+const { validateEmailByRole } = require('../shared/utils/emailValidation')
 
 const login = async (email, password) => {
-  const user = await User.findByEmail(email)
+  // Normalize email for lookup (case-insensitive)
+  const normalizedEmail = email.toLowerCase().trim()
+  
+  const user = await User.findByEmail(normalizedEmail)
   
   if (!user) {
-    console.log(`Login attempt failed: User not found for email: ${email}`)
+    console.log(`Login attempt failed: User not found for email: ${normalizedEmail}`)
     throw new Error('Invalid email or password')
   }
   
+  // Validate email format based on role
+  const emailValidation = validateEmailByRole(normalizedEmail, user.role)
+  if (!emailValidation.valid) {
+    console.log(`Login attempt failed: Invalid email format for role ${user.role}: ${emailValidation.error}`)
+    throw new Error(`Invalid email format: ${emailValidation.error}`)
+  }
+  
   if (!user.is_active) {
-    console.log(`Login attempt failed: Account deactivated for email: ${email}`)
+    console.log(`Login attempt failed: Account deactivated for email: ${normalizedEmail}`)
     throw new Error('Account is deactivated')
   }
   
   const isValidPassword = await User.verifyPassword(user, password)
   if (!isValidPassword) {
-    console.log(`Login attempt failed: Invalid password for email: ${email}`)
+    console.log(`Login attempt failed: Invalid password for email: ${normalizedEmail}`)
     throw new Error('Invalid email or password')
   }
   
-  console.log(`Login successful for email: ${email}, role: ${user.role}, user_id: ${user.user_id}`)
+  console.log(`Login successful for email: ${normalizedEmail}, role: ${user.role}, user_id: ${user.user_id}`)
   
   // Update last login
   await User.updateLastLogin(user.id)
@@ -58,8 +69,35 @@ const login = async (email, password) => {
 const register = async (data) => {
   const { email, password, role, name, student_id, department, photo_url } = data
   
+  // Normalize email (case-insensitive)
+  const normalizedEmail = email.toLowerCase().trim()
+  
+  // Validate email format based on role
+  const emailValidation = validateEmailByRole(normalizedEmail, role)
+  if (!emailValidation.valid) {
+    throw new Error(emailValidation.error)
+  }
+  
+  // For students, extract and validate student ID from email if not provided
+  if (role === 'Student') {
+    const { extractStudentIdFromEmail } = require('../shared/utils/emailValidation')
+    const emailStudentId = extractStudentIdFromEmail(normalizedEmail)
+    
+    if (!student_id && !emailStudentId) {
+      throw new Error('Student ID could not be extracted from email. Email must follow pattern: {studentId}.tc@umindanao.edu.ph')
+    }
+    
+    // Use student ID from email if not provided separately
+    const finalStudentId = student_id || emailStudentId
+    
+    // Verify that student ID in email matches provided student_id (if both are present)
+    if (student_id && emailStudentId && student_id !== emailStudentId) {
+      throw new Error(`Student ID in email (${emailStudentId}) does not match provided student ID (${student_id})`)
+    }
+  }
+  
   // Check if user already exists
-  const existingUser = await User.findByEmail(email)
+  const existingUser = await User.findByEmail(normalizedEmail)
   if (existingUser) {
     throw new Error('User with this email already exists')
   }
@@ -68,10 +106,15 @@ const register = async (data) => {
   
   // Create profile first (student or professor)
   if (role === 'Student') {
+    // Extract student ID from email if not provided
+    const { extractStudentIdFromEmail } = require('../shared/utils/emailValidation')
+    const emailStudentId = extractStudentIdFromEmail(normalizedEmail)
+    const finalStudentId = student_id || emailStudentId
+    
     // Check if student exists by email or student_id
-    let student = await Student.findByEmail(email)
-    if (!student && student_id) {
-      student = await Student.findByStudentId(student_id)
+    let student = await Student.findByEmail(normalizedEmail)
+    if (!student && finalStudentId) {
+      student = await Student.findByStudentId(finalStudentId)
     }
     
     if (student) {
@@ -91,8 +134,8 @@ const register = async (data) => {
       const newStudent = await Student.create({
         firebase_uid: null, // No longer using Firebase
         name: name,
-        email: email,
-        student_id: student_id || null,
+        email: normalizedEmail,
+        student_id: finalStudentId || null,
         department: department || null,
         photo_url: photo_url || null
       })
@@ -106,7 +149,7 @@ const register = async (data) => {
     }
   } else if (role === 'Professor') {
     // Check if professor exists by email
-    let professor = await Professor.findByEmail(email)
+    let professor = await Professor.findByEmail(normalizedEmail)
     
     if (professor) {
       user_id = professor.id
@@ -126,7 +169,7 @@ const register = async (data) => {
       const newProfessor = await Professor.create({
         firebase_uid: null, // No longer using Firebase
         name: name,
-        email: email,
+        email: normalizedEmail,
         department: department || null,
         photo_url: photo_url || null
       })
@@ -142,7 +185,7 @@ const register = async (data) => {
   
   // Create user account
   const user = await User.create({
-    email,
+    email: normalizedEmail,
     password,
     role,
     user_id
@@ -168,11 +211,26 @@ const register = async (data) => {
 }
 
 const requestPasswordReset = async (email) => {
-  const user = await User.findByEmail(email)
+  // Normalize email
+  const normalizedEmail = email.toLowerCase().trim()
+  
+  // Validate email format - must be valid umindanao.edu.ph email
+  const { isValidProfessorEmail, isValidStudentEmail } = require('../shared/utils/emailValidation')
+  if (!isValidProfessorEmail(normalizedEmail) && !isValidStudentEmail(normalizedEmail)) {
+    throw new Error('Invalid email format. Must be a valid @umindanao.edu.ph email address.')
+  }
+  
+  const user = await User.findByEmail(normalizedEmail)
   
   if (!user) {
     // Don't reveal if email exists for security
     return { message: 'If an account with that email exists, a password reset instruction has been sent.' }
+  }
+  
+  // Validate email format matches user's role
+  const emailValidation = validateEmailByRole(normalizedEmail, user.role)
+  if (!emailValidation.valid) {
+    throw new Error(emailValidation.error)
   }
   
   if (!user.is_active) {
@@ -190,7 +248,24 @@ const requestPasswordReset = async (email) => {
 }
 
 const resetPassword = async (email, newPassword) => {
-  const user = await User.findByEmail(email)
+  // Normalize email
+  const normalizedEmail = email.toLowerCase().trim()
+  
+  // Validate email format - must be valid umindanao.edu.ph email
+  const { isValidProfessorEmail, isValidStudentEmail } = require('../shared/utils/emailValidation')
+  if (!isValidProfessorEmail(normalizedEmail) && !isValidStudentEmail(normalizedEmail)) {
+    throw new Error('Invalid email format. Must be a valid @umindanao.edu.ph email address.')
+  }
+  
+  const user = await User.findByEmail(normalizedEmail)
+  
+  // Validate email format matches user's role
+  if (user) {
+    const emailValidation = validateEmailByRole(normalizedEmail, user.role)
+    if (!emailValidation.valid) {
+      throw new Error(emailValidation.error)
+    }
+  }
   
   if (!user) {
     throw new Error('Invalid email or token')
