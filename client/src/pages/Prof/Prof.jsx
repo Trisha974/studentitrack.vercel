@@ -8284,28 +8284,41 @@ function Prof() {
                       <button
                         onClick={async () => {
                           try {
-                            // Mark all notifications as read in MySQL (persistent) - NOT DELETED
+                            // CRITICAL: Mark all notifications as read in MySQL (persistent) - NOT DELETED
                             await markAllAsRead()
                             console.log('✅ All notifications marked as read in MySQL (notifications remain visible)')
                             
-                            // Refresh notifications from database to get updated read status
-                            // This includes ALL notifications (both read and unread) - not filtered
-                            const refreshedNotifications = await getNotifications({ limit: 50 })
+                            // CRITICAL: Refresh notifications from database to get updated read status
+                            // Explicitly set unreadOnly: false to ensure ALL notifications (read and unread) are returned
+                            const refreshedNotifications = await getNotifications({ limit: 50, unreadOnly: false })
                             console.log('✅ Refreshed notifications from database:', refreshedNotifications.length, 'notifications (all read/unread)')
+                            console.log('✅ Notification details:', refreshedNotifications.map(n => ({ id: n.id, title: n.title, read: n.read })))
                             
-                            // Update local alerts state with ALL refreshed notifications
+                            // CRITICAL: Verify we have notifications before updating state
+                            if (!Array.isArray(refreshedNotifications)) {
+                              console.error('❌ getNotifications did not return an array:', typeof refreshedNotifications)
+                              throw new Error('Invalid notifications response')
+                            }
+                            
+                            // CRITICAL: Update local alerts state with ALL refreshed notifications
                             // This ensures notifications remain visible, just marked as read
                             setAlerts(refreshedNotifications)
+                            console.log('✅ Updated alerts state with', refreshedNotifications.length, 'notifications')
                             
                             // Refresh unread count from database (should be 0 after marking all as read)
                             const unreadCount = await getUnreadCount()
                             console.log('✅ Refreshed unread count:', unreadCount, '(should be 0)')
                             
-                            // Save to dashboard state for local persistence (includes all notifications)
+                            // CRITICAL: Save to dashboard state for local persistence (includes all notifications)
+                            // This ensures notifications persist even after page refresh
                             await saveData(subjects, students, enrolls, refreshedNotifications, records, grades, profUid, true)
-                            console.log('✅ All notifications marked as read and saved (notifications remain visible)')
+                            console.log('✅ All notifications marked as read and saved to dashboard state (notifications remain visible)')
+                            
+                            // Verify alerts state was updated correctly
+                            console.log('✅ Final alerts count:', refreshedNotifications.length, 'notifications (all should be marked as read)')
                           } catch (error) {
                             console.error('❌ Failed to mark all notifications as read:', error)
+                            console.error('❌ Error details:', error.message, error.stack)
                             // Still update local state even if API call fails - mark as read but keep visible
                             const updatedAlerts = alerts.map(a => ({ ...a, read: true }))
                             setAlerts(updatedAlerts)
