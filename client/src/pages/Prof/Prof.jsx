@@ -4736,7 +4736,13 @@ function Prof() {
           // Check if enrollment already exists in MySQL using the student's MySQL ID
           const existingEnrollment = await getEnrollmentByStudentAndCourse(studentData.id, course.id)
           if (!existingEnrollment) {
-            await createEnrollment(studentData.id, course.id)
+            const studentIdNum = parseInt(studentData.id, 10)
+            const courseIdNum = parseInt(course.id, 10)
+            if (!isNaN(studentIdNum) && !isNaN(courseIdNum)) {
+              await createEnrollment(studentIdNum, courseIdNum)
+            } else {
+              throw new Error(`Invalid IDs: studentId=${studentData.id}, courseId=${course.id}`)
+            }
             console.log(`✅ Created enrollment in MySQL: Student ${studentToUse.id} (MySQL ID: ${studentData.id}) → Course ${subjectCode}`)
           }
         }
@@ -4968,16 +4974,26 @@ function Prof() {
           
           // Ensure credits is a number, not a string
           const credits = parseInt(subject.credits) || 0
-          const courseId = await createCourse({
+          const courseIdStr = await createCourse({
             code: subject.code,
             name: subject.name,
             credits: credits,
             professorId: profProfile.id, // Use MySQL ID
           })
-          course = { id: courseId, code: subject.code, name: subject.name }
-          console.log(`✅ Created course in MySQL: ${subject.name} (ID: ${courseId})`)
+          // createCourse returns a string ID, convert to number
+          const courseIdNum = parseInt(courseIdStr, 10)
+          if (isNaN(courseIdNum)) {
+            throw new Error(`Invalid course ID returned: ${courseIdStr}`)
+          }
+          course = { id: courseIdNum, code: subject.code, name: subject.name }
+          console.log(`✅ Created course in MySQL: ${subject.name} (ID: ${courseIdNum})`)
         }
-        const courseId = course.id
+        const courseId = parseInt(course.id, 10)
+        if (isNaN(courseId)) {
+          console.error(`❌ Invalid course ID: ${course.id}`)
+          failedStudents.push({ student, error: `Invalid course ID: ${course.id}` })
+          continue
+        }
         console.log(`📚 Course: ${subject.name} (Code: ${subject.code}, MySQL ID: ${courseId})`)
 
         // 3. Create enrollment in MySQL
@@ -4987,8 +5003,14 @@ function Prof() {
           alreadyEnrolledStudents.push(student)
           continue // Skip to next student
         } else {
-          await createEnrollment(studentMySQLId, courseId)
-          console.log(`✅ Enrollment created in MySQL: Student ${student.id} (MySQL ID: ${studentMySQLId}) → Course ${selectedSubjectForStudent} (MySQL ID: ${courseId})`)
+          // Ensure both IDs are numbers
+          const studentIdNum = parseInt(studentMySQLId, 10)
+          const courseIdNum = parseInt(courseId, 10)
+          if (isNaN(studentIdNum) || isNaN(courseIdNum)) {
+            throw new Error(`Invalid IDs: studentId=${studentMySQLId}, courseId=${courseId}`)
+          }
+          await createEnrollment(studentIdNum, courseIdNum)
+          console.log(`✅ Enrollment created in MySQL: Student ${student.id} (MySQL ID: ${studentIdNum}) → Course ${selectedSubjectForStudent} (MySQL ID: ${courseIdNum})`)
           enrolledStudents.push(student)
         }
       } catch (error) {
@@ -5471,7 +5493,13 @@ function Prof() {
           // Create enrollment in MySQL
           const existingEnrollment = await getEnrollmentByStudentAndCourse(studentData.id, course.id)
           if (!existingEnrollment) {
-            await createEnrollment(studentData.id, course.id)
+            const studentIdNum = parseInt(studentData.id, 10)
+            const courseIdNum = parseInt(course.id, 10)
+            if (!isNaN(studentIdNum) && !isNaN(courseIdNum)) {
+              await createEnrollment(studentIdNum, courseIdNum)
+            } else {
+              throw new Error(`Invalid IDs: studentId=${studentData.id}, courseId=${course.id}`)
+            }
             console.log(`✅ Created enrollment in MySQL: Student ${student.id} → Course ${subjectCode}`)
           }
           

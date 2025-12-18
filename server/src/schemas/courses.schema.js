@@ -4,9 +4,9 @@ const courseSchema = {
     properties: {
       code: { type: 'string', minLength: 1 },
       name: { type: 'string', minLength: 1 },
-      credits: { type: 'integer', minimum: 0 },
-      professorId: { type: 'string' },
-      professor_id: { type: 'string' },
+      credits: { type: ['integer', 'string'], minimum: 0 },
+      professorId: { type: ['integer', 'string'] },
+      professor_id: { type: ['integer', 'string'] },
       term: { type: 'string', enum: ['first', 'second'] }
     },
     required: ['code', 'name']
