@@ -3136,16 +3136,16 @@ function Student() {
                       <button
                         onClick={async () => {
                           try {
-                            // Mark all notifications as read in MySQL (persistent) - DOES NOT DELETE
+                            // Mark all notifications as read in MySQL (persistent) - NOT DELETED
                             await markAllAsRead()
                             console.log('✅ All notifications marked as read in MySQL (notifications remain visible)')
                             
                             // Refresh notifications from database to get updated read status
-                            // This includes ALL notifications (read and unread) - not filtered
+                            // This includes ALL notifications (both read and unread) - not filtered
                             const refreshedNotifications = await getNotifications({ limit: 50 })
                             console.log('✅ Refreshed notifications from database:', refreshedNotifications.length, 'notifications (all read/unread)')
                             
-                            // CRITICAL: Update local state with ALL refreshed notifications
+                            // Update local state with ALL refreshed notifications
                             // This ensures notifications remain visible, just marked as read
                             setNotifications(refreshedNotifications)
                             
@@ -3164,7 +3164,7 @@ function Student() {
                         }}
                             className="w-full text-center text-sm font-bold text-white hover:text-white bg-[#7A1315] hover:bg-red-800 px-4 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                       >
-                            Mark All as Read
+                            Clear All Notifications
                       </button>
                   </div>
                 )}
