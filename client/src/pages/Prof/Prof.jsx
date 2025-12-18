@@ -3933,30 +3933,6 @@ function Prof() {
     }
   }
 
-  // Check if student is at risk for a specific subject
-  const isStudentAtRisk = (studentId, subjectCode) => {
-    const gradeSummary = getSubjectGradeSummary(studentId, subjectCode)
-    const attendanceSummary = getSubjectAttendanceSummary(studentId, subjectCode)
-    
-    // Student is at risk if:
-    // 1. Average grade is below 75% (or N/A if no grades but assessments exist)
-    // 2. Attendance rate is below 75%
-    const gradeAtRisk = gradeSummary.average !== 'N/A' 
-      ? parseFloat(gradeSummary.average) < 75
-      : (gradeSummary.total > 0 && gradeSummary.completed === 0) // Has assessments but hasn't taken any
-    
-    const attendanceAtRisk = attendanceSummary.total > 0 && attendanceSummary.rate < 75
-    
-    return gradeAtRisk || attendanceAtRisk
-  }
-
-  // Check if student is not taking any assessments for a subject
-  const isStudentNotTakingAssessments = (studentId, subjectCode) => {
-    const gradeSummary = getSubjectGradeSummary(studentId, subjectCode)
-    // Has assessments but hasn't completed any
-    return gradeSummary.total > 0 && gradeSummary.completed === 0
-  }
-
   const getSubjectAssessmentsForStudent = (studentId, subjectCode) => {
     const subjectGrades = grades[subjectCode] || {}
     const rows = []
@@ -4559,41 +4535,33 @@ function Prof() {
                       const idMatch = student.id?.toString().includes(searchLower) || false
                       return nameMatch || idMatch
                     })
-                    .map(student => {
-                      const atRisk = previewSubject ? isStudentAtRisk(student.id, previewSubject.code) : false
-                      return (
-                        <div key={student.id} className={`flex items-center justify-between px-4 py-3 ${
-                          isDarkMode ? 'bg-[#1a1a1a]' : 'bg-white/80'
-                        }`}>
-                          <div className="flex items-center space-x-3 flex-1 min-w-0">
-                            <StudentAvatar student={student} className="w-10 h-10" />
-                            <div className="flex-1 min-w-0">
-                              <p className={`font-semibold truncate ${
-                                atRisk 
-                                  ? 'text-red-600 dark:text-red-400' 
-                                  : (isDarkMode ? 'text-white' : 'text-slate-800')
-                              }`}>
-                                {student.name}
-                                {atRisk && <span className="ml-2 text-xs font-normal">(At Risk)</span>}
-                              </p>
-                              <p className={`text-xs truncate ${
-                                isDarkMode ? 'text-slate-400' : 'text-slate-500'
-                              }`}>ID: {student.id}</p>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleViewRecordClick(student.id, previewSubject.code)}
-                            className={`text-sm font-semibold transition-colors flex-shrink-0 ${
-                              isDarkMode 
-                                  ? 'text-red-400 hover:text-red-300' 
-                                : 'text-[#7A1315] hover:text-red-800'
-                            }`}
-                          >
-                            View Record
-                          </button>
+                    .map(student => (
+                    <div key={student.id} className={`flex items-center justify-between px-4 py-3 ${
+                      isDarkMode ? 'bg-[#1a1a1a]' : 'bg-white/80'
+                    }`}>
+                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                        <StudentAvatar student={student} className="w-10 h-10" />
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-semibold truncate ${
+                            isDarkMode ? 'text-white' : 'text-slate-800'
+                          }`}>{student.name}</p>
+                          <p className={`text-xs truncate ${
+                            isDarkMode ? 'text-slate-400' : 'text-slate-500'
+                          }`}>ID: {student.id}</p>
                         </div>
-                      )
-                    })}
+                      </div>
+                      <button
+                        onClick={() => handleViewRecordClick(student.id, previewSubject.code)}
+                        className={`text-sm font-semibold transition-colors flex-shrink-0 ${
+                          isDarkMode 
+                              ? 'text-red-400 hover:text-red-300' 
+                            : 'text-[#7A1315] hover:text-red-800'
+                        }`}
+                      >
+                        View Record
+                      </button>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className={`p-4 rounded-xl text-sm text-center ${
@@ -8063,21 +8031,21 @@ function Prof() {
       <header className={`sticky top-0 z-40 bg-white/95 backdrop-blur-md ${
         isDarkMode ? 'bg-[#1a1a1a]/95' : ''
       } shadow-sm`}>
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-          <div className="flex justify-between items-center py-2 sm:py-3 md:py-4 gap-1.5 sm:gap-2 md:gap-4">
+        <div className="max-w-7xl mx-auto px-1.5 sm:px-4 lg:px-8">
+          <div className="flex justify-between items-center py-1.5 sm:py-3 md:py-4 gap-1 sm:gap-2 md:gap-4">
             {/* Logo and Title - Compact for mobile */}
-            <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 min-w-0 flex-shrink">
-              <div className="w-7 h-7 sm:w-9 sm:h-9 md:w-12 md:h-12 rounded-lg sm:rounded-xl flex items-center justify-center shadowLg overflow-hidden flex-shrink-0">
+            <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 min-w-0 flex-1">
+              <div className="w-6 h-6 sm:w-9 sm:h-9 md:w-12 md:h-12 rounded-lg sm:rounded-xl flex items-center justify-center shadowLg overflow-hidden flex-shrink-0">
                 <img src="/assets/logos/um logo.png" alt="UM Logo" className="w-full h-full object-contain" />
               </div>
-              <div className="min-w-0">
-                <h1 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold textGrad leading-tight">Student iTrack</h1>
-                <p className={`text-[9px] sm:text-[10px] md:text-xs font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-600'} leading-tight hidden xs:block`}>Smart Academic Monitoring System</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xs sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold textGrad leading-tight truncate">Student iTrack</h1>
+                <p className={`text-[8px] sm:text-[10px] md:text-xs font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-600'} leading-tight hidden sm:block`}>Smart Academic Monitoring System</p>
               </div>
             </div>
             
             {/* Right side controls - All in one line */}
-            <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 lg:space-x-4 flex-shrink-0">
+            <div className="flex items-center space-x-0.5 sm:space-x-2 md:space-x-3 lg:space-x-4 flex-shrink-0">
               {/* View Mode Select - Compact */}
               <label htmlFor="view-mode-select" className="sr-only">View Mode</label>
               <select
@@ -8085,7 +8053,7 @@ function Prof() {
                 name="view-mode-select"
                 value={viewMode}
                 onChange={(e) => setViewMode(e.target.value)}
-                className={`record-toggle-select focus:ring-2 focus:ring-maroon-500 text-[10px] sm:text-xs md:text-sm px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 ${
+                className={`record-toggle-select focus:ring-2 focus:ring-maroon-500 text-[9px] sm:text-xs md:text-sm px-1 sm:px-2 md:px-3 py-0.5 sm:py-1.5 md:py-2 ${
                   isDarkMode ? 'text-white' : ''
                 }`}
               >
@@ -8113,7 +8081,7 @@ function Prof() {
                     setShowNotifDropdown(!showNotifDropdown)
                     setShowProfileDropdown(false)
                   }}
-                  className={`icon-button relative p-1.5 sm:p-2 rounded-lg transition-all duration-200 ${
+                  className={`icon-button relative p-1 sm:p-1.5 md:p-2 rounded-lg transition-all duration-200 ${
                     isDarkMode
                       ? showNotifDropdown 
                           ? 'bg-red-900/50 text-red-300' 
@@ -8123,13 +8091,13 @@ function Prof() {
                         : 'hover:bg-slate-100'
                   }`}
                 >
-                  <svg className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                  <svg className={`w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 ${
                     isDarkMode ? 'text-white' : 'text-slate-700'
                   }`} fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
                   </svg>
                   {unreadAlertsCount > 0 && (
-                    <span className={`absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 bg-red-500 text-white text-[9px] sm:text-[10px] md:text-xs rounded-full flex items-center justify-center badge shadow-lg ${
+                    <span className={`absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 bg-red-500 text-white text-[8px] sm:text-[9px] md:text-[10px] rounded-full flex items-center justify-center badge shadow-lg ${
                       isDarkMode
                           ? 'bg-[#7A1315] text-white border-red-400'
                         : 'bg-gradient-to-br from-red-500 to-red-600 text-white border-white'
@@ -8512,20 +8480,20 @@ function Prof() {
                     setShowProfileDropdown(!showProfileDropdown)
                     setShowNotifDropdown(false)
                   }}
-                  className="flex items-center space-x-1 sm:space-x-1.5 md:space-x-2 rounded-lg sm:rounded-xl border border-slate-200 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 hover:bg-white transition-all focus:outline-none focus:ring-2 focus:ring-maroon-500"
+                  className="flex items-center space-x-0.5 sm:space-x-1.5 md:space-x-2 rounded-lg sm:rounded-xl border border-slate-200 px-1 sm:px-1.5 md:px-3 py-0.5 sm:py-1.5 md:py-2 hover:bg-white transition-all focus:outline-none focus:ring-2 focus:ring-maroon-500"
                 >
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 bg-gradient-to-r from-red-800 to-red-600 rounded-full flex items-center justify-center text-white font-semibold text-[10px] sm:text-xs md:text-sm flex-shrink-0">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 bg-gradient-to-r from-red-800 to-red-600 rounded-full flex items-center justify-center text-white font-semibold text-[9px] sm:text-xs md:text-sm flex-shrink-0">
                   {profPic ? (
                       <img src={profPic} alt="Profile" className="w-full h-full rounded-full object-cover" />
                   ) : (
                     getInitials(profName)
                   )}
                 </div>
-                  <div className="text-left min-w-0 hidden md:block">
-                    <p className={`text-[9px] md:text-[10px] uppercase tracking-wide ${isDarkMode ? 'text-slate-300' : 'text-slate-400'}`}>Profile</p>
-                    <p className={`text-[10px] md:text-xs lg:text-sm font-semibold truncate max-w-[80px] md:max-w-[100px] lg:max-w-[120px] xl:max-w-none ${isDarkMode ? 'text-white' : 'text-slate-700'}`}>{profName}</p>
+                  <div className="text-left min-w-0 hidden lg:block">
+                    <p className={`text-[9px] lg:text-[10px] uppercase tracking-wide ${isDarkMode ? 'text-slate-300' : 'text-slate-400'}`}>Profile</p>
+                    <p className={`text-[10px] lg:text-xs xl:text-sm font-semibold truncate max-w-[80px] lg:max-w-[100px] xl:max-w-[120px] ${isDarkMode ? 'text-white' : 'text-slate-700'}`}>{profName}</p>
                 </div>
-                  <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 text-slate-400 flex-shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 text-slate-400 flex-shrink-0 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M6 9l6 6 6-6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
@@ -9947,7 +9915,6 @@ function Prof() {
                 {enrolls[selectedSubject.code] && enrolls[selectedSubject.code].length > 0 ? (
                   enrolls[selectedSubject.code].map(studentId => {
                     const student = students.find(s => normalizeStudentId(s.id) === normalizeStudentId(studentId))
-                    const atRisk = student ? isStudentAtRisk(student.id, selectedSubject.code) : false
                     return student ? (
                       <div key={studentId} className={`p-4 rounded-xl border transition-all hover:shadow-md ${
                         isDarkMode 
@@ -9958,13 +9925,8 @@ function Prof() {
                           <StudentAvatar student={student} className="w-12 h-12" />
                           <div className="flex-1 min-w-0">
                             <p className={`font-semibold truncate ${
-                              atRisk 
-                                ? 'text-red-600 dark:text-red-400' 
-                                : (isDarkMode ? 'text-white' : 'text-slate-800')
-                            }`}>
-                              {student.name}
-                              {atRisk && <span className="ml-2 text-xs font-normal">(At Risk)</span>}
-                            </p>
+                              isDarkMode ? 'text-white' : 'text-slate-800'
+                            }`}>{student.name}</p>
                             <p className={`text-xs truncate ${
                               isDarkMode ? 'text-slate-400' : 'text-slate-500'
                             }`}>ID: {student.id}</p>
@@ -10158,7 +10120,6 @@ function Prof() {
                     const student = students.find(s => normalizeStudentId(s.id) === normalizeStudentId(studentId))
                     if (!student) return null
                     const status = getAttendanceStatus(studentId)
-                    const atRisk = isStudentAtRisk(student.id, currentSubject.code)
                     return (
                       <div
                         key={studentId}
@@ -10172,13 +10133,8 @@ function Prof() {
                           <StudentAvatar student={student} className="w-11 h-11 sm:w-12 sm:h-12 flex-shrink-0" />
                           <div className="flex-grow min-w-0">
                             <p className={`font-semibold truncate text-sm sm:text-base ${
-                              atRisk 
-                                ? 'text-red-600 dark:text-red-400' 
-                                : (isDarkMode ? 'text-white' : 'text-slate-800')
-                            }`}>
-                              {student.name}
-                              {atRisk && <span className="ml-2 text-xs font-normal">(At Risk)</span>}
-                            </p>
+                              isDarkMode ? 'text-white' : 'text-slate-800'
+                            }`}>{student.name}</p>
                             <p className={`text-xs sm:text-sm truncate ${
                               isDarkMode ? 'text-slate-400' : 'text-slate-500'
                             }`}>ID: {student.id}</p>
@@ -10426,7 +10382,6 @@ function Prof() {
                           {currentSubject && enrolls[currentSubject.code] && enrolls[currentSubject.code].map((studentId, index) => {
                             const student = students.find(s => normalizeStudentId(s.id) === normalizeStudentId(studentId))
                             if (!student) return null
-                            const atRisk = isStudentAtRisk(student.id, currentSubject.code)
                             return (
                               <tr key={studentId} className={isDarkMode && index % 2 === 0 ? 'bg-[#1a1a1a]' : isDarkMode ? 'bg-[#1a1a1a]' : ''}>
                                 <td className={`px-3 py-2 text-sm border-b ${
@@ -10435,15 +10390,10 @@ function Prof() {
                                     : 'text-slate-700 border-slate-200'
                                 }`}>{student.id}</td>
                                 <td className={`px-3 py-2 text-sm border-b ${
-                                  atRisk 
-                                    ? 'text-red-600 dark:text-red-400 font-semibold' 
-                                    : (isDarkMode 
-                                        ? 'text-white border-slate-700' 
-                                        : 'text-slate-700 border-slate-200')
-                                }`}>
-                                  {student.name}
-                                  {atRisk && <span className="ml-2 text-xs font-normal">(At Risk)</span>}
-                                </td>
+                                  isDarkMode 
+                                    ? 'text-white border-slate-700' 
+                                    : 'text-slate-700 border-slate-200'
+                                }`}>{student.name}</td>
                                 <td className={`px-3 py-2 border-b ${
                                   isDarkMode ? 'border-slate-700' : 'border-slate-200'
                                 }`}>
